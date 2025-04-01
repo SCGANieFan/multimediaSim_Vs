@@ -18,6 +18,11 @@ using namespace Algo;
 #include"MusicPlc.h"
 #endif
 
+enum PlcApiKey_e {
+	PLC_API_KEY_HM_CAST_AP_SLEEP = 0,
+};
+
+
 class PlcApiBasePort_c : public AlgoBasePorting_c {
 public:
 	PlcApiBasePort_c() {}
@@ -76,14 +81,39 @@ public:
 		musicplcParam.channels = param->channels;
 		musicplcParam.width = param->width;
 		musicplcParam.frameSamples = param->frameSamples;
-		musicplcParam.overlapSamples = param->MusicPlcParam.overlapSamples;
-		musicplcParam.holdSamplesAfterLost = param->MusicPlcParam.holdSamples;
-		musicplcParam.attenuateSamplesAfterLost = param->MusicPlcParam.fadeSamples;
-		musicplcParam.gainSamplesAfterNoLost = param->MusicPlcParam.gainSamples;
-		musicplcParam.seekSamples = param->MusicPlcParam.seekSamples;
-		musicplcParam.noSeekSamples = param->MusicPlcParam.noSeekSamples;
-		musicplcParam.matchSamples = param->MusicPlcParam.matchSamples;
-		LOG(param->cb_printf, "plc api musicplc, (%p,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)",
+
+		musicplcParam.overlapSamples = 2 * musicplcParam.fsHz / 1000;
+		musicplcParam.holdSamplesAfterLost = 0 * musicplcParam.fsHz / 1000;
+		musicplcParam.attenuateSamplesAfterLost = 30 * musicplcParam.fsHz / 1000;
+		musicplcParam.gainSamplesAfterNoLost = 30 * musicplcParam.fsHz / 1000;
+		musicplcParam.seekSamples = 10 * musicplcParam.fsHz / 1000;
+		musicplcParam.noSeekSamples = 5 * musicplcParam.fsHz / 1000;
+		musicplcParam.matchSamples = 2 * musicplcParam.fsHz / 1000;
+		if (param->key == PLC_API_KEY_HM_CAST_AP_SLEEP) {
+			switch (param->application) {
+			case PLC_API_APPLICATION_MUSIC:
+				musicplcParam.overlapSamples = 2 * musicplcParam.fsHz / 1000;
+				musicplcParam.holdSamplesAfterLost = 0 * musicplcParam.fsHz / 1000;
+				musicplcParam.attenuateSamplesAfterLost = 50 * musicplcParam.fsHz / 1000;
+				musicplcParam.gainSamplesAfterNoLost = 50 * musicplcParam.fsHz / 1000;
+				musicplcParam.seekSamples = 10 * musicplcParam.fsHz / 1000;
+				musicplcParam.noSeekSamples = 10 * musicplcParam.fsHz / 1000;
+				musicplcParam.matchSamples = 2 * musicplcParam.fsHz / 1000;
+				break;
+			case PLC_API_APPLICATION_192K:
+				musicplcParam.overlapSamples = 2 * musicplcParam.fsHz / 1000;
+				musicplcParam.holdSamplesAfterLost = 0 * musicplcParam.fsHz / 1000;
+				musicplcParam.attenuateSamplesAfterLost = 30 * musicplcParam.fsHz / 1000;
+				musicplcParam.gainSamplesAfterNoLost = 30 * musicplcParam.fsHz / 1000;
+				musicplcParam.seekSamples = 90 * musicplcParam.fsHz / 1000;
+				musicplcParam.noSeekSamples = 5 * musicplcParam.fsHz / 1000;
+				musicplcParam.matchSamples = 100 * musicplcParam.fsHz / 1000;
+				break;
+			}
+		}
+		LOG(param->cb_printf, "plc api musicplc, (%d,%d),(%p,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)",
+			param->key,
+			param->application,
 			musicplcParam.basePorting,
 			musicplcParam.fsHz,
 			musicplcParam.channels,
@@ -102,7 +132,7 @@ public:
 			LOG(plcMemory->print_cb, "plc api create fail, %d", ret);
 			return PLC_API_RET_FAIL;
 		}
-		MusicPlc_ns::MusicPlc_c<T>::Set(plc, MusicPlc_ns::MusicPlc_SetChhoose_e::MUSIC_PLC_SET_CHANNEL_SELECT, (void*)(int32_t)(param->MusicPlcParam.channelSelect));
+		MusicPlc_ns::MusicPlc_c<T>::Set(plc, MusicPlc_ns::MusicPlc_SetChhoose_e::MUSIC_PLC_SET_CHANNEL_SELECT, (void*)(int32_t)(param->channelSelect));
 		*pHd = plc;
 		return PLC_API_RET_SUCCESS;
 	}
@@ -284,7 +314,7 @@ public:
 		return PLC_API_RET_SUCCESS;
 	}
 public:
-	constexpr static const char* version = "1.0.2.0";
+	constexpr static const char* version = "1.0.3.0";
 	PlcApiBasePort_c _basePort;
 	const PlcApiCom_c* _plcCom;
 	void* _plc;

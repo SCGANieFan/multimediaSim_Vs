@@ -15,6 +15,9 @@
 #define PLC_API_RET_FAIL			(-2)
 #define PLC_API_RET_NOT_SUPPORT		(-3)
 
+#define PLC_API_KEY					0
+
+
 enum PlcApiMode_e {
 	PLC_API_MODE_MUSIC_PLC = 0,
 	PLC_API_MODE_MAX,
@@ -25,6 +28,15 @@ enum PlcApiDataType_e {
 	PLC_API_DATA_TYPE_INT_32,
 	PLC_API_DATA_TYPE_FLOAT_32,
 	PLC_API_DATA_TYPE_MAX,
+};
+
+enum PlcApiApplication_e {
+	PLC_API_APPLICATION_VOICE = 0,
+	PLC_API_APPLICATION_MUSIC,
+	PLC_API_APPLICATION_192K,
+	PLC_API_APPLICATION_LOW_LATENCY,
+	PLC_API_APPLICATION_LFE,
+	PLC_API_APPLICATION_MAX,
 };
 
 enum PlcApiSet_e {
@@ -43,27 +55,14 @@ typedef struct {
 	int16_t channels;
 	int16_t frameSamples;
 	int16_t width;
+	uint16_t channelSelect;
 	enum PlcApiMode_e mode;
 	enum PlcApiDataType_e dataType;
+	enum PlcApiApplication_e application;
+	int32_t key;
 	void* (*cb_malloc)(int size);
 	void (*cb_free)(void* ptr);
 	void (*cb_printf)(const char *fmt, ...);
-	union {
-		//music plc
-		struct {
-			int32_t overlapSamples;
-			int32_t holdSamples;
-			int32_t fadeSamples;
-			int32_t gainSamples;
-			int32_t seekSamples;
-			int32_t noSeekSamples;
-			int32_t matchSamples;
-			uint16_t channelSelect;
-		}MusicPlcParam;
-		//other
-		struct  {
-		}otherParam;
-	};
 	void* other;
 }PlcApiParam_t;
 
