@@ -69,7 +69,10 @@ maf_int32 MAFA_MusicPlc::Init()
 	//initParam.dataType = PlcApiDataType_e::PLC_API_DATA_TYPE_SHORT_16;
 	initParam.dataType = PlcApiDataType_e::PLC_API_DATA_TYPE_INT_32;
 	//initParam.dataType = PlcApiDataType_e::PLC_API_DATA_TYPE_FLOAT_32;
+	// 
 	initParam.application = PlcApiApplication_e::PLC_API_APPLICATION_MUSIC;
+	//initParam.application = PlcApiApplication_e::PLC_API_APPLICATION_AUTO;
+
 	initParam.cb_malloc = PlcMalloc;
 	initParam.cb_free = PlcFree;
 	initParam.cb_printf = PlcPrint;

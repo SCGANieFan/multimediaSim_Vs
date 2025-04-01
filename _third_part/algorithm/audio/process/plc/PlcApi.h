@@ -15,7 +15,7 @@
 #define PLC_API_RET_FAIL			(-2)
 #define PLC_API_RET_NOT_SUPPORT		(-3)
 
-#define PLC_API_KEY					0
+#define PLC_API_KEY					1
 
 
 enum PlcApiMode_e {
@@ -36,6 +36,7 @@ enum PlcApiApplication_e {
 	PLC_API_APPLICATION_192K,
 	PLC_API_APPLICATION_LOW_LATENCY,
 	PLC_API_APPLICATION_LFE,
+	PLC_API_APPLICATION_AUTO,
 	PLC_API_APPLICATION_MAX,
 };
 
@@ -59,7 +60,6 @@ typedef struct {
 	enum PlcApiMode_e mode;
 	enum PlcApiDataType_e dataType;
 	enum PlcApiApplication_e application;
-	int32_t key;
 	void* (*cb_malloc)(int size);
 	void (*cb_free)(void* ptr);
 	void (*cb_printf)(const char *fmt, ...);
