@@ -11,7 +11,7 @@
 
 typedef struct
 {
-	AlgoBasePorting* basePorting;
+	AlgoBasePorting_t* basePorting;
 #if 0
 	int32_t fsHz;
 	int16_t channels;

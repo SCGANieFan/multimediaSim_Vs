@@ -3,7 +3,7 @@
 class MAF_Memory
 {
     friend class MAF_Algorithm;
-protected:
+public:
     typedef maf_void* (*Malloc_t)(maf_int32 size);
     typedef maf_void* (*Realloc_t)(maf_void* block, maf_int32 size);
     typedef maf_void* (*Calloc_t)(maf_int32 count, maf_int32 size);
