@@ -60,6 +60,7 @@ typedef struct {
 	enum PlcApiMode_e mode;
 	enum PlcApiDataType_e dataType;
 	enum PlcApiApplication_e application;
+	int32_t key;
 	void* (*cb_malloc)(int size);
 	void (*cb_free)(void* ptr);
 	void (*cb_printf)(const char *fmt, ...);

@@ -72,6 +72,7 @@ maf_int32 MAFA_MusicPlc::Init()
 	// 
 	initParam.application = PlcApiApplication_e::PLC_API_APPLICATION_MUSIC;
 	//initParam.application = PlcApiApplication_e::PLC_API_APPLICATION_AUTO;
+	initParam.key = PLC_API_KEY;
 
 	initParam.cb_malloc = PlcMalloc;
 	initParam.cb_free = PlcFree;

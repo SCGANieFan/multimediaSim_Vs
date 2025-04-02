@@ -90,7 +90,7 @@ public:
 		musicplcParam.seekSamples = 10 * musicplcParam.fsHz / 1000;
 		musicplcParam.noSeekSamples = 5 * musicplcParam.fsHz / 1000;
 		musicplcParam.matchSamples = 2 * musicplcParam.fsHz / 1000;
-		if (PLC_API_KEY == PLC_API_KEY_HM_CAST_AP_SLEEP) {
+		if (param->key == PLC_API_KEY_HM_CAST_AP_SLEEP) {
 			switch (param->application) {
 			case PLC_API_APPLICATION_MUSIC:
 				musicplcParam.overlapSamples = 2 * musicplcParam.fsHz / 1000;
@@ -115,7 +115,7 @@ public:
 			}
 		}
 		LOG(param->cb_printf, "plc api musicplc, (%d,%d),(%p,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)",
-			PLC_API_KEY,
+			param->key,
 			param->application,
 			musicplcParam.basePorting,
 			musicplcParam.fsHz,
@@ -317,7 +317,7 @@ public:
 		return PLC_API_RET_SUCCESS;
 	}
 public:
-	constexpr static const char* version = "1.0.3.1";
+	constexpr static const char* version = "1.0.3.2";
 	PlcApiBasePort_c _basePort;
 	const PlcApiCom_c* _plcCom;
 	void* _plc;
