@@ -1,7 +1,7 @@
 #if 1
 #include"Wav.Inner.Demuxer.h"
 
-b1 WavDemuxer_c::Init(AlgoBasePorting * basePorting) {
+b1 WavDemuxer_c::Init(AlgoBasePorting_t* basePorting) {
 	//check
 	if (!basePorting
 		|| !basePorting->Malloc

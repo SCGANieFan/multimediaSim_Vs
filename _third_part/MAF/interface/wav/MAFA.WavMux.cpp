@@ -29,11 +29,11 @@ maf_int32 MAFA_WavMmux::Init()
 	_malloc = _memory.GetMalloc();
 	_free = _memory.GetFree();
 
-	_basePorting = _memory.Malloc(sizeof(AlgoBasePorting));
-	AlgoBasePorting* basePorting = (AlgoBasePorting*)_basePorting;
+	_basePorting = _memory.Malloc(sizeof(AlgoBasePorting_t));
+	AlgoBasePorting_t* basePorting = (AlgoBasePorting_t*)_basePorting;
 
-	basePorting->Malloc = (ALGO_Malloc_t)MallocLocal;
-	basePorting->Free = (ALGO_Free_t)FreeLocal;
+	basePorting->Malloc = MallocLocal;
+	basePorting->Free = FreeLocal;
 	initParam.basePorting = basePorting;
 #endif
 #if 0
@@ -121,7 +121,11 @@ maf_void* MAFA_WavMmux::MallocLocal(int32_t size)
 #if 1
 	static maf_int32 sizeTotal = 0;
 	sizeTotal += size;
+#if 0
 	maf_void* ptr = ((ALGO_Malloc_t)_malloc)(size);
+#else
+	maf_void* ptr = malloc(size);
+#endif
 	MAF_PRINT("malloc, ptr:%x, size:%d, sizeTotal:%d,", (maf_uint32)ptr, size, sizeTotal);
 	return ptr;
 #else
@@ -134,7 +138,11 @@ maf_void MAFA_WavMmux::FreeLocal(maf_void* block)
 #if 1
 	MAF_PRINT("free, ptr:%x", (maf_uint32)block);
 #endif
+#if 0
 	return ((ALGO_Free_t)_free)(block);
+#else
+	return free(block);
+#endif
 }
 
 #endif

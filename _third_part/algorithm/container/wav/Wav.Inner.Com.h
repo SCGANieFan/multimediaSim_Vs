@@ -11,7 +11,7 @@ public:
 	WavMem_c() {};
 	~WavMem_c() {};
 public:
-	INLINE void Init(AlgoBasePorting* basePorting) {
+	INLINE void Init(AlgoBasePorting_t* basePorting) {
 		_basePorting = basePorting;
 		for (void*& p : _allocList) {
 			p = 0;
@@ -48,7 +48,7 @@ public:
 		}
 	}
 private:
-	AlgoBasePorting* _basePorting;
+	AlgoBasePorting_t* _basePorting;
 	void* _allocList[10];
 };
 
