@@ -14,7 +14,7 @@ typedef struct {
 }FuncList;
 
 typedef struct {
-    AlgoBasePorting* basePorting;
+    AlgoBasePorting_t* basePorting;
     AudioInfo info;
     i32 seekSamples;
     i32 overlapSamples;

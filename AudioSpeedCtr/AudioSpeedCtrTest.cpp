@@ -1,4 +1,5 @@
 #include"MTF.h"
+using namespace MTFApi_ns;
 #define PATH "../../source/audio/speedCtr/"
 
 #if 0
@@ -35,7 +36,7 @@
 
 void AudioSpeedCtrTest()
 {
-	MultiemdiaTestInit();
+	MTFApi::Init();
 
 	MTF_REGISTER(pcm_demuxer);
 	MTF_REGISTER(auio_speedCtr);
@@ -58,5 +59,5 @@ void AudioSpeedCtrTest()
 	"|pcm_muxer,url=$1|"
 	};
 
-	MultiemdiaApi(str, param);
+	MTFApi::Api(str, param);
 }

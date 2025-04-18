@@ -80,6 +80,8 @@ mtf_int32 MTF_AudioSpeedCtr::Init()
 mtf_int32 MTF_AudioSpeedCtr::receive(MTF_Data& iData)
 {
 	_iData.Append(iData.Data(), iData._size);
+	if (iData._flags & MTF_DataFlag_ESO)
+		_iData._flags |= MTF_DataFlag_ESO;
 	iData.Used(iData._size);
 	return 0;
 }
@@ -109,7 +111,9 @@ mtf_int32 MTF_AudioSpeedCtr::generate(MTF_Data*& oData)
 	MAF_Run(_hd, &AA_iData, &AA_oData);
 	_iData.Used(_iData._size);
 	_oData._size += AA_oData.size;
-
+	if (_iData._flags & MTF_DataFlag_ESO) {
+		_oData._flags |= MTF_DataFlag_ESO;
+	}
 	oData = &_oData;
 	return 0;
 }
