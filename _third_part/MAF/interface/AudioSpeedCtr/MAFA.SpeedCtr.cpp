@@ -162,7 +162,7 @@ maf_int32 MAFA_SpeedCtr::Process(MAF_Data* dataIn, MAF_Data* dataOut)
 	{
 		if (num == 7)
 			int a = 1;
-		MAF_PRINT("[%d],isize:%d,osize:%d", num++, dataIn->GetSize(), outSize);
+		//MAF_PRINT("[%d],isize:%d,osize:%d", num++, dataIn->GetSize(), outSize);
 	}
 	dataIn->Used(dataIn->GetSize());
 	dataOut->Append(outSize);

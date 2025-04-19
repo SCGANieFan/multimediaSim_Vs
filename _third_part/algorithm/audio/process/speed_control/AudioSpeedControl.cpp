@@ -119,7 +119,7 @@ int32_t AudioSpeedCtr_c::Init(AudioSpeedControlApiParam_t *param){
     _audioInfo.BytePerSample=_audioInfo.channels*_audioInfo.width;
     const int32_t seekMs = 0;
     const int32_t overlapMs = 2;
-    const int32_t constMs = 14;
+    const int32_t constMs = 22;
     _seekSamples=seekMs * _audioInfo.fs / 1000;
     _overlapSamples=overlapMs * _audioInfo.fs / 1000;
     _constSamples=constMs * _audioInfo.fs / 1000;
@@ -221,10 +221,11 @@ int32_t AudioSpeedCtr_c::Generate(uint8_t* out, int32_t *outSize){
 }
 
 int32_t AudioSpeedCtr_c::Process(uint8_t* in, int32_t inSize, uint8_t* out, int32_t* outSize) {
-    int32_t skipSize = (int32_t)(_speed * (_overlapSamples + _constSamples) * _audioInfo.width * _audioInfo.channels);
+    int32_t skipSize = (int32_t)(_speed * (_overlapSamples + _constSamples));
+    skipSize = skipSize *_audioInfo.width * _audioInfo.channels;
     int32_t inOff = 0;
     int32_t outSizeMax = *outSize;
-    int32_t outSize0 = (int32_t)((float)inSize / _speed);
+    int32_t outSize0 = _audioInfo.BytePerSample * (int32_t)((float)inSize / (_audioInfo.BytePerSample * _speed));
     if (outSizeMax < outSize0) {
         return AUDIO_SPEED_CTR_API_RET_FAIL;
     }
@@ -279,9 +280,10 @@ int32_t AudioSpeedCtr_c::Process(uint8_t* in, int32_t inSize, uint8_t* out, int3
         offset += skipSize;
 
         _iBuf.Used(skipSize);
-        //printf("skipSize:%d,outOffset:%d\n", skipSize, outOffset);
+        //printf("skipSize:%d,outOffset:%d\n", skipSize, outInterface.Size());
     }
     _oCtr.AppendFully();
+    //{printf("%d,%d,%d\n", outSize0,_oBuf.Size(), _oBuf.LeftSize()); }
     *outSize = outInterface.Size();
     return AUDIO_SPEED_CTR_API_RET_SUCCESS;
 }

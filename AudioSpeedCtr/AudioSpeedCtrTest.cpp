@@ -24,8 +24,8 @@ using namespace MTFApi_ns;
 
 
 //48k2ch
-#define FILE_NAME "mbz_48k2h.wav"
-//#define FILE_NAME "stSection_16k1ch.wav"
+//#define FILE_NAME "mbz_48k2h.wav"
+#define FILE_NAME "stSection_16k1ch.wav"
 //#define FILE_NAME "sin5k48k2ch.wav"
 
 #if 0
@@ -38,7 +38,7 @@ using namespace MTFApi_ns;
 #define FRAME_MS 20
 //#define SPEED (2.0f)
 //#define SPEED (1.5f)
-#define SPEED (0.5f)
+#define SPEED (0.7f)
 #define TO_STR0(name) #name
 #define TO_STR(name) TO_STR0(name)
 
