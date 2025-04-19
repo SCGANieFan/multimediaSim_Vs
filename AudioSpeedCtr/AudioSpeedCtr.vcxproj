@@ -525,12 +525,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\_third_part\algorithm\audio\process\speed_control\AudioSpeedControl.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\speed_control\AudioSpeedControlInner.h" />
     <ClInclude Include="..\_third_part\MAF\interface\AudioSpeedCtr\MAFA.SpeedCtr.h" />
     <ClInclude Include="..\_third_part\MTF\interface\AudioSpeedCtr\MTF.AudioSpeedCtr.h" />
     <ClInclude Include="AudioSpeedCtrTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\_third_part\algorithm\audio\process\speed_control\AudioSpeedControl.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\process\speed_control\Overlap.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\process\speed_control\SeekBestLag.cpp" />
     <ClCompile Include="..\_third_part\MAF\interface\AudioSpeedCtr\MAFA.SpeedCtr.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\AudioSpeedCtr\MTF.AudioSpeedCtr.cpp" />
     <ClCompile Include="AudioSpeedCtrTest.cpp" />

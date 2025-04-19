@@ -72,7 +72,7 @@ mtf_int32 MTF_AudioSpeedCtr::Init()
 	//io data
 	mtf_int32 size = _frameBytes;
 	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
-	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_uint8*)MTF_MALLOC(2*size), 2 * size);
 #endif
 	return 0;
 }
@@ -94,7 +94,7 @@ mtf_int32 MTF_AudioSpeedCtr::generate(MTF_Data*& oData)
 	MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
 	AA_iData.buff = _iData.Data();
 	AA_iData.max = AA_iData.size = _iData._size;
-
+#if 0
 	_frames++;
 	if (_frames % FRAMES_TOTAL > (FRAMES_TOTAL - FRAMES_LOST))
 	{
@@ -102,7 +102,7 @@ mtf_int32 MTF_AudioSpeedCtr::generate(MTF_Data*& oData)
 	}
 	else
 		AA_iData.flags &= ~AA_DataFlag_FRAME_IS_EMPTY;
-
+#endif
 	AA_Data AA_oData;
 	MTF_MEM_SET(&AA_oData, 0, sizeof(AA_Data));
 	AA_oData.buff = _oData.LeftData();

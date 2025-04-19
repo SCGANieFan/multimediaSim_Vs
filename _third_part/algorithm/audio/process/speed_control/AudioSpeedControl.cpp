@@ -1,282 +1,305 @@
 #if 1
-#include"Algo.AudioSamlpes.h"
-#include"Algo.AudioCal.OverlapAdd.h"
-#include"Algo.AudioCal.WaveFormMatch.h"
-#include"AudioSpeedControl.h"
+#include <new>
+#include "AudioSpeedControlInner.h"
 
-using namespace Algo;
-using namespace Audio;
-typedef struct {
-#if 0
-    ALGO_OVERLAP_ADD_CB OverlapAdd;
-    ALGO_WAVE_FORM_MATCH_CB WaveFormMatch;
+#ifdef WIN32
+#define LOG(func,fmt,...) if(func) func("[%s](%d)" fmt, __func__, __LINE__, ##__VA_ARGS__)
+#else
+#define LOG(func,fmt,...) if(func) func("[%s](%d)" fmt, __func__, __LINE__, ##__VA_ARGS__)
 #endif
-}FuncList;
 
-typedef struct {
-    AlgoBasePorting_t* basePorting;
-    AudioInfo info;
-    i32 seekSamples;
-    i32 overlapSamples;
-    i32 constSamples;
-    FuncList *funcList;
-    AudioSamples tmpBuf;
-    AudioSamples iCache;
-    f32 speed;
-    b1 isBeginning;
-    b1 isInited;
-}ASC_State;
+void* AudioSpeedCtr_c::Create(AudioSpeedControlApiParam_t *param){
+    if(!param
+        ||!param->port.cb_malloc
+        ||!param->port.cb_free
+        ||!param->sampleRate
+        ||!param->sampleWidth
+        ||!param->channels){
+        return NULL;
+    }
 
-static FuncList funcList16_g = {
-#if 0
-    Algo_GetOverlapAdd(sizeof(i16),sizeof(i16)),    
-    Get_Algo_WaveFormMatch(sizeof(i16)),
-#endif
-};
-
-static FuncList funcList24_g = {
-#if 0
-    Algo_GetOverlapAdd(sizeof(i24),sizeof(i24)),
-    Get_Algo_WaveFormMatch(sizeof(i24)),
-#endif
-};
-
-static FuncList funcList32_g = {
-#if 0
-    Algo_GetOverlapAdd(sizeof(i32),sizeof(i32)),
-    Get_Algo_WaveFormMatch(sizeof(i32)),
-#endif
-};
-
-STATIC INLINE int32_t AudioSpeedControl_InMinSamlpes(ASC_State* pState)
-{
-    int32_t samples1 = (pState->seekSamples + pState->overlapSamples + pState->constSamples + pState->overlapSamples);
-    int32_t samples2 = (int32_t)(pState->speed * (pState->overlapSamples + pState->constSamples));
-    return MAX(samples1, samples2);
+    AudioSpeedCtr_c* pAudioSpeedCtr = (AudioSpeedCtr_c*)param->port.cb_malloc(sizeof(AudioSpeedCtr_c));
+    if(!pAudioSpeedCtr){
+        return NULL;
+    }
+    new(pAudioSpeedCtr)AudioSpeedCtr_c();
+    int32_t ret = pAudioSpeedCtr->Init(param);
+    if(ret!=AUDIO_SPEED_CTR_API_RET_SUCCESS){
+        Destory(pAudioSpeedCtr);
+        pAudioSpeedCtr=0;
+    }
+    return pAudioSpeedCtr;
 }
-
-AudioSpeedControlRet AudioSpeedControl_RunInner(ASC_State* pState, AudioSamples* pIn, AudioSamples* pOut)
-{
-    int32_t offset = 0;
-    if (pOut->GetLeftSamples() < (pState->overlapSamples + pState->constSamples))
-        return AUDIO_SPEED_CONTROL_RET_OUT_BUFF_NOT_ENOUGH;
-    if (pState->isBeginning == true) {
-        pState->isBeginning = false;
-        pState->tmpBuf.Append(*pIn, pIn->GetUsedSamples(), pState->overlapSamples);
+int32_t AudioSpeedCtr_c::Set(void* hd, AudioSpeedCtrApiSet_e choose, void* val){
+    if(!hd){
+        return AUDIO_SPEED_CTR_API_RET_FAIL;
     }
-    int32_t bestLag;
-#if 0
-    bestLag = pState->asCalculator.WaveFormMatch(
-        AS_Calculator::WaveformMatchChoose_e::WAVEFORM_MATCH_SUM,
-        *pIn,
-        pIn->GetUsedSamples(),
-        pState->tmpBuf,
-        0,
-        pState->seekSamples,
-        pState->overlapSamples);
-#else
-#if 0
-    bestLag = pState->funcList->WaveFormMatch(
-        Algo_WaveformMatchChoose_e::ALGO_WAVEFORM_MATCH_SUM,
-        pIn->GetBufInSample(pIn->GetUsedSamples()),
-        pState->tmpBuf.GetBufInSample(0),
-        pIn->_info->_channels,
-        pState->seekSamples,
-        pState->overlapSamples);
-#else
-    bestLag = 0;
-#endif
-#endif
-#if 0
-    pState->asCalculator.OverlapAdd(
-        pState->tmpBuf,
-        0,
-        *pIn,
-        pIn->GetUsedSamples() + bestLag,
-        pState->overlapSamples);
-#else
-#if 0
-    pState->funcList->OverlapAdd(
-        pState->tmpBuf.GetBufInSample(0),
-        pState->tmpBuf.GetBufInSample(0),
-        pIn->GetBufInSample(pIn->GetUsedSamples() + bestLag),
-        pState->tmpBuf._info->_channels,
-        0,
-        pState->overlapSamples,
-        pState->overlapSamples);
-#endif
-        
-#endif
-    pOut->Append(
-        pState->tmpBuf,
-        0,
-        pState->overlapSamples);
-
-    offset += bestLag + pState->overlapSamples;
-
-    //copy constSamples from in to out
-    pOut->Append(
-        *pIn,
-        pIn->GetUsedSamples() + offset,
-        pState->constSamples);
-    offset += pState->constSamples;
-
-    //updata tmpBuf
-    pState->tmpBuf.Clear(pState->tmpBuf.GetValidSamples());
-    pState->tmpBuf.Append(*pIn, pIn->GetUsedSamples() + offset, pState->overlapSamples);
-
-    pIn->Clear(pState->speed * (pState->overlapSamples + pState->constSamples));
-    return AUDIO_SPEED_CONTROL_RET_SUCCESS;
-}
-
-EXTERNC{
-
-    int32_t AudioSpeedControl_GetStateSize()
-    {
-        return sizeof(ASC_State);
-    }
-
-    AudioSpeedControlRet AudioSpeedControl_Init(void* pStateIn, AudioSpeedInitParam * param)
-    {
-        //check
-        if (!pStateIn
-            || !param)
-            return AUDIO_SPEED_CONTROL_RET_INPUT_ERROR;
-
-        if(!param->basePorting
-            ||param->seekMs<0
-            || param->overlapMs< 0
-            || param->constMs< 0
-            || param->speed< 0)
-            return AUDIO_SPEED_CONTROL_RET_INPUT_ERROR;
-
-
-        ASC_State* pState = (ASC_State*)pStateIn;
-        ALGO_MEM_SET((u8*)pState, 0, sizeof(ASC_State));
-        
-        pState->basePorting = param->basePorting;
-        pState->info.Init(param->fsHz, param->width, param->channels);
-
-        pState->seekSamples = param->seekMs * pState->info._rate / 1000;
-        pState->overlapSamples = param->overlapMs * pState->info._rate / 1000;
-        pState->constSamples = param->constMs * pState->info._rate / 1000;
-
-
-        if (pState->info._width == 2) {
-            pState->funcList = &funcList16_g;
-        }
-        else if (pState->info._width == 3) {
-            pState->funcList = &funcList24_g;
-        }
-        else {
-            pState->funcList = &funcList32_g;
-        }
-
-        BufferSamples bufferSamples;
-        bufferSamples._samples = pState->overlapSamples;
-        bufferSamples._buf = (u8*)pState->basePorting->Malloc(bufferSamples._samples * pState->info._bytesPerSample);
-        pState->tmpBuf.Init(&pState->info, &bufferSamples);
-        
-        bufferSamples._samples = AudioSpeedControl_InMinSamlpes(pState) * pState->info._bytesPerSample;
-        bufferSamples._buf = (u8*)pState->basePorting->Malloc(bufferSamples._samples * pState->info._bytesPerSample);
-        pState->iCache.Init(&pState->info, &bufferSamples);
-
-        pState->speed = param->speed;
-        pState->isBeginning = true;
-        pState->isInited = true;
-        return AUDIO_SPEED_CONTROL_RET_SUCCESS;
-    }
-
-    AudioSpeedControlRet AudioSpeedControl_Set(void* pStateIn, AudioSpeedControl_SetChhoose_e choose, void** val)
-    {
-        //check
-        if (!pStateIn
-            ||choose >= AUDIO_SPEED_CONTROL_SET_CHOOSE_MAX
-            || !val)
-            return AUDIO_SPEED_CONTROL_RET_INPUT_ERROR;
-        ASC_State* pState = (ASC_State*)pStateIn;
-        if (pState->isInited == false)
-            return AUDIO_SPEED_CONTROL_RET_FAIL;
-
-        switch (choose)
-        {
-        case AUDIO_SPEED_CONTROL_SET_CHOOSE_SPEEDQ8:
-            pState->speed = (f32)(u32)val[0] / (1 << 8);
-        default:
+    AudioSpeedCtr_c* pAudioSpeedCtr = (AudioSpeedCtr_c*)hd;
+    switch(choose){
+        case AudioSpeedCtrApiSet_e::AUDIO_SPEED_CTR_API_SET_SPEED:{
+            float speed = *(float*)val;
+            speed=speed<0.5f?0.5f:speed;
+            speed=speed>2.0f?2.0f:speed;
+            pAudioSpeedCtr->_speed = speed;
             break;
         }
-        return AUDIO_SPEED_CONTROL_RET_SUCCESS;
-    }
-
-    AudioSpeedControlRet AudioSpeedControl_Get(void* pStateIn, AudioSpeedControl_GetChhoose_e choose, void** val)
-    {
-        //check
-        if (!pStateIn
-            || choose >= AUDIO_SPEED_CONTROL_GET_CHOOSE_MAX
-            || !val)
-            return AUDIO_SPEED_CONTROL_RET_INPUT_ERROR;
-        ASC_State* pState = (ASC_State*)pStateIn;
-        if (pState->isInited == false)
-            return AUDIO_SPEED_CONTROL_RET_FAIL;
-
-        switch (choose)
-        {
-        case AUDIO_SPEED_CONTROL_GET_CHOOSE_SPEEDQ8:
-            *((u32*)(val[0])) = (u32)(pState->speed * (1 << 8));
         default:
             break;
-        }
-        return AUDIO_SPEED_CONTROL_RET_SUCCESS;
     }
-
-
-    AudioSpeedControlRet AudioSpeedControl_Run(void* hd, uint8_t * in, int32_t inSize, uint8_t * out, int32_t * outSize)
+    return AUDIO_SPEED_CTR_API_RET_SUCCESS;
+}
+int32_t AudioSpeedCtr_c::Get(void* hd, AudioSpeedCtrApiGet_e choose, void* val){
+#if 0
+    if(!hd){
+        return AUDIO_SPEED_CTR_API_RET_FAIL;
+    }
+    AudioSpeedCtr_c* pAudioSpeedCtr = (AudioSpeedCtr_c*)hd;
+    switch(choose){
+        case AudioSpeedCtrApiGet_e::AUDIO_SPEED_CTR_API_GET_MAX:{
+            int32_t max = pAudioSpeedCtr->sampleRate * pAudioSpeedCtr->sampleWidth * pAudioSpeedCtr->channels;
+            *(int32_t*)val = max;
+            break;
+        }
+        default:
+            break;
+    }
+#endif
+    return AUDIO_SPEED_CTR_API_RET_SUCCESS;
+}
+int32_t AudioSpeedCtr_c::Run(void* hd, uint8_t* in, int32_t inSize, uint8_t*out, int32_t*outSize){
+    if(!hd
+        ||!in
+        ||inSize<=0
+        ||!out
+        ||!outSize
+        ||*outSize<=0)
     {
-        //check
-        if (!hd
-            || !in
-            || inSize < 0
-            || !out)
-            return AUDIO_SPEED_CONTROL_RET_INPUT_ERROR;
+        return AUDIO_SPEED_CTR_API_RET_FAIL;
+    }
+    int32_t ret;
+    AudioSpeedCtr_c* pAudioSpeedCtr = (AudioSpeedCtr_c*)hd;
+#if 0
+    ret = pAudioSpeedCtr->Receive(in,inSize);
+    if(ret!=AUDIO_SPEED_CTR_API_RET_SUCCESS){
+        return AUDIO_SPEED_CTR_API_RET_FAIL;
+    }
+    int32_t outSize0 = (int32_t)((float)inSize/pAudioSpeedCtr->_speed);
+    ret = pAudioSpeedCtr->Generate(out,&outSize0);
+    if(ret!=AUDIO_SPEED_CTR_API_RET_SUCCESS){
+        return AUDIO_SPEED_CTR_API_RET_FAIL;
+    }
+    *outSize=outSize0;
+#else
+    ret = pAudioSpeedCtr->Process(in, inSize, out, outSize);
+    if (ret != AUDIO_SPEED_CTR_API_RET_SUCCESS) {
+        return AUDIO_SPEED_CTR_API_RET_FAIL;
+    }
+#endif
+    return AUDIO_SPEED_CTR_API_RET_SUCCESS;
+}
+void AudioSpeedCtr_c::Destory(void* hd){
+    if(!hd){
+        return;
+    }
+    AudioSpeedCtr_c* pAudioSpeedCtr = (AudioSpeedCtr_c*)hd;
+    AudioSpeedControlApiPort_t port = pAudioSpeedCtr->_port;
+    if(pAudioSpeedCtr->_iBuf.Buff()) port.cb_free(pAudioSpeedCtr->_iBuf.Buff());
+    if(pAudioSpeedCtr->_oBuf.Buff()) port.cb_free(pAudioSpeedCtr->_oBuf.Buff());
+    pAudioSpeedCtr->~AudioSpeedCtr_c();
+    port.cb_free(pAudioSpeedCtr);
+}
 
-        ASC_State* pState = (ASC_State*)hd;
-        Buffer buffer;
-        AudioSamples pIn;
-        buffer._buf = in;
-        buffer._max = inSize;
-        pIn.Init(&pState->info, &buffer);
-        pIn.Append(pIn.GetSamplesMax());
 
-        AudioSamples pOut;
-        buffer._buf = out;
-        buffer._max = *outSize;
-        pOut.Init(&pState->info, &buffer);
+int32_t AudioSpeedCtr_c::Init(AudioSpeedControlApiParam_t *param){
+    memset(this,0,sizeof(AudioSpeedCtr_c));
+    _port = param->port;
+    _audioInfo.fs=param->sampleRate;
+    _audioInfo.channels=param->channels;
+    _audioInfo.width=param->sampleWidth;
+    _audioInfo.BytePerSample=_audioInfo.channels*_audioInfo.width;
+    const int32_t seekMs = 0;
+    const int32_t overlapMs = 2;
+    const int32_t constMs = 14;
+    _seekSamples=seekMs * _audioInfo.fs / 1000;
+    _overlapSamples=overlapMs * _audioInfo.fs / 1000;
+    _constSamples=constMs * _audioInfo.fs / 1000;
+    _speed = 1;
 
-        i32 usedSamples;
-        AudioSpeedControlRet ret;
-        while (1) {
-            pState->iCache.AppendFully(pIn, &usedSamples);
-            pIn.Used(usedSamples);
-            if (!pState->iCache.IsFull()) {
+    _frameByte = _audioInfo.BytePerSample*(_seekSamples+_overlapSamples+_constSamples+_overlapSamples);
+    int32_t bufByte = 2*_frameByte;
+    int32_t bufByteMin = 0;
+    bufByte=bufByte<bufByteMin?bufByteMin:bufByte;
+
+    uint8_t* pBuf = (uint8_t*)_port.cb_malloc(bufByte);
+    if(!pBuf){
+        LOG(_port.cb_printf,"malloc buf fail\n");
+        return AUDIO_SPEED_CTR_API_RET_FAIL;
+    }
+    memset(pBuf, 0, bufByte);
+    _iBuf.Init(pBuf,bufByte,&_audioInfo);
+
+    bufByte = _audioInfo.BytePerSample * _overlapSamples + 2 * _frameByte;
+    //bufByte += 10*1024;
+    pBuf = (uint8_t*)_port.cb_malloc(bufByte);
+    if(!pBuf){
+        LOG(_port.cb_printf,"malloc buf fail\n");
+        _port.cb_free(_iBuf.Buff());
+        return AUDIO_SPEED_CTR_API_RET_FAIL;
+    }
+    memset(pBuf, 0, bufByte);
+    _oBuf.Init(pBuf,bufByte,&_audioInfo);
+    _oBuf.Append(_audioInfo.BytePerSample * _overlapSamples + 1 * _frameByte);
+    return AUDIO_SPEED_CTR_API_RET_SUCCESS;
+}
+
+int32_t AudioSpeedCtr_c::Receive(uint8_t* in, int32_t inSize){
+    int32_t skipSize = (int32_t)(_speed * (_overlapSamples + _constSamples) * _audioInfo.width * _audioInfo.channels);
+    int32_t inOff=0;
+    while(1){
+        int32_t appendSize = _iBuf.Append(in,inSize-inOff);
+        inOff+=appendSize;
+        if(_iBuf.Size()<MAX(_frameByte,skipSize)){
+            break;
+        }
+        if(_oBuf.LeftSize()<(_constSamples+_overlapSamples)*_audioInfo.BytePerSample){
+            if(inOff<inSize){
+                return AUDIO_SPEED_CTR_API_RET_FAIL;
+            }
+            break;
+        }
+        int32_t bestLag;
+        int32_t offset = 0;
+        int32_t outOffset = 0;
+#if 0
+        bestLag = SeekBestLag((int8_t*)_iBuf.Data(), (int8_t*)&_oBuf.LeftData()[-_overlapSamples*_audioInfo.BytePerSample], _audioInfo.width, _seekSamples, _overlapSamples, _audioInfo.channels);
+#else
+        bestLag = 0;
+#endif
+        offset = bestLag * _audioInfo.BytePerSample;
+        if (_oBuf.Size() < _overlapSamples * _audioInfo.BytePerSample) {
+            int a1 = 1;
+        }
+#if 1
+        overlap((int8_t*)&_oBuf.LeftData()[-_overlapSamples * _audioInfo.BytePerSample], (int8_t*)&_iBuf.Data()[offset], (int8_t*)&_oBuf.LeftData()[-_overlapSamples*_audioInfo.BytePerSample], _overlapSamples, _audioInfo.channels, _audioInfo.width);
+#endif
+        offset += _overlapSamples*_audioInfo.BytePerSample;
+
+        //copy constSamples from in to out
+        memcpy(&_oBuf.LeftData()[0], &_iBuf.Data()[offset], _constSamples*_audioInfo.BytePerSample);
+        offset += _constSamples*_audioInfo.BytePerSample;
+        outOffset += _constSamples*_audioInfo.BytePerSample;
+
+        //updata bufferTemplate
+        memcpy(&_oBuf.LeftData()[_constSamples*_audioInfo.BytePerSample], &_iBuf.Data()[offset], _overlapSamples*_audioInfo.BytePerSample);
+        offset += skipSize;
+        outOffset += _overlapSamples*_audioInfo.BytePerSample;
+
+        _iBuf.Used(skipSize);
+        _iBuf.ClearUsed();
+        _oBuf.Append(outOffset);
+        printf("skipSize:%d,outOffset:%d\n", skipSize,outOffset);
+    }
+    return AUDIO_SPEED_CTR_API_RET_SUCCESS;
+}
+
+int32_t AudioSpeedCtr_c::Generate(uint8_t* out, int32_t *outSize){
+    // if(_oBuf.Size()<outSize){
+    //     return AUDIO_SPEED_CTR_API_RET_FAIL;
+    // }
+    
+    int32_t cpByte = _oBuf.Size() - _overlapSamples * _audioInfo.BytePerSample;
+    if (cpByte < *outSize)
+        int a = 1;
+    cpByte=cpByte< *outSize ?cpByte: *outSize;
+
+
+    memcpy(out,_oBuf.Data(),cpByte);
+    _oBuf.Used(cpByte);
+    _oBuf.ClearUsed();
+    *outSize=cpByte;
+    return AUDIO_SPEED_CTR_API_RET_SUCCESS;
+}
+
+int32_t AudioSpeedCtr_c::Process(uint8_t* in, int32_t inSize, uint8_t* out, int32_t* outSize) {
+    int32_t skipSize = (int32_t)(_speed * (_overlapSamples + _constSamples) * _audioInfo.width * _audioInfo.channels);
+    int32_t inOff = 0;
+    int32_t outSizeMax = *outSize;
+    int32_t outSize0 = (int32_t)((float)inSize / _speed);
+    if (outSizeMax < outSize0) {
+        return AUDIO_SPEED_CTR_API_RET_FAIL;
+    }
+    AudioBuff_c outInterface;
+    outInterface.Init(out, outSize0, &_audioInfo);
+    _oCtr.Init(&_oBuf, &outInterface, _overlapSamples * _audioInfo.BytePerSample);
+    while (1) {
+        int32_t appendSize = _iBuf.Append(in + inOff, inSize - inOff);
+        inOff += appendSize;
+        if (_iBuf.Size() < MAX(_frameByte, skipSize)) {
+            _iBuf.ClearUsed();
+            appendSize = _iBuf.Append(in + inOff, inSize - inOff);
+            inOff += appendSize;
+            if (_iBuf.Size() < MAX(_frameByte, skipSize)) {
                 break;
             }
-            ret = AudioSpeedControl_RunInner(pState, &pState->iCache, &pOut);
-            if (ret != AUDIO_SPEED_CONTROL_RET_SUCCESS) {
-                *outSize = pOut.GetValidSamples() * pState->info._bytesPerSample;
-                return ret;
+        }
+        if (_oBuf.LeftSize()+ outInterface.LeftSize() < (_constSamples + _overlapSamples) * _audioInfo.BytePerSample) {
+            _oBuf.ClearUsed();
+            if (_oBuf.LeftSize()+ outInterface.LeftSize() < (_constSamples + _overlapSamples) * _audioInfo.BytePerSample) {
+                if (inOff < inSize) {
+                    return AUDIO_SPEED_CTR_API_RET_FAIL;
+                }
+                break;
             }
         }
-        *outSize = pOut.GetValidSamples() * pState->info._bytesPerSample;
-        return AUDIO_SPEED_CONTROL_RET_SUCCESS;
-    }
+        int32_t bestLag;
+        int32_t offset = 0;
+        
+#if 0
+        bestLag = SeekBestLag((int8_t*)_iBuf.Data(), (int8_t*)&_oBuf.LeftData()[-_overlapSamples * _audioInfo.BytePerSample], _audioInfo.width, _seekSamples, _overlapSamples, _audioInfo.channels);
+#else
+        bestLag = 0;
+#endif
+        offset = bestLag * _audioInfo.BytePerSample;
+#if 1
+        overlap((int8_t*)_oCtr.GetOverlap(), (int8_t*)&_iBuf.Data()[offset], (int8_t*)_oCtr.GetOverlap(), _overlapSamples, _audioInfo.channels, _audioInfo.width);
+        /*overlap(
+            (int8_t*)&_oBuf.LeftData()[-_overlapSamples*_audioInfo.BytePerSample], 
+            (int8_t*)&_iBuf.Data()[offset], 
+            (int8_t*)&_oBuf.LeftData()[-_overlapSamples * _audioInfo.BytePerSample],
+            _overlapSamples, _audioInfo.channels, _audioInfo.width);*/
+#endif
+        offset += _overlapSamples * _audioInfo.BytePerSample;
 
-    AudioSpeedControlRet AudioSpeedControl_DeInit(void* pStateIn)
-    {
-        ASC_State* pState = (ASC_State*)pStateIn;
-        pState->basePorting->Free(pState->tmpBuf.GetBufInSample(0));
-        pState->basePorting->Free(pState->iCache.GetBufInSample(0));
-        return AUDIO_SPEED_CONTROL_RET_SUCCESS;
+        //copy constSamples from in to out
+        _oCtr.Append(&_iBuf.Data()[offset], _constSamples * _audioInfo.BytePerSample);
+        offset += _constSamples * _audioInfo.BytePerSample;
+
+        //updata bufferTemplate
+        _oCtr.Append(&_iBuf.Data()[offset], _overlapSamples * _audioInfo.BytePerSample);
+        offset += skipSize;
+
+        _iBuf.Used(skipSize);
+        //printf("skipSize:%d,outOffset:%d\n", skipSize, outOffset);
     }
+    _oCtr.AppendFully();
+    *outSize = outInterface.Size();
+    return AUDIO_SPEED_CTR_API_RET_SUCCESS;
+}
+
+
+void* AudioSpeedCtrApi_c::Create(AudioSpeedControlApiParam_t *param){
+    return AudioSpeedCtr_c::Create(param);
+}
+int32_t AudioSpeedCtrApi_c::Set(void* hd, AudioSpeedCtrApiSet_e choose, void* val){
+    return AudioSpeedCtr_c::Set(hd,choose,val);
+}
+int32_t AudioSpeedCtrApi_c::Get(void* hd, AudioSpeedCtrApiGet_e choose, void* val){
+    return AudioSpeedCtr_c::Get(hd,choose,val);
+}
+int32_t AudioSpeedCtrApi_c::Run(void* hd, uint8_t* in, int32_t inSize, uint8_t*out, int32_t*outSize){
+    return AudioSpeedCtr_c::Run(hd,in,inSize,out,outSize);
+}
+void AudioSpeedCtrApi_c::Destory(void* hd){
+    return AudioSpeedCtr_c::Destory(hd);
 }
 #endif
-
