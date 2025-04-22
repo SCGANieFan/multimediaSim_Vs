@@ -37,7 +37,8 @@ int32_t calcCrossCorrAccumulate(const int16_t* inQ15, const int16_t* compareQ15,
     // Normalize result by dividing by sqrt(norm) - this step is easiest
     // done using floating point operation
     //outQ10
-    return (int32_t)((corrQ30 / ((int64_t)sqrt((*normQ30 < 1) ? 1 : *normQ30))) >> 5);
+    //return (int32_t)((corrQ30 / ((int64_t)sqrt((*normQ30 < 1) ? 1 : *normQ30))) >> 5);
+    return (int32_t)(corrQ30 / ((int64_t)sqrt((*normQ30 < 1) ? 1 : *normQ30)));
 }
 
 int32_t calcCrossCorr(const int16_t* inQ15, const int16_t* compareQ15, int64_t* normQ30,int32_t accorelationSamples,int32_t channels)
@@ -56,7 +57,7 @@ int32_t calcCrossCorr(const int16_t* inQ15, const int16_t* compareQ15, int64_t* 
     *normQ30 = lnormQ30;
 
     //out Q10
-    return (int32_t)((corrQ30 / ((int64_t)sqrt((*normQ30 < 1) ? 1 : *normQ30))) >> 5);
+    return (int32_t)(corrQ30 / ((int64_t)sqrt((*normQ30 < 1) ? 1 : *normQ30)));
 }
 
 #if 1

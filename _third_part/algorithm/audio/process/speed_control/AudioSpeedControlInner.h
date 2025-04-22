@@ -77,8 +77,14 @@ public:
         return appendSize;
     }
     INLINE void Used(int32_t used){
+        if (used < 0)return;
         _off+=used;
+        _off = _off > _max ? _max : _off;
         _size-=used;
+        _size = _size < 0 ? 0 : _size;
+    }
+    INLINE int32_t Used() {
+        return _off;
     }
     INLINE void ClearUsed(){
         if(_off){
@@ -86,6 +92,18 @@ public:
             _off=0;
         }
     }
+    INLINE void Clear(int32_t used) {
+        used = used > _off ? _off : used;
+        if (used) {
+            memmove(_buf, _buf + used, _size + _off - used);
+            _off -= used;
+        }
+    }
+    INLINE void Throw(int32_t size) {
+        size = size > _size ? _size : size;
+        _size -= size;
+    }
+    
 protected:
     uint8_t *_buf;
     int32_t _max;
@@ -148,6 +166,8 @@ protected:
     int32_t Receive(uint8_t* in, int32_t inSize);
     int32_t Generate(uint8_t* out, int32_t *outSize);
     int32_t Process(uint8_t* in, int32_t inSize, uint8_t* out, int32_t *outSize);
+    int32_t SpeedUp(AudioBuff_c *buf);
+    int32_t SpeedDown(AudioBuff_c* buf, int32_t airSize);
 public:
     AudioSpeedControlApiPort_t _port;
 #if 0
@@ -166,9 +186,11 @@ public:
     double _speed;
     AudioBuff_c _iBuf;
     AudioBuff_c _oBuf;
+    AudioBuff_c _overlapBuf;
     AudioSpeedCtrOutCtr_c _oCtr;
     bool isBeginning;
     bool isEnd;
+    bool isInputOverlap;
 };
 
 #define MAX(a,b) ((a)>(b)?(a):(b))
