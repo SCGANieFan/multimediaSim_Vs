@@ -95,7 +95,7 @@ public:
 		static inline Tnorm Max(Tnorm x0, Tnorm x1) { return x0 > x1 ? x0 : x1; }
 		static inline Tnorm Min(Tnorm x0, Tnorm x1) { return x0 < x1 ? x0 : x1; }
 		static inline Tnorm Abs(Tnorm x) { return x > 0? x : -x; }
-		static i32 Evaluate(Feature *ref, Feature *cmp, i16 channels) {
+		static Tnorm Evaluate(Feature *ref, Feature *cmp, i16 channels) {
 			Tnorm scoreOut = 0;
 			for (i32 ch = 0; ch < 1; ch++) {
 			//for (i32 ch = 0; ch < channels; ch++) {
@@ -107,7 +107,7 @@ public:
 				//score = score / ref->_matchSample;
 				scoreOut += score;
 			}
-			return (i32)scoreOut;
+			return scoreOut;
 		}
 
 	public:
@@ -132,7 +132,7 @@ public:
 		// s=0
 		feaCmp.Update(pCmp, channels, matchSample);
 		feaRef.Update(pRef, channels, matchSample);
-		i32 scoreOpt = Feature::Evaluate(&feaRef, &feaCmp, channels);
+		Tnorm scoreOpt = Feature::Evaluate(&feaRef, &feaCmp, channels);
 		i32 sOpt = 0;
 		pRef += channels * matchSample;
 		const int stride = 3;
@@ -141,7 +141,7 @@ public:
 				feaRef.Update(pRef, channels);
 				pRef += channels;
 			}
-			i32 score = Feature::Evaluate(&feaRef, &feaCmp, channels);
+			Tnorm score = Feature::Evaluate(&feaRef, &feaCmp, channels);
 			if (score < scoreOpt) {
 				scoreOpt = score;
 				sOpt = s;

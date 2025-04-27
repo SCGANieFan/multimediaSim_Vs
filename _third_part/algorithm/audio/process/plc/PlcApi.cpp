@@ -317,7 +317,7 @@ public:
 		return PLC_API_RET_SUCCESS;
 	}
 public:
-	constexpr static const char* version = "1.0.3.2";
+	constexpr static const char* version = "1.0.3.3";
 	PlcApiBasePort_c _basePort;
 	const PlcApiCom_c* _plcCom;
 	void* _plc;
