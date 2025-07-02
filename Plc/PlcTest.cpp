@@ -47,19 +47,22 @@
 //#define FILE_NAME "stSection_48k1ch.wav"
 //#define FILE_NAME "Flower Dance_44.1k2chF32.wav"
 //#define FILE_NAME "Inuyasha_48k2ch_40sF32.wav"
-#define FILE_NAME "lfe01_48k2ch.wav"
+//#define FILE_NAME "lfe01_48k2ch.wav"
 //#define FILE_NAME "lfe02_48k2ch.wav"
 //#define FILE_NAME "lfe03_48k2ch.wav"
 //#define FILE_NAME "lfe04_48k2ch.wav"
+//#define FILE_NAME "sin1050hz16k2ch.wav"
+ //#define FILE_NAME "sin1050hz48k2ch32b.wav"
+ #define FILE_NAME "plc_test_gx_32k1ch.wav"
 
-#define RATE 48000
+#define RATE 32000
 //#define RATE 96000
-#define FRAME_MS 2
+#define FRAME_MS 20
 #endif
 #endif
 
 #define FRAME_LEN ((FRAME_MS*RATE/1000))
-//#define FRAME_LEN (128)
+//#define FRAME_LEN (240)
 
 void PlcTest()
 {
@@ -71,7 +74,7 @@ void PlcTest()
 
 	void* param[] = {
 		(void*)(PATH FILE_NAME),
-		(void*)(PATH FILE_NAME ".plc.wav"),		
+		(void*)(PATH FILE_NAME ".plc.wav"),
 		//(void*)(FRAME_MS),
 		(void*)(FRAME_LEN),
 	};

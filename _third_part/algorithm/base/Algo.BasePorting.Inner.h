@@ -3,7 +3,6 @@
 #include"Algo.BasePorting.h"
 #include"Algo.Macro.h"
 #include"Algo.Type.h"
-#include"Algo.BasePorting.h"
 
 #define CHECK_STEP_ON_MEMORY 1
 

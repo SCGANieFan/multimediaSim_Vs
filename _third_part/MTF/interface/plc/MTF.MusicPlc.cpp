@@ -72,7 +72,7 @@ mtf_int32 MTF_MusicPlc::Init()
 	//io data
 	mtf_int32 size = _frameBytes;
 	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
-	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_uint8*)MTF_MALLOC(2*size), 2 * size);
 
 	return 0;
 }
@@ -86,8 +86,8 @@ mtf_int32 MTF_MusicPlc::receive(MTF_Data& iData)
 	return 0;
 }
 
-#define FRAMES_LOST 4
-#define FRAMES_TOTAL 40
+#define FRAMES_LOST 1
+#define FRAMES_TOTAL 100
 mtf_int32 MTF_MusicPlc::generate(MTF_Data*& oData)
 {
 	AA_Data AA_iData;
