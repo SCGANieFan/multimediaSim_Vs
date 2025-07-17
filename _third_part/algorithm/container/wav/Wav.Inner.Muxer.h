@@ -46,7 +46,7 @@ public:
 		off += ssize;
 	}
 public:
-	b1 Init(AlgoBasePorting* basePorting);
+	b1 Init(AlgoBasePorting_t* basePorting);
 	INLINE void DeInit() { _wavMem.FreeAll(); };
 	b1 Process(u8* inOut, i32 inLen);
 

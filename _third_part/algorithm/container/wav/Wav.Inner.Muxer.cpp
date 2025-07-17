@@ -3,7 +3,7 @@
 
 #if 1
 
-b1 WavMuxer_c::Init(AlgoBasePorting* basePorting) {
+b1 WavMuxer_c::Init(AlgoBasePorting_t* basePorting) {
 	//check
 	if (!basePorting
 		|| !basePorting->Malloc

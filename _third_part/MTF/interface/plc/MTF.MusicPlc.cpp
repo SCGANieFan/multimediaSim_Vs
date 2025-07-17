@@ -72,7 +72,7 @@ mtf_int32 MTF_MusicPlc::Init()
 	//io data
 	mtf_int32 size = _frameBytes;
 	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
-	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_uint8*)MTF_MALLOC(2*size), 2 * size);
 
 	return 0;
 }
@@ -86,7 +86,7 @@ mtf_int32 MTF_MusicPlc::receive(MTF_Data& iData)
 	return 0;
 }
 
-#define FRAMES_LOST 10
+#define FRAMES_LOST 1
 #define FRAMES_TOTAL 100
 mtf_int32 MTF_MusicPlc::generate(MTF_Data*& oData)
 {
@@ -95,13 +95,14 @@ mtf_int32 MTF_MusicPlc::generate(MTF_Data*& oData)
 	AA_iData.buff = _iData.Data();
 	AA_iData.max = AA_iData.size = _iData._size;
 
-	_frames++;
-	if (_frames % FRAMES_TOTAL > (FRAMES_TOTAL - FRAMES_LOST))
+	//_frames++;
+	if ((_frames % FRAMES_TOTAL) + 1 > (FRAMES_TOTAL - FRAMES_LOST))
 	{
 		AA_iData.flags |= AA_DataFlag_FRAME_IS_EMPTY;
 	}
 	else
 		AA_iData.flags &= ~AA_DataFlag_FRAME_IS_EMPTY;
+	_frames++;
 
 	AA_Data AA_oData;
 	MTF_MEM_SET(&AA_oData, 0, sizeof(AA_Data));

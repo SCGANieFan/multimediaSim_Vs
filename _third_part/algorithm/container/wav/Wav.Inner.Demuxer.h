@@ -30,7 +30,7 @@ public:
 	INLINE u32 GetDataPos() { return _head.riff.chunkSize - _head.data.chunkSize + 8; }
 
 public:
-	b1 Init(AlgoBasePorting* basePorting);
+	b1 Init(AlgoBasePorting_t* basePorting);
 	void DeInit();
 	i32 Receive(u8* in, i32 inLen);
 private:

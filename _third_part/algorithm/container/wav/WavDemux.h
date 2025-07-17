@@ -11,7 +11,7 @@
 
 typedef struct
 {
-	AlgoBasePorting* basePorting;
+	AlgoBasePorting_t* basePorting;
 }WavDemuxInitParam;
 
 
