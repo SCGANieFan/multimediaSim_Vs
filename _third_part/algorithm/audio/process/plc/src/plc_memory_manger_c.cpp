@@ -1,5 +1,3 @@
-#pragma once
-
 #include "plc_memory_manger_c.h"
 
 #define CHECK_STEP_ON_MEMORY 1

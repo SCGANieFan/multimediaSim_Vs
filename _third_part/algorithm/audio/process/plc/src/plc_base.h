@@ -23,7 +23,11 @@
 #define ALGO_ASSERT(s) assert(s)
 
 #if 1
+#if WIN32
 #define LOG(func,fmt,...) if(func) func("<%s>[%s](%d)" fmt "\n", strrchr(__FILE__,'\\') + 1,__func__, __LINE__, ##__VA_ARGS__)
+#else
+#define LOG(func,fmt,...) if(func) func("<%s>[%s](%d)" fmt "\n", strrchr(__FILE__,'/') + 1,__func__, __LINE__, ##__VA_ARGS__)
+#endif
 #else
 #define LOG(func,fmt,...) 
 #endif
@@ -96,101 +100,101 @@ STATIC INLINE b1 IsFloatValid(f32 v) {
 	return !(IsFloatInf(v) || IsFloatNan(v));
 }
 template<class T>
-STATIC INLINE constexpr i32 Width() { return 0; }
-template<> STATIC INLINE constexpr i32 Width<b1>() { return 0; }
-template<> STATIC INLINE constexpr i32 Width<u8>() { return 1; }
-template<> STATIC INLINE constexpr i32 Width<i8>() { return 1; }
-template<> STATIC INLINE constexpr i32 Width<u16>() { return 2; }
-template<> STATIC INLINE constexpr i32 Width<i16>() { return 2; }
-template<> STATIC INLINE constexpr i32 Width<u24>() { return 3; }
-template<> STATIC INLINE constexpr i32 Width<i24>() { return 3; }
-template<> STATIC INLINE constexpr i32 Width<u32>() { return 4; }
-template<> STATIC INLINE constexpr i32 Width<i32>() { return 4; }
-template<> STATIC INLINE constexpr i32 Width<f32>() { return 4; }
-template<> STATIC INLINE constexpr i32 Width<u64>() { return 8; }
-template<> STATIC INLINE constexpr i32 Width<i64>() { return 8; }
-template<> STATIC INLINE constexpr i32 Width<f64>() { return 8; }
+INLINE constexpr i32 Width() { return 0; }
+template<> INLINE constexpr i32 Width<b1>() { return 0; }
+template<> INLINE constexpr i32 Width<u8>() { return 1; }
+template<> INLINE constexpr i32 Width<i8>() { return 1; }
+template<> INLINE constexpr i32 Width<u16>() { return 2; }
+template<> INLINE constexpr i32 Width<i16>() { return 2; }
+template<> INLINE constexpr i32 Width<u24>() { return 3; }
+template<> INLINE constexpr i32 Width<i24>() { return 3; }
+template<> INLINE constexpr i32 Width<u32>() { return 4; }
+template<> INLINE constexpr i32 Width<i32>() { return 4; }
+template<> INLINE constexpr i32 Width<f32>() { return 4; }
+template<> INLINE constexpr i32 Width<u64>() { return 8; }
+template<> INLINE constexpr i32 Width<i64>() { return 8; }
+template<> INLINE constexpr i32 Width<f64>() { return 8; }
 
 template<class T>
-STATIC INLINE constexpr bool IsF64() { return false; }
-template<> STATIC INLINE constexpr bool IsF64<f64>() { return true; }
+INLINE constexpr bool IsF64() { return false; }
+template<> INLINE constexpr bool IsF64<f64>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsF32() { return false; }
-template<> STATIC INLINE constexpr bool IsF32<f32>() { return true; }
+INLINE constexpr bool IsF32() { return false; }
+template<> INLINE constexpr bool IsF32<f32>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsFloat() { return false; }
-template<> STATIC INLINE constexpr bool IsFloat<f32>() { return true; }
-template<> STATIC INLINE constexpr bool IsFloat<f64>() { return true; }
+INLINE constexpr bool IsFloat() { return false; }
+template<> INLINE constexpr bool IsFloat<f32>() { return true; }
+template<> INLINE constexpr bool IsFloat<f64>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsI64() { return false; }
-template<> STATIC INLINE constexpr bool IsI64<i64>() { return true; }
+INLINE constexpr bool IsI64() { return false; }
+template<> INLINE constexpr bool IsI64<i64>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsI32() { return false; }
-template<> STATIC INLINE constexpr bool IsI32<i32>() { return true; }
+INLINE constexpr bool IsI32() { return false; }
+template<> INLINE constexpr bool IsI32<i32>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsI24() { return false; }
-template<> STATIC INLINE constexpr bool IsI24<i24>() { return true; }
+INLINE constexpr bool IsI24() { return false; }
+template<> INLINE constexpr bool IsI24<i24>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsI16() { return false; }
-template<> STATIC INLINE constexpr bool IsI16<i16>() { return true; }
+INLINE constexpr bool IsI16() { return false; }
+template<> INLINE constexpr bool IsI16<i16>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsI8() { return false; }
-template<> STATIC INLINE constexpr bool IsI8<i8>() { return true; }
+INLINE constexpr bool IsI8() { return false; }
+template<> INLINE constexpr bool IsI8<i8>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsU64() { return false; }
-template<> STATIC INLINE constexpr bool IsU64<u64>() { return true; }
+INLINE constexpr bool IsU64() { return false; }
+template<> INLINE constexpr bool IsU64<u64>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsU32() { return false; }
-template<> STATIC INLINE constexpr bool IsU32<u32>() { return true; }
+INLINE constexpr bool IsU32() { return false; }
+template<> INLINE constexpr bool IsU32<u32>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsU24() { return false; }
-template<> STATIC INLINE constexpr bool IsU24<u24>() { return true; }
+INLINE constexpr bool IsU24() { return false; }
+template<> INLINE constexpr bool IsU24<u24>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsU16() { return false; }
-template<> STATIC INLINE constexpr bool IsU16<u16>() { return true; }
+INLINE constexpr bool IsU16() { return false; }
+template<> INLINE constexpr bool IsU16<u16>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsU8() { return false; }
-template<> STATIC INLINE constexpr bool IsU8<u8>() { return true; }
+INLINE constexpr bool IsU8() { return false; }
+template<> INLINE constexpr bool IsU8<u8>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsB1() { return false; }
-template<> STATIC INLINE constexpr bool IsB1<b1>() { return true; }
+INLINE constexpr bool IsB1() { return false; }
+template<> INLINE constexpr bool IsB1<b1>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsWidth64() { return false; }
-template<> STATIC INLINE constexpr bool IsWidth64<f64>() { return true; }
-template<> STATIC INLINE constexpr bool IsWidth64<i64>() { return true; }
-template<> STATIC INLINE constexpr bool IsWidth64<u64>() { return true; }
+INLINE constexpr bool IsWidth64() { return false; }
+template<> INLINE constexpr bool IsWidth64<f64>() { return true; }
+template<> INLINE constexpr bool IsWidth64<i64>() { return true; }
+template<> INLINE constexpr bool IsWidth64<u64>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsWidth32() { return false; }
-template<> STATIC INLINE constexpr bool IsWidth32<f32>() { return true; }
-template<> STATIC INLINE constexpr bool IsWidth32<i32>() { return true; }
-template<> STATIC INLINE constexpr bool IsWidth32<u32>() { return true; }
+INLINE constexpr bool IsWidth32() { return false; }
+template<> INLINE constexpr bool IsWidth32<f32>() { return true; }
+template<> INLINE constexpr bool IsWidth32<i32>() { return true; }
+template<> INLINE constexpr bool IsWidth32<u32>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsWidth24() { return false; }
-template<> STATIC INLINE constexpr bool IsWidth24<i24>() { return true; }
-template<> STATIC INLINE constexpr bool IsWidth24<u24>() { return true; }
+INLINE constexpr bool IsWidth24() { return false; }
+template<> INLINE constexpr bool IsWidth24<i24>() { return true; }
+template<> INLINE constexpr bool IsWidth24<u24>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsWidth16() { return false; }
-template<> STATIC INLINE constexpr bool IsWidth16<i16>() { return true; }
-template<> STATIC INLINE constexpr bool IsWidth16<u16>() { return true; }
+INLINE constexpr bool IsWidth16() { return false; }
+template<> INLINE constexpr bool IsWidth16<i16>() { return true; }
+template<> INLINE constexpr bool IsWidth16<u16>() { return true; }
 
 template<class T>
-STATIC INLINE constexpr bool IsWidth8() { return false; }
-template<> STATIC INLINE constexpr bool IsWidth8<i8>() { return true; }
-template<> STATIC INLINE constexpr bool IsWidth8<u8>() { return true; }
+INLINE constexpr bool IsWidth8() { return false; }
+template<> INLINE constexpr bool IsWidth8<i8>() { return true; }
+template<> INLINE constexpr bool IsWidth8<u8>() { return true; }

@@ -86,7 +86,7 @@ i32 sbc_plc_algo_api_com_c::init(plc_api_param_t* plc_api_param) {
 	//_rate = param->rate;
 	_sampleNum = plc_api_param->frame_samples;
 	_channels = plc_api_param->channels;
-	_codecType = (enum PLC_CODEC_TYPE)plc_api_param->sbc_plc.codec_type;
+	_codecType = (enum sbc_plc_codec_type_e)plc_api_param->sbc_plc.codec_type;
 	_SearchSize = plc_api_param->sbc_plc.search_size;
 	_MatchSize = plc_api_param->sbc_plc.match_size;
 	_Olal = plc_api_param->sbc_plc.olal;

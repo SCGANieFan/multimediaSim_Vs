@@ -40,7 +40,7 @@ protected:
 	uint32_t _Olal = 0;
 	uint32_t _Recover = 0;
 	uint32_t _sampleNum = 0;
-	enum PLC_CODEC_TYPE _codecType;
+	enum sbc_plc_codec_type_e _codecType;
 	void* _rcosBuff = 0;
 	uint32_t _packetNum = 0;
 	uint32_t _smoothNum = 0;

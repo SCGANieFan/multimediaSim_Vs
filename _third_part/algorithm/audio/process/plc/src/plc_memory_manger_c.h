@@ -23,8 +23,8 @@ public:
 		return new(ptr) T();
 	}
 	template<class T>
-	INLINE void* Delete(void *ptr){
-		(T*)ptr->~T();
+	INLINE void Delete(void *ptr){
+		((T*)ptr)->~T();
 		free(ptr);
 	}
 private:
