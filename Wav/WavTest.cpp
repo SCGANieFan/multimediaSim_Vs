@@ -9,7 +9,7 @@ using namespace MTFApi_ns;
 #define WIDTH 2
 #define FRAME_MS 20
 
-
+using namespace MTFApi_ns;
 
 void WavTest()
 {

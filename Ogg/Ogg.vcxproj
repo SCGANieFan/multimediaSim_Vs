@@ -393,9 +393,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../_third_part/algorithm/container/ogg;../TestLIb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -501,19 +502,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\Buffer.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggBitstream.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggDec.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggDemux2Opus.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggGeneral.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggApi.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggBitwise.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggFraming.cpp" />
     <ClCompile Include="OggTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\Buffer.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggApi.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggCrctable.h" />
     <ClInclude Include="..\_third_part\algorithm\container\ogg\Ogg.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggCrcTable.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggDemux2Opus.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggType.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggTypes.h" />
     <ClInclude Include="OggTest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

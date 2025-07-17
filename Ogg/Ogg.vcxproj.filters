@@ -2,19 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="OggTest.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggDec.cpp">
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggFraming.cpp">
       <Filter>3th</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggDemux2Opus.cpp">
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggBitwise.cpp">
       <Filter>3th</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggGeneral.cpp">
-      <Filter>3th</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\Buffer.cpp">
-      <Filter>3th</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggBitstream.cpp">
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggApi.cpp">
       <Filter>3th</Filter>
     </ClCompile>
   </ItemGroup>
@@ -25,19 +19,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OggTest.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggDemux2Opus.h">
-      <Filter>3th</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggType.h">
-      <Filter>3th</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\Buffer.h">
-      <Filter>3th</Filter>
-    </ClInclude>
     <ClInclude Include="..\_third_part\algorithm\container\ogg\Ogg.h">
       <Filter>3th</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggCrcTable.h">
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggTypes.h">
+      <Filter>3th</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggCrctable.h">
+      <Filter>3th</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggApi.h">
       <Filter>3th</Filter>
     </ClInclude>
   </ItemGroup>

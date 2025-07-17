@@ -107,7 +107,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Algo.lib;Plc.lib;MAF.lib;MTF.lib;Opus.lib;Pcm.lib;Wav.lib;AudioSpeedCtr.lib;Resample.lib;Ape.lib;Sbc.lib;h265.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Algo.lib;Plc.lib;MAF.lib;MTF.lib;Opus.lib;Ogg.lib;Pcm.lib;Wav.lib;AudioSpeedCtr.lib;Resample.lib;Ape.lib;Sbc.lib;h265.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OptimizeReferences>false</OptimizeReferences>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
     </Link>
