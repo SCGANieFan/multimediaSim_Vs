@@ -5,7 +5,7 @@ namespace MTFApi_ns {
 #define MTF_REGISTER_FUNC(name) mtf_##name##_register()
 #define MTF_REGISTER(name) extern void MTF_REGISTER_FUNC(name);MTF_REGISTER_FUNC(name);
 
-class MTFApi {
+class MTFApi{
 public:
 	MTFApi() {}
 	~MTFApi() {}

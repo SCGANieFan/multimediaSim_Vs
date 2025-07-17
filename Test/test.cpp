@@ -20,7 +20,7 @@ void test()
 	//AudioSpeedCtrTest();
 	//AudioResampleTest();
 	//OggTest();
-	OpusTest();
+	//OpusTest();
 	//MTF_demo_Test();
 	//WavTest();
 	//ApeTest();

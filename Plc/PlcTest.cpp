@@ -1,6 +1,7 @@
 #include"MTF.h"
-#define PATH "../../source/audio/plc/"
+using namespace MTFApi_ns;
 
+#define PATH "../../source/audio/plc/"
 #if 0
 #if 0
 //#define FILE_NAME "chirp_sin_16k1ch.wav"
@@ -66,31 +67,36 @@
 
 void PlcTest()
 {
-	MultiemdiaTestInit();
+	MTFApi::Init();
 
 	MTF_REGISTER(wav_demuxer);
 	MTF_REGISTER(music_plc);
 	MTF_REGISTER(wav_muxer);
 
+	
+#if 0
+	void* param[] = {
+	(void*)(PATH FILE_NAME),
+	(void*)(PATH FILE_NAME ".plc.wav"),
+	(void*)(FRAME_MS),
+	};
+	const char* str = {
+	"|wav_demuxer,url=$0,fMs=$2|-->"
+	"|music_plc|-->"
+	"|wav_muxer,url=$1|"
+	};
+
+#else
 	void* param[] = {
 		(void*)(PATH FILE_NAME),
 		(void*)(PATH FILE_NAME ".plc.wav"),
-		//(void*)(FRAME_MS),
 		(void*)(FRAME_LEN),
 	};
-#if 0
-	const char* str = {
-	"|wav_demuxer,url=$0,rate=$2,ch=$3,width=$4,fMs=$5|-->"
-	"|music_plc,decayMs=$6,overlapMs=$7|-->"
-	"|wav_muxer,url=$1|"
-	};
-#else
 	const char* str = {
 	"|wav_demuxer,url=$0,fSamples=$2|-->"
 	"|music_plc|-->"
 	"|wav_muxer,url=$1|"
 	};
 #endif
-
-	MultiemdiaApi(str, param);
+	MTFApi::Api(str, param);
 }
