@@ -2,34 +2,85 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="OggTest.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggFraming.cpp">
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\ogg_bitwise.cpp">
       <Filter>3th</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggBitwise.cpp">
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\ogg_framing.cpp">
       <Filter>3th</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggApi.cpp">
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggBase.cpp">
       <Filter>3th</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggDemuxer_c.cpp">
+      <Filter>3th</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggDemuxerApi_c.cpp">
+      <Filter>3th</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggMuxer_c.cpp">
+      <Filter>3th</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggMuxerApi_c.cpp">
+      <Filter>3th</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\ogg_api.cpp">
+      <Filter>3th</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggMemoryManger_c.cpp">
+      <Filter>3th</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\MTF\interface\ogg\MTF.OggMuxer.cpp">
+      <Filter>mtf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\MTF\interface\ogg\MTF.OggDemuxer.cpp">
+      <Filter>mtf</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="3th">
       <UniqueIdentifier>{7d97bffd-7161-41ab-9bb2-007211f875c3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="mtf">
+      <UniqueIdentifier>{c72423d8-0aa4-420c-9d20-0e7776de5bd4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OggTest.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\Ogg.h">
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\ogg_crctable.h">
       <Filter>3th</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggTypes.h">
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\ogg_types.h">
       <Filter>3th</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggCrctable.h">
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggBase.h">
       <Filter>3th</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggApi.h">
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggDemuxer_c.h">
       <Filter>3th</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggDemuxerApi_c.h">
+      <Filter>3th</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggMuxer_c.h">
+      <Filter>3th</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggMuxerApi_c.h">
+      <Filter>3th</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\ogg.h">
+      <Filter>3th</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\ogg_api.h">
+      <Filter>3th</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggMemoryManger_c.h">
+      <Filter>3th</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\MTF\interface\ogg\MTF.OggDemuxer.h">
+      <Filter>mtf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\MTF\interface\ogg\MTF.OggMuxer.h">
+      <Filter>mtf</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

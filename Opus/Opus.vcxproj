@@ -216,7 +216,9 @@
     <ClInclude Include="..\_third_part\MAF\interface\opus\MAFA.OpusEnc.h" />
     <ClInclude Include="..\_third_part\MAF\interface\opus\OpusMemory.h" />
     <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusDec.h" />
+    <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusDemuxer.h" />
     <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusEnc.h" />
+    <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusMuxer.h" />
     <ClInclude Include="OpusTest.h" />
   </ItemGroup>
   <ItemGroup>
@@ -357,7 +359,9 @@
     <ClCompile Include="..\_third_part\MAF\interface\opus\MAFA.OpusEnc.cpp" />
     <ClCompile Include="..\_third_part\MAF\interface\opus\OpusMemory.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusDec.cpp" />
+    <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusDemuxer.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusEnc.cpp" />
+    <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusMuxer.cpp" />
     <ClCompile Include="OpusTest.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
