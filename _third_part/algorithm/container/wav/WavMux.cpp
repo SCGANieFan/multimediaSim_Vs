@@ -79,7 +79,7 @@ EXTERNC {
 		{
 #if 1
 		case WAV_MUX_GET_CHOOSE_HEAD_SIZE:
-			*(u32*)val = sizeof(WavHead)-8;
+			*(u32*)val = sizeof(WavHead) - 8;
 			break;
 		case WAV_MUX_GET_CHOOSE_HEAD:
 			pWavMux->wavMuxer.GetHead(val);

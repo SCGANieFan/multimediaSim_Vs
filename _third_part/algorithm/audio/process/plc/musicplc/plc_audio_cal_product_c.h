@@ -187,15 +187,15 @@ Product_c() {}
 ~Product_c() {}
 public:
 STATIC INLINE void RunAllChForWard(void* dst, void* src, void* fac, const i32 productSample, i32 channels) {
-Product_t<Ti, Ti, Tf, Tx, _rShift, 1>::RunAllCh(dst, src, fac, productSample, channels);
+Product_t<Ti, To, Tf, Tx, _rShift, 1>::RunAllCh(dst, src, fac, productSample, channels);
 }
 STATIC INLINE void RunAllChBackWard(void* dst, void* src, void* fac, const i32 productSample, i32 channels) {
-Product_t<Ti, Ti, Tf, Tx, _rShift, -1>::RunAllCh(dst, src, fac, productSample, channels);
+Product_t<Ti, To, Tf, Tx, _rShift, -1>::RunAllCh(dst, src, fac, productSample, channels);
 }
 STATIC INLINE void RunChForWard(void* dst, void* src, void* fac, const i32 productSample, i32 channels) {
-Product_t<Ti, Ti, Tf, Tx, _rShift, 1>::RunCh(dst, src, fac, productSample, channels);
+Product_t<Ti, To, Tf, Tx, _rShift, 1>::RunCh(dst, src, fac, productSample, channels);
 }
 STATIC INLINE void RunChBackWard(void* dst, void* src, void* fac, const i32 productSample, i32 channels) {
-Product_t<Ti, Ti, Tf, Tx, _rShift, -1>::RunCh(dst, src, fac, productSample, channels);
+Product_t<Ti, To, Tf, Tx, _rShift, -1>::RunCh(dst, src, fac, productSample, channels);
 }
 };
