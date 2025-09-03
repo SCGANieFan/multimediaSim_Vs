@@ -20,9 +20,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <Ogg.h>
-
+#include "ogg.h"
 #define BUFFER_INCREMENT 256
+namespace ogg_ns {
 
 static const unsigned long mask[]=
 {0x00000000,0x00000001,0x00000003,0x00000007,0x0000000f,
@@ -37,10 +37,12 @@ static const unsigned int mask8B[]=
 {0x00,0x80,0xc0,0xe0,0xf0,0xf8,0xfc,0xfe,0xff};
 
 void oggpack_writeinit(oggpack_buffer *b){
+#if 0
   memset(b,0,sizeof(*b));
   b->ptr=b->buffer=(unsigned char*)_ogg_malloc(BUFFER_INCREMENT);
   b->buffer[0]='\0';
   b->storage=BUFFER_INCREMENT;
+#endif
 }
 
 void oggpackB_writeinit(oggpack_buffer *b){
@@ -80,6 +82,7 @@ void oggpackB_writetrunc(oggpack_buffer *b,long bits){
 
 /* Takes only up to 32 bits. */
 void oggpack_write(oggpack_buffer *b,unsigned long value,int bits){
+#if 0
   if(bits<0 || bits>32) goto err;
   if(b->endbyte>=b->storage-4){
     void *ret;
@@ -119,10 +122,12 @@ void oggpack_write(oggpack_buffer *b,unsigned long value,int bits){
   return;
  err:
   oggpack_writeclear(b);
+#endif
 }
 
 /* Takes only up to 32 bits. */
 void oggpackB_write(oggpack_buffer *b,unsigned long value,int bits){
+#if 0
   if(bits<0 || bits>32) goto err;
   if(b->endbyte>=b->storage-4){
     void *ret;
@@ -162,18 +167,23 @@ void oggpackB_write(oggpack_buffer *b,unsigned long value,int bits){
   return;
  err:
   oggpack_writeclear(b);
+#endif
 }
 
 void oggpack_writealign(oggpack_buffer *b){
+#if 0
   int bits=8-b->endbit;
   if(bits<8)
     oggpack_write(b,0,bits);
+#endif
 }
 
 void oggpackB_writealign(oggpack_buffer *b){
+#if 0
   int bits=8-b->endbit;
   if(bits<8)
     oggpackB_write(b,0,bits);
+#endif
 }
 
 static void oggpack_writecopy_helper(oggpack_buffer *b,
@@ -183,6 +193,7 @@ static void oggpack_writecopy_helper(oggpack_buffer *b,
                                                unsigned long,
                                                int),
                                      int msb){
+#if 0
   unsigned char *ptr=(unsigned char *)source;
 
   long bytes=bits/8;
@@ -225,14 +236,19 @@ static void oggpack_writecopy_helper(oggpack_buffer *b,
   return;
  err:
   oggpack_writeclear(b);
+#endif
 }
 
 void oggpack_writecopy(oggpack_buffer *b,void *source,long bits){
+#if 0
   oggpack_writecopy_helper(b,source,bits,oggpack_write,0);
+#endif
 }
 
 void oggpackB_writecopy(oggpack_buffer *b,void *source,long bits){
+#if 0
   oggpack_writecopy_helper(b,source,bits,oggpackB_write,1);
+#endif
 }
 
 void oggpack_reset(oggpack_buffer *b){
@@ -247,12 +263,16 @@ void oggpackB_reset(oggpack_buffer *b){
 }
 
 void oggpack_writeclear(oggpack_buffer *b){
+#if 0
   if(b->buffer)_ogg_free(b->buffer);
   memset(b,0,sizeof(*b));
+#endif
 }
 
 void oggpackB_writeclear(oggpack_buffer *b){
+#if 0
   oggpack_writeclear(b);
+#endif
 }
 
 void oggpack_readinit(oggpack_buffer *b,unsigned char *buf,int bytes){
@@ -524,3 +544,4 @@ unsigned char *oggpackB_get_buffer(oggpack_buffer *b){
 }
 
 #undef BUFFER_INCREMENT
+};

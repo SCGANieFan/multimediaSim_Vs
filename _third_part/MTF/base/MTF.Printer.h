@@ -11,4 +11,5 @@ public:
 	static mtf_void Printf(const mtf_int8* _Format, ...);
 private:
 };
+#define MTF_PRINTORI(fmt,...)	MTF_Printer::Printf(fmt, ##__VA_ARGS__)
 #define MTF_PRINT(fmt,...)		MTF_Printer::Printf("<%s>[%s](%d)" fmt "\n", MTF_String::BaseName(__FILE__), __func__, __LINE__, ##__VA_ARGS__)

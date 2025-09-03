@@ -1,9 +1,10 @@
+#if 0
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdarg.h>
-#include "OggApi.h"
+#include "ogg_api.h"
 
 #define LOG_OGG(fmt,...)		printf("<%s>[%s](%d)" fmt "\n", strrchr(__FILE__,'\\') + 1, __func__, __LINE__, ##__VA_ARGS__)
 #define SOURCE_PATH "../../source/container/ogg/"
@@ -20,7 +21,7 @@ typedef struct
 }Frame;
 
 
-void* OggMalloc(int size) {
+void* OggMalloc(uint32_t size) {
 	static int32_t sizeTotal = 0;
 #if 1
 	sizeTotal += size;
@@ -32,12 +33,7 @@ void* OggMalloc(int size) {
 #endif
 }
 
-void* OggCalloc(int num, int size) {
-	void* ptr = calloc(num, size);
-	LOG_OGG("calloc, (%d,%d,%p)", num, size, ptr);
-	return ptr;
-}
-void* OggRealloc(void* ptr, int size) {
+void* OggRealloc(void* ptr, uint32_t size) {
 	void *ptrNew = realloc(ptr, size);
 	LOG_OGG("realloc, (%p->%p,%d)", ptr, ptrNew, size);
 	return ptrNew;
@@ -75,10 +71,9 @@ void OggMux(const char* fileNameIn)
 	Frame* ifrm = &ifrmOri;
 	//init
 	void* oggOpusMuxer;
-	OggMuxerApiParam_t oggMuxerApiParam;
+	OggMuxerApiParam_t oggMuxerApiParam = {0};
 
 	oggMuxerApiParam.malloc_cb = OggMalloc;
-	oggMuxerApiParam.calloc_cb = OggCalloc;
 	oggMuxerApiParam.realloc_cb = OggRealloc;
 	oggMuxerApiParam.free_cb = OggFree;
 	oggMuxerApiParam.printf_cb = OggPrint;
@@ -94,8 +89,9 @@ void OggMux(const char* fileNameIn)
 	oggMuxerApiParam.userComment.vendorStringLen = sizeof(vendorString) - 1;
 	oggMuxerApiParam.userComment.userCommentString = userComment;
 	oggMuxerApiParam.userComment.userCommentStringLen = sizeof(userComment) - 1;
+	//oggMuxerApiParam.page_byte_round = 400;
 	OggRet_t ret;
-	ret = OggMuxerApiCreate(&oggMuxerApiParam, &oggOpusMuxer);
+	ret = ogg_muxer_api_create(&oggMuxerApiParam, &oggOpusMuxer);
 	if (ret != OGG_RET_SUCCESS) {
 		LOG_OGG();
 	}
@@ -116,43 +112,45 @@ void OggMux(const char* fileNameIn)
 		ifrm->size = len;
 #if 1
 		{static int num = 0;
+		static int acc = 0;
 		if (num == 818)
 		{
 			isLastData = true;
 			int a = 1;
 		}
-		LOG_OGG("[%d] %d", num++, ifrm->size);
+		acc += ifrm->size;
+		//LOG_OGG("[%d] %d,%d", num++, ifrm->size, acc);
 		}
 #endif
 
 
 		if (isLastData) {
-			OggMuxerApiSet(oggOpusMuxer, OggMuxerApiSet_e::OGG_MUXER_API_SET_IS_EOS, (void*)1);
-			ret = OggMuxerApiReceive(oggOpusMuxer, (uint8_t*)ifrm->buff, ifrm->size);
+			ogg_muxer_api_set(oggOpusMuxer, OggMuxerApiSet_e::OGG_MUXER_API_SET_IS_EOS, (void*)1);
+			ret = ogg_muxer_api_receive(oggOpusMuxer, (uint8_t*)ifrm->buff, ifrm->size);
 			if (ret != OGG_RET_SUCCESS) {
 				LOG_OGG();
 				goto exit;
 			}
 		}
 		else {
-			ret = OggMuxerApiReceive(oggOpusMuxer, (uint8_t*)ifrm->buff, ifrm->size);
+			ret = ogg_muxer_api_receive(oggOpusMuxer, (uint8_t*)ifrm->buff, ifrm->size);
 			if (ret != OGG_RET_SUCCESS) {
 				LOG_OGG();
 				goto exit;
 			}
 		}
 
-		ret = OggMuxerApiGenerate(oggOpusMuxer);
+		ret = ogg_muxer_api_generate(oggOpusMuxer);
 		if (ret == OGG_RET_SUCCESS) {
 			OggPage_t oggPage;
-			OggMuxerApiGet(oggOpusMuxer, OggMuxerApiGet_e::OGG_MUXER_API_GET_DATA_PAGE, &oggPage);
+			ogg_muxer_api_get(oggOpusMuxer, OggMuxerApiGet_e::OGG_MUXER_API_GET_DATA_PAGE, &oggPage);
 			fwrite(oggPage.headData, 1, oggPage.headLen, fOut);
 			fwrite(oggPage.bodyData, 1, oggPage.bodyLen, fOut);
 			LOG_OGG("%d", oggPage.headLen+ oggPage.bodyLen);
 		}
 	}
 exit:
-	OggMuxerApiDestory(oggOpusMuxer);
+	ogg_muxer_api_destory(oggOpusMuxer);
 	free(ifrmOri.buff);
 	fclose(fIn);
 	fclose(fOut);
@@ -186,11 +184,10 @@ void OggDemux(const char* fileNameIn)
 	void* oggDemuxer = 0;
 	OggDeMuxerApiParam_t oggDeMuxerApiParam;
 	oggDeMuxerApiParam.malloc_cb = OggMalloc;
-	oggDeMuxerApiParam.calloc_cb = OggCalloc;
 	oggDeMuxerApiParam.realloc_cb = OggRealloc;
 	oggDeMuxerApiParam.free_cb = OggFree;
 	oggDeMuxerApiParam.printf_cb = OggPrint;
-	ret = OggDeMuxerApiCreate(&oggDeMuxerApiParam, &oggDemuxer);
+	ret = ogg_demuxer_api_create(&oggDeMuxerApiParam, &oggDemuxer);
 	bool idHeadIsOpus = false;
 	while (1) {
 		if (ifrm->offset) {
@@ -198,11 +195,13 @@ void OggDemux(const char* fileNameIn)
 			ifrm->offset = 0;
 		}
 		OggDeMuxerApiReceiveInfo_t receiveInfo;
-		OggDeMuxerApiGet(oggDemuxer, OggDeMuxerApiGet_e::OGG_DEMUXER_API_GET_RECEIVE_INFO, (void*)&receiveInfo);
+		ogg_demuxer_api_get(oggDemuxer, OggDeMuxerApiGet_e::OGG_DEMUXER_API_GET_RECEIVE_INFO, (void*)&receiveInfo);
 		uint8_t* iBuff = (uint8_t*)ifrm->buff + ifrm->offset;
 		int32_t remSize = ifrm->max - ifrm->offset - ifrm->size;
 		int32_t readByte = fread(iBuff + ifrm->size, 1, remSize, fIn);
-		//LOG_OGG("readByte:%d", readByte);
+		static int readByteAcc = 0;
+		readByteAcc += readByte;
+		LOG_OGG("readByte:%d,%d", readByte, readByteAcc);
 		if (readByte == 0) {
 			break;
 		}
@@ -210,7 +209,7 @@ void OggDemux(const char* fileNameIn)
 		//input
 		int32_t copyByte = ifrm->size < receiveInfo.bufMax ? ifrm->size : receiveInfo.bufMax;
 		memcpy(receiveInfo.buf, iBuff, copyByte);
-		ret = OggDeMuxerApiReceive(oggDemuxer, copyByte);
+		ret = ogg_demuxer_api_receive(oggDemuxer, copyByte);
 		if (ret == OGG_RET_FAIL) {
 			LOG_OGG(); return;
 		}
@@ -221,10 +220,10 @@ void OggDemux(const char* fileNameIn)
 		}
 
 		uint32_t* hasPage = 0;
-		OggDeMuxerApiGet(oggDemuxer, OggDeMuxerApiGet_e::OGG_DEMUXER_API_GET_HAS_ID_PAGE, (void*)&hasPage);
+		ogg_demuxer_api_get(oggDemuxer, OggDeMuxerApiGet_e::OGG_DEMUXER_API_GET_HAS_ID_PAGE, (void*)&hasPage);
 		if (hasPage &&!idHeadIsOpus) {
 			OggPage_t* idPage = 0;
-			OggDeMuxerApiGet(oggDemuxer, OggDeMuxerApiGet_e::OGG_DEMUXER_API_GET_ID_PAGE, (void*)&idPage);
+			ogg_demuxer_api_get(oggDemuxer, OggDeMuxerApiGet_e::OGG_DEMUXER_API_GET_ID_PAGE, (void*)&idPage);
 			if (idPage) {
 				//LOG_OGG("%.8s", idHead);
 			}
@@ -234,10 +233,10 @@ void OggDemux(const char* fileNameIn)
 
 		}
 
-		OggDeMuxerApiGet(oggDemuxer, OggDeMuxerApiGet_e::OGG_DEMUXER_API_GET_HAS_USER_PAGE, (void*)&hasPage);
+		ogg_demuxer_api_get(oggDemuxer, OggDeMuxerApiGet_e::OGG_DEMUXER_API_GET_HAS_USER_PAGE, (void*)&hasPage);
 		if (hasPage) {
 			OggPage_t* userPage = 0;
-			OggDeMuxerApiGet(oggDemuxer, OggDeMuxerApiGet_e::OGG_DEMUXER_API_GET_USER_PAGE, (void*)&userPage);
+			ogg_demuxer_api_get(oggDemuxer, OggDeMuxerApiGet_e::OGG_DEMUXER_API_GET_USER_PAGE, (void*)&userPage);
 			if (userPage) {
 				int a = 1;
 			}
@@ -248,14 +247,14 @@ void OggDemux(const char* fileNameIn)
 		int32_t oByte;
 #if 1
 		{static int num = 0;
-		if (num == 31)
+		if (num == 3)
 			int a = 1;
 		LOG_OGG("[%d]", num++); }
 #endif
 		while (1) {
 			if (idHeadIsOpus) {
 				oByte = ofrm->max - ofrm->offset - ofrm->size;
-				ret = OggDeMuxerApiGenerate(oggDemuxer, oBuff + ofrm->size + 8, &oByte);
+				ret = ogg_demuxer_api_generate(oggDemuxer, oBuff + ofrm->size + 8, &oByte);
 				if (ret == OGG_RET_FAIL) {
 					LOG_OGG();
 					goto exit;
@@ -268,11 +267,16 @@ void OggDemux(const char* fileNameIn)
 				}
 				else if (!oByte)
 					break;
+				if (!oByte) {
+					int a = 1;
+				}
 #if 1
 				{static int num = 0;
-				if (num == 802)
+				static int acc = 0;
+				if (num == 19)
 					int a = 1;
-				LOG_OGG("[%d] %d", num++, oByte); }
+				acc += oByte;
+				LOG_OGG("[%d] %d,%d", num++, oByte, acc); }
 #endif
 #if 1
 				char B4[4];
@@ -296,7 +300,7 @@ void OggDemux(const char* fileNameIn)
 			}
 			else {
 				oByte = ofrm->max - ofrm->offset - ofrm->size;
-				ret = OggDeMuxerApiGenerate(oggDemuxer, oBuff + ofrm->size, &oByte);
+				ret = ogg_demuxer_api_generate(oggDemuxer, oBuff + ofrm->size, &oByte);
 				if (ret == OGG_RET_FAIL) {
 					LOG_OGG();
 					goto exit;
@@ -318,7 +322,7 @@ void OggDemux(const char* fileNameIn)
 		ofrm->size = 0;
 	}
 exit:
-	OggDeMuxerApiDestory(oggDemuxer);
+	ogg_demuxer_api_destory(oggDemuxer);
 	free(ifrmOri.buff);
 	free(ofrmOri.buff);
 	fclose(fIn);
@@ -330,6 +334,68 @@ exit:
 
 void OggTest() {
 	LOG_OGG();
-	//OggMux(SOURCE_PATH OGGENC_FILE_NAME);
-	OggDemux(SOURCE_PATH OGGDEC_FILE_NAME);
+	OggMux(SOURCE_PATH OGGENC_FILE_NAME);
+	//OggDemux(SOURCE_PATH OGGDEC_FILE_NAME);
 }
+#endif
+
+
+#include"MTF.h"
+using namespace MTFApi_ns;
+
+#define PATH "../../source/container/ogg/"
+//#define FILE_NAME "test.opusx"
+//#define FILE_NAME "mbz_48k2h_40s.opusx"
+//#define FILE_NAME "test48k2ch.ogg"
+
+#define RATE 16000
+#define CHANNEL 1
+#define WIDTH 2
+
+using namespace MTFApi_ns;
+
+
+
+
+void OggTest()
+{
+	MTFApi::Init();
+	MTF_REGISTER(opus_demuxer);
+	MTF_REGISTER(opus_muxer);
+	MTF_REGISTER(ogg_demuxer);
+	MTF_REGISTER(ogg_muxer);
+#if 1
+	void* param[] = {
+		(void*)(PATH FILE_NAME),
+		(void*)(PATH FILE_NAME ".ogg"),
+		(void*)(2048),
+		(void*)(RATE),
+		(void*)(CHANNEL),
+		(void*)(WIDTH),
+	};
+	//, url = $0, fSamples = $2
+	const char* str = {
+	"|opus_demuxer,url=$0,rate=$3,ch=$4,witdh=$5|-->"
+	"|ogg_muxer,url=$1,pagebyte=$2|"
+	};
+#else
+	void* param[] = {
+	(void*)(PATH FILE_NAME),
+	(void*)(PATH FILE_NAME ".ogg"),
+	(void*)(2048),
+	(void*)(RATE),
+	(void*)(CHANNEL),
+	(void*)(WIDTH),
+	};
+	//, url = $0, fSamples = $2
+	const char* str = {
+	"|ogg_demuxer,url=$0,rate=$3,ch=$4,witdh=$5|-->"
+	"|ogg_muxer,url=$1,pagebyte=$2|"
+	};
+#endif
+	MTFApi::Api(str, param);
+
+}
+
+
+

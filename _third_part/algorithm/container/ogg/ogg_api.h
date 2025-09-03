@@ -1,6 +1,5 @@
 #pragma once
-
-#include"Ogg.h"
+#include <stdint.h>
 
 #ifndef EXTERNC
 #ifdef __cplusplus
@@ -57,14 +56,14 @@ typedef struct{
 
 typedef struct
 {
-	void* (*malloc_cb)(int32_t);
-	void* (*calloc_cb)(int32_t, int32_t);
-	void* (*realloc_cb)(void *, int32_t);
+	void* (*malloc_cb)(uint32_t);
+	void* (*realloc_cb)(void *, uint32_t);
 	void (*free_cb)(void*);
 	void (*printf_cb)(const char*, ...);
 	OggMuxerApiMode_e mode;
 	OggMuxerApiIdParam_t idParam;
 	OggMuxerApiUserComment_t userComment;
+	uint32_t page_byte_round;
 }OggMuxerApiParam_t;
 
 enum class OggDeMuxerApiSet_e {
@@ -90,9 +89,8 @@ enum class OggDeMuxerApiMode_e {
 
 typedef struct
 {
-	void* (*malloc_cb)(int32_t size);
-	void* (*calloc_cb)(int32_t, int32_t);
-	void* (*realloc_cb)(void*, int32_t);
+	void* (*malloc_cb)(uint32_t size);
+	void* (*realloc_cb)(void*, uint32_t);
 	void (*free_cb)(void* ptr);
 	void (*printf_cb)(const char* fmt, ...);
 }OggDeMuxerApiParam_t;
@@ -125,20 +123,19 @@ typedef struct {
 }OggPage_t;
 
 
-EXTERNC OggRet_t OggMuxerApiCreate(OggMuxerApiParam_t* oggMuxerApiParam, void** pHd);
-EXTERNC OggRet_t OggMuxerApiReceive(void* hd, uint8_t* buf, int32_t len);
-EXTERNC OggRet_t OggMuxerApiGenerate(void* hd);
-EXTERNC OggRet_t OggMuxerApiSet(void* hd, OggMuxerApiSet_e choose, void* val);
-EXTERNC OggRet_t OggMuxerApiGet(void* hd, OggMuxerApiGet_e choose, void* val);
-EXTERNC OggRet_t OggMuxerApiDestory(void* hd);
+EXTERNC OggRet_t ogg_muxer_api_create(OggMuxerApiParam_t* oggMuxerApiParam, void** pHd);
+EXTERNC OggRet_t ogg_muxer_api_receive(void* hd, uint8_t* buf, int32_t len);
+EXTERNC OggRet_t ogg_muxer_api_generate(void* hd, OggPage_t* page);
+EXTERNC OggRet_t ogg_muxer_api_set(void* hd, OggMuxerApiSet_e choose, void* val);
+EXTERNC OggRet_t ogg_muxer_api_get(void* hd, OggMuxerApiGet_e choose, void* val);
+EXTERNC OggRet_t ogg_muxer_api_destory(void* hd);
 
 
-
-EXTERNC OggRet_t OggDeMuxerApiCreate(OggDeMuxerApiParam_t* oggDeMuxerApiParam, void** pHd);
-EXTERNC OggRet_t OggDeMuxerApiReceive(void* hd, int32_t len);
-EXTERNC OggRet_t OggDeMuxerApiGenerate(void* hd, uint8_t* buf, int32_t* len);
-EXTERNC OggRet_t OggDeMuxerApiSet(void* hd, OggDeMuxerApiSet_e choose, void* val);
-EXTERNC OggRet_t OggDeMuxerApiGet(void* hd, OggDeMuxerApiGet_e choose, void* val);
-EXTERNC OggRet_t OggDeMuxerApiDestory(void* hd);
+EXTERNC OggRet_t ogg_demuxer_api_create(OggDeMuxerApiParam_t* oggDeMuxerApiParam, void** pHd);
+EXTERNC OggRet_t ogg_demuxer_api_receive(void* hd, int32_t len);
+EXTERNC OggRet_t ogg_demuxer_api_generate(void* hd, uint8_t* buf, int32_t* len);
+EXTERNC OggRet_t ogg_demuxer_api_set(void* hd, OggDeMuxerApiSet_e choose, void* val);
+EXTERNC OggRet_t ogg_demuxer_api_get(void* hd, OggDeMuxerApiGet_e choose, void* val);
+EXTERNC OggRet_t ogg_demuxer_api_destory(void* hd);
 
 

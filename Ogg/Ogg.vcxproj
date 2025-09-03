@@ -220,6 +220,7 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\_vsconfig\include path.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -395,8 +396,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../_third_part/algorithm/container/ogg;../TestLIb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../_third_part/algorithm/container/ogg;../TestLIb;$(MTF_PATH)/interface/ogg;$(MTF_PATH);$(MTF_PATH)/base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -502,16 +504,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggApi.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggBitwise.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggFraming.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggBase.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggDemuxerApi_c.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggDemuxer_c.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggMemoryManger_c.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggMuxerApi_c.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\OggMuxer_c.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\ogg_api.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\ogg_bitwise.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\ogg_framing.cpp" />
+    <ClCompile Include="..\_third_part\MTF\interface\ogg\MTF.OggDemuxer.cpp" />
+    <ClCompile Include="..\_third_part\MTF\interface\ogg\MTF.OggMuxer.cpp" />
     <ClCompile Include="OggTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggApi.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggCrctable.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\Ogg.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggTypes.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\ogg.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggBase.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggDemuxerApi_c.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggDemuxer_c.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggMemoryManger_c.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggMuxerApi_c.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\OggMuxer_c.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\ogg_api.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\ogg_crctable.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\ogg_types.h" />
+    <ClInclude Include="..\_third_part\MTF\interface\ogg\MTF.OggDemuxer.h" />
+    <ClInclude Include="..\_third_part\MTF\interface\ogg\MTF.OggMuxer.h" />
     <ClInclude Include="OggTest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
