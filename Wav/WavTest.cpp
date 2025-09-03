@@ -1,6 +1,5 @@
 #include"MTF.h"
 using namespace MTFApi_ns;
-
 #define PATH "../../source/audio/wav/"
 
 //#define FILE_NAME "chirp_sin_16k1ch.wav"
@@ -15,6 +14,7 @@ using namespace MTFApi_ns;
 void WavTest()
 {
 	MTFApi::Init();
+	//MultiemdiaTestInit();
 
 	MTF_REGISTER(wav_demuxer);
 	MTF_REGISTER(pcm_demuxer);

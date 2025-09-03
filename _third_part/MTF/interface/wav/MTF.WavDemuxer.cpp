@@ -123,6 +123,7 @@ mtf_int32 MTF_WavDemuxer::generate(MTF_Data*& oData)
 {
 #if 1
 	mtf_int32 readedSize = fread(_oData.LeftData(), 1, _oData.LeftSize(), (FILE*)_pFile);
+	//MTF_PRINT("%d,%d",_oData.LeftSize(), readedSize);
 	if (readedSize <= 0){
 		if (_oData._size <= 0)
 			_oData._flags |= MTF_DataFlag_EMPTY;

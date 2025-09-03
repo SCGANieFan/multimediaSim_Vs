@@ -1,4 +1,6 @@
+#include<stdio.h>
 #include"MTF.h"
+using namespace MTFApi_ns;
 #define PATH "../../source/audio/speedCtr/"
 
 #if 0
@@ -21,9 +23,17 @@
 #endif
 
 
-#if 1
 //48k2ch
-#define FILE_NAME "mbz_48k2h.wav"
+//#define FILE_NAME "mbz_48k2h.wav"
+#define FILE_NAME "stSection_16k1ch.wav"
+//#define FILE_NAME "sin5k48k2ch.wav"
+//#define FILE_NAME "sin5k48k2ch_L.wav"
+//#define FILE_NAME "sin5k16k1ch.wav"
+//#define FILE_NAME "sin3k16k1ch.wav"
+//#define FILE_NAME "sin0p816k1ch.wav"
+
+
+#if 0
 #define RATE 48000
 #define CHANNEL 2
 #define WIDTH 2
@@ -31,32 +41,36 @@
 
 
 #define FRAME_MS 20
-#define SPEED (1.5f)
+//#define SPEED (2.0f)
+//#define SPEED (1.5f)
+#define SPEED (0.8f)
+#define TO_STR0(name) #name
+#define TO_STR(name) TO_STR0(name)
+
+
+#define FILE_OUT_NAME FILE_NAME ".speed" TO_STR(SPEED) ".wav"
 
 void AudioSpeedCtrTest()
 {
-	MultiemdiaTestInit();
-
-	MTF_REGISTER(pcm_demuxer);
+	MTFApi::Init();
 	MTF_REGISTER(auio_speedCtr);
-	MTF_REGISTER(pcm_muxer);
-
+	//MTF_REGISTER(pcm_demuxer);
+	//MTF_REGISTER(pcm_muxer);
+	MTF_REGISTER(wav_demuxer);
+	MTF_REGISTER(wav_muxer);
 	uint32_t speedQ8 = (uint32_t)(SPEED * (1 << 8));
 	void* param[] = {
 		(void*)(PATH FILE_NAME),
-		(void*)(PATH FILE_NAME ".speed.pcm"),
-		(void*)RATE,
-		(void*)CHANNEL,
-		(void*)WIDTH,
+		(void*)(PATH FILE_OUT_NAME),
 		(void*)FRAME_MS,
 		(void*)speedQ8,
 	};
 
 	const char* str = {
-	"|pcm_demuxer,url=$0,rate=$2,ch=$3,width=$4,fMs=$5|-->"
-	"|auio_speedCtr,speedQ8=$6|-->"
-	"|pcm_muxer,url=$1|"
+	"|wav_demuxer,url=$0,fMs=$2|-->"
+	"|auio_speedCtr,speedQ8=$3|-->"
+	"|wav_muxer,url=$1|"
 	};
 
-	MultiemdiaApi(str, param);
+	MTFApi::Api(str, param);
 }

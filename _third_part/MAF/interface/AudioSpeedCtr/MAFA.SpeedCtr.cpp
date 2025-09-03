@@ -1,4 +1,6 @@
 #if 1
+#include <stdio.h>
+#include <stdarg.h>
 #include "MAFA.SpeedCtr.h"
 #include "MAF.Objects.h"
 #include "MAF.String.h"
@@ -8,6 +10,17 @@ maf_void maf_auio_speedCtr_register()
 {
 	MAF_Object::Registe<MAFA_SpeedCtr>("auio_speedCtr");
 }
+
+#ifdef WIN32
+static void PrintLocal(const char* fmt, ...) {
+	static char buf[256];
+	va_list args;
+	va_start(args, fmt);
+	vsprintf(buf, fmt, args);
+	va_end(args);
+	printf("%s", buf);
+}
+#endif
 
 maf_void* MAFA_SpeedCtr::_malloc = 0;
 maf_void* MAFA_SpeedCtr::_free = 0;
@@ -27,7 +40,7 @@ maf_int32 MAFA_SpeedCtr::Init()
 	_free= _memory.GetFree();
 #endif
 
-#if 1
+#if 0
 	_hdSize = AudioSpeedControl_GetStateSize();
 	_hd = _memory.Malloc(_hdSize);
 	if (!_hd) {
@@ -37,11 +50,11 @@ maf_int32 MAFA_SpeedCtr::Init()
 #if 1
 	AudioSpeedInitParam param;
 	MAF_MEM_SET(&param, 0, sizeof(AudioSpeedInitParam));
-	_basePorting = _memory.Malloc(sizeof(AlgoBasePorting));
-	AlgoBasePorting* basePorting = (AlgoBasePorting*)_basePorting;
+	_basePorting = _memory.Malloc(sizeof(AlgoBasePorting_t));
+	AlgoBasePorting_t* basePorting = (AlgoBasePorting_t*)_basePorting;
 
-	basePorting->Malloc = (ALGO_Malloc_t)MallocLocal;
-	basePorting->Free = (ALGO_Free_t)FreeLocal;
+	basePorting->Malloc = MallocLocal;
+	basePorting->Free = FreeLocal;
 	param.basePorting = basePorting;
 	param.fsHz = _rate;
 	param.width = _width;
@@ -73,7 +86,20 @@ maf_int32 MAFA_SpeedCtr::Init()
 	size = 10 * 1024;
 	buf = _memory.Malloc(size);
 	_oDataCache.Init((maf_uint8*)buf, 0, size);
+#else
+	AudioSpeedControlApiParam_t paramAS;
+	paramAS.port.cb_malloc = MallocLocal;
+	paramAS.port.cb_free = FreeLocal;
+	paramAS.port.cb_printf = PrintLocal;
+	paramAS.sampleRate = _rate;
+	paramAS.channels = _ch;
+	paramAS.sampleWidth = _width;
 	
+	_hd = AudioSpeedCtrApi_c::Create(&paramAS);
+	if (!_hd) {
+		return false;
+	}
+	AudioSpeedCtrApi_c::Set(_hd, AudioSpeedCtrApiSet_e::AUDIO_SPEED_CTR_API_SET_SPEED, &_speed);
 #endif
 	return 0;
 }
@@ -81,13 +107,17 @@ maf_int32 MAFA_SpeedCtr::Init()
 maf_int32 MAFA_SpeedCtr::Deinit()
 {
 	MAF_PRINT();
-#if 1
+#if 0
 	MAF_PRINT("_hd=%x", (maf_uint32)_hd);
 	AudioSpeedControl_DeInit(_hd);
 	_memory.Free(_hd);
 	if(_basePorting)
 		_memory.Free(_basePorting);
-
+#else
+	if (_hd)
+	{
+		AudioSpeedCtrApi_c::Destory(_hd);
+	}
 #endif
 	return 0;
 }
@@ -95,7 +125,7 @@ maf_int32 MAFA_SpeedCtr::Deinit()
 maf_int32 MAFA_SpeedCtr::Process(MAF_Data* dataIn, MAF_Data* dataOut)
 {
 	static int num = 0;
-#if 1
+#if 0
 	int32_t inUsed;
 	int32_t outLen;
 	
@@ -116,8 +146,26 @@ maf_int32 MAFA_SpeedCtr::Process(MAF_Data* dataIn, MAF_Data* dataOut)
 		_oDataCache.ClearUsed();
 	}
 
-	//MAF_PRINT("[%d],isize:%d,osize:%d", num++, dataIn->GetSize(), dataOut->GetSize());
+	MAF_PRINT("[%d],isize:%d,osize:%d", num++, dataIn->GetSize(), dataOut->GetSize());
 	dataIn->Used(dataIn->GetSize());
+#else
+	int32_t outSize = dataOut->GetLeftSize();
+	int32_t ret = AudioSpeedCtrApi_c::Run(_hd, (uint8_t*) dataIn->GetData(), dataIn->GetSize(), (uint8_t*)dataOut->GetLeftData(), &outSize);
+#if 1
+	if (ret != AUDIO_SPEED_CTR_API_RET_SUCCESS) {
+		//if ((dataIn->CheckFlag(MAFA_FRAME_IS_EOS))) {
+		//	return true;
+		//}
+		return 0;
+	}
+#endif
+	{
+		if (num == 7)
+			int a = 1;
+		//MAF_PRINT("[%d],isize:%d,osize:%d", num++, dataIn->GetSize(), outSize);
+	}
+	dataIn->Used(dataIn->GetSize());
+	dataOut->Append(outSize);
 #endif
 	return 0;
 }
@@ -125,7 +173,8 @@ maf_int32 MAFA_SpeedCtr::Process(MAF_Data* dataIn, MAF_Data* dataOut)
 maf_int32 MAFA_SpeedCtr::Set(const maf_int8* key, maf_void* val)
 {
 	if (MAF_String::StrCompare(key, "speedQ8")){
-		_speed = (maf_float)(maf_uint32)val / (1 << 8); return 0;
+		_speed = (maf_float)(maf_uint32)val / (1 << 8); 
+		return 0;
 	}
 	return MAF_Audio::Set(key, val);
 }
@@ -141,7 +190,11 @@ maf_void* MAFA_SpeedCtr::MallocLocal(int32_t size)
 #if 1
 	static maf_int32 sizeTotal = 0;
 	sizeTotal += size;
+#if 0
 	maf_void* ptr = ((ALGO_Malloc_t)_malloc)(size);
+#else
+	maf_void* ptr = malloc(size);
+#endif
 	MAF_PRINT("malloc, ptr:%x, size:%d, sizeTotal:%d,", (maf_uint32)ptr, size, sizeTotal);
 	return ptr;
 #else
@@ -154,7 +207,12 @@ maf_void MAFA_SpeedCtr::FreeLocal(maf_void* block)
 #if 1
 	MAF_PRINT("free, ptr:%x", (maf_uint32)block);
 #endif
+#if 0
 	return ((ALGO_Free_t)_free)(block);
+#else
+	return (free)(block);
+#endif
 }
+
 #endif
 #endif

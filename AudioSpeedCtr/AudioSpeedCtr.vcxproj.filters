@@ -13,26 +13,35 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioSpeedCtrTest.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\speed_control\AudioSpeedControl.h">
-      <Filter>lib</Filter>
-    </ClInclude>
     <ClInclude Include="..\_third_part\MAF\interface\AudioSpeedCtr\MAFA.SpeedCtr.h">
       <Filter>maf</Filter>
     </ClInclude>
     <ClInclude Include="..\_third_part\MTF\interface\AudioSpeedCtr\MTF.AudioSpeedCtr.h">
       <Filter>mtf</Filter>
     </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\speed_control\AudioSpeedControl.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\speed_control\AudioSpeedControlInner.h">
+      <Filter>lib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioSpeedCtrTest.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\speed_control\AudioSpeedControl.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
     <ClCompile Include="..\_third_part\MAF\interface\AudioSpeedCtr\MAFA.SpeedCtr.cpp">
       <Filter>maf</Filter>
     </ClCompile>
     <ClCompile Include="..\_third_part\MTF\interface\AudioSpeedCtr\MTF.AudioSpeedCtr.cpp">
       <Filter>mtf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\speed_control\Overlap.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\speed_control\SeekBestLag.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\speed_control\AudioSpeedControl.cpp">
+      <Filter>lib</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
