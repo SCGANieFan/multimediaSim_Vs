@@ -26,7 +26,7 @@ MTF_PcmMuxer::~MTF_PcmMuxer()
 }
 
 
-mtf_int32 MTF_PcmMuxer::Init()
+mtf_i32 MTF_PcmMuxer::Init()
 {
 	MTF_PRINT();
 	if (!_url) {
@@ -39,12 +39,12 @@ mtf_int32 MTF_PcmMuxer::Init()
 		return -1;
 	}
 
-	mtf_int32 size = _frameBytes;
-	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	mtf_i32 size = _frameBytes;
+	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
 	return 0;
 }
 
-mtf_int32 MTF_PcmMuxer::receive(MTF_Data& iData)
+mtf_i32 MTF_PcmMuxer::receive(MTF_Data& iData)
 {
 	if (iData._flags & MTF_DataFlag_ESO)
 		return -1;
@@ -53,17 +53,17 @@ mtf_int32 MTF_PcmMuxer::receive(MTF_Data& iData)
 	return 0;
 }
 
-mtf_int32 MTF_PcmMuxer::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_PcmMuxer::Set(const char* key, mtf_void* val)
 {
 	if (MTF_String::StrCompare(key, "url"))
 	{
-		MTF_PRINT("url,%s", (const mtf_int8*)val);
-		_url = (const mtf_int8*)val;
+		MTF_PRINT("url,%s", (const char*)val);
+		_url = (const char*)val;
 		return 0;
 }
 	return MTF_Sink::Set(key, val);
 }
-mtf_int32 MTF_PcmMuxer::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_PcmMuxer::Get(const char* key, mtf_void* val)
 {
 	return MTF_Sink::Get(key, val);
 }

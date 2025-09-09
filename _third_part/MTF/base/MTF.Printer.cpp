@@ -14,12 +14,12 @@ MTF_Printer::MTF_Printer()
 MTF_Printer::~MTF_Printer()
 {
 }
-mtf_void MTF_Printer::Printf(const mtf_int8* _Format, ...)
+mtf_void MTF_Printer::Printf(const char* _Format, ...)
 {
-    mtf_int8 buf[256];
+    char buf[256];
     va_list args;
     va_start(args, _Format);
-    vsprintf(buf, (const mtf_int8*)_Format, args);
+    vsprintf(buf, (const char*)_Format, args);
     va_end(args);
     printf_inner(buf);
 }

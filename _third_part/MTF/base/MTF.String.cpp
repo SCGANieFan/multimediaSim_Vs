@@ -1,5 +1,6 @@
 #include "MTF.String.h"
 #include<string.h>
+using namespace mtf_ns;
 MTF_String::MTF_String()
 {
 }
@@ -7,37 +8,37 @@ MTF_String::~MTF_String()
 {
 }
 
-void* MTF_String::MemCpy(mtf_int8* dst, mtf_int8* src, mtf_int32 size)
+void* MTF_String::MemCpy(mtf_i8* dst, mtf_i8* src, mtf_i32 size)
 {
 	return memcpy(dst, src, size);
 }
-void* MTF_String::MemSet(mtf_int8* dst, mtf_int32 val, mtf_int32 size)
+void* MTF_String::MemSet(mtf_i8* dst, mtf_i32 val, mtf_i32 size)
 {
 	return memset(dst, val, size);
 }
-void* MTF_String::MemMove(mtf_int8* dst, mtf_int8* src, mtf_int32 size)
+void* MTF_String::MemMove(mtf_i8* dst, mtf_i8* src, mtf_i32 size)
 {
 	return memmove(dst, src, size);
 }
 
 
-mtf_int32 MTF_String::StrLen(const mtf_int8* str)
+mtf_i32 MTF_String::StrLen(const char* str)
 {
-	mtf_int32 strLen = 0;
+	mtf_i32 strLen = 0;
 	while (*str++ != '\0')
 		strLen++;
 	return strLen;
 }
 
-mtf_int32 MTF_String::Search(const mtf_int8* str, const mtf_int8* temp, mtf_int32 posStart, mtf_int32 posEnd, mtf_bool dir)
+mtf_i32 MTF_String::Search(const char* str, const char* temp, mtf_i32 posStart, mtf_i32 posEnd, mtf_bool dir)
 {
 	str += posStart;
-	mtf_int32 strLen = posEnd - posStart + 1;
-	mtf_int32 tempLen = StrLen(temp);
-	mtf_int32 pos = -1;
+	mtf_i32 strLen = posEnd - posStart + 1;
+	mtf_i32 tempLen = StrLen(temp);
+	mtf_i32 pos = -1;
 	if (dir == true)//left -> right
 	{
-		for (mtf_int32 sl = 0; sl <= strLen; sl++)
+		for (mtf_i32 sl = 0; sl <= strLen; sl++)
 		{
 			if (str[sl] == temp[0])
 			{
@@ -46,7 +47,7 @@ mtf_int32 MTF_String::Search(const mtf_int8* str, const mtf_int8* temp, mtf_int3
 					pos = -1;
 					break;
 				}
-				mtf_int32 off = 1;
+				mtf_i32 off = 1;
 				for (off = 1; off < tempLen; off++)
 				{
 					if (str[sl + off] != temp[off])
@@ -64,7 +65,7 @@ mtf_int32 MTF_String::Search(const mtf_int8* str, const mtf_int8* temp, mtf_int3
 	}
 	else
 	{
-		for (mtf_int32 sl = strLen-1; sl >= 0; sl--)
+		for (mtf_i32 sl = strLen-1; sl >= 0; sl--)
 		{
 			if (str[sl] == temp[tempLen-1])
 			{
@@ -73,7 +74,7 @@ mtf_int32 MTF_String::Search(const mtf_int8* str, const mtf_int8* temp, mtf_int3
 					pos = -1;
 					break;
 				}
-				mtf_int32 off = tempLen - 2;
+				mtf_i32 off = tempLen - 2;
 				for (off = tempLen-2; off >= 0; off--)
 				{
 					if (str[sl + off - (tempLen - 1)] != temp[off])
@@ -92,42 +93,42 @@ mtf_int32 MTF_String::Search(const mtf_int8* str, const mtf_int8* temp, mtf_int3
 	return pos + posStart;
 }
 
-mtf_int32 MTF_String::Search(const mtf_int8* str, const mtf_int8* temp, mtf_bool dir)
+mtf_i32 MTF_String::Search(const char* str, const char* temp, mtf_bool dir)
 {
 
-	mtf_int32 strLen = StrLen(str);
+	mtf_i32 strLen = StrLen(str);
 	return Search(str, temp, 0, strLen, dir);
 }
 
 
-mtf_int32 MTF_String::Cut(const mtf_int8* str, const mtf_int8* characteristic, mtf_int8* out, mtf_int32 outByteMax)
+mtf_i32 MTF_String::Cut(const char* str, const char* characteristic, mtf_i8* out, mtf_i32 outByteMax)
 {
-	mtf_int32	pos = Search(str, characteristic);
+	mtf_i32	pos = Search(str, characteristic);
 	if (pos < 0)
 		return -1;
-	mtf_int32 outByte = pos;
+	mtf_i32 outByte = pos;
 	outByte = outByte > outByteMax ? outByteMax : outByte;
-	MTF_MEM_CPY(out, (mtf_int8*)str, outByte);
+	MTF_MEM_CPY(out, (mtf_i8*)str, outByte);
 	return pos;
 }
-mtf_int32 MTF_String::Cut(const mtf_int8* str, const mtf_int8* characteristic, mtf_int8* out)
+mtf_i32 MTF_String::Cut(const char* str, const char* characteristic, mtf_i8* out)
 {
 	return Cut(str, characteristic, out, 1024);
 }
 
-mtf_int32 MTF_String::StrAppend(mtf_int8* src, mtf_int8* dst)
+mtf_i32 MTF_String::StrAppend(mtf_i8* src, mtf_i8* dst)
 {
 	//for
 	return 0;
 }
 
-bool MTF_String::StrCompare(const mtf_int8* cmp0, const mtf_int8* cmp1)
+bool MTF_String::StrCompare(const char* cmp0, const char* cmp1)
 {
 	
-	mtf_int32 len0 = StrLen(cmp0);
-	mtf_int32 len1 = StrLen(cmp1);
-	mtf_int32 lenMin = len0 > len1 ? len1 : len0;
-	for (mtf_int32 i = 0; i < lenMin; i++)
+	mtf_i32 len0 = StrLen(cmp0);
+	mtf_i32 len1 = StrLen(cmp1);
+	mtf_i32 lenMin = len0 > len1 ? len1 : len0;
+	for (mtf_i32 i = 0; i < lenMin; i++)
 	{
 		if (*cmp0++ != *cmp1++)
 			return false;
@@ -135,10 +136,22 @@ bool MTF_String::StrCompare(const mtf_int8* cmp0, const mtf_int8* cmp1)
 	return true;
 }
 
-const mtf_int8* MTF_String::BaseName(const mtf_int8* str)
+const char* MTF_String::BaseName(const char* str)
 {
-	mtf_int32  pos = Search(str, "\\", false);
+	mtf_i32  pos = Search(str, "\\", false);
 	return str + pos + 1;
 }
 
 
+namespace mtf_ns {
+	void ID2StringNoLose(mtf_u64 id, char* s, mtf_u16 len) {
+		if (len < 8) {
+			s[0] = '\0';
+		}
+		MTF_MEM_CPY(s, &id, 8);
+	}
+	void ID2StringNoLose(mtf_u32 id, char* s, mtf_u16 len) {
+	}
+
+
+}

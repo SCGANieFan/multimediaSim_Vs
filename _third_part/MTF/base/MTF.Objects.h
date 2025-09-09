@@ -2,20 +2,21 @@
 #include"MTF.Object.h"
 #include"MTF.Memory.h"
 #include<new>
+using namespace mtf_ns;
 class MTF_Objects
 {
 protected:
 	typedef struct
 	{
 		mtf_void* create;
-		const mtf_int8* type;
+		const char* type;
 	}Item;
 public:
 	MTF_Objects();
 	~MTF_Objects();
 public:
 	template<class T>
-	static bool Registe(const mtf_int8* type)
+	static bool Registe(const char* type)
 	{
 		for (auto& item : objects._items)
 		{
@@ -38,11 +39,11 @@ public:
 		}
 		return false;
 	}
-	static mtf_void* Create(const mtf_int8* type);
+	static mtf_void* Create(const char* type);
 
 private:
-	static Item* Search(const mtf_int8* type);
-	static bool IsTypeEqual(const mtf_int8* type0, const mtf_int8* type1);
+	static Item* Search(const char* type);
+	static bool IsTypeEqual(const char* type0, const char* type1);
 private:
 	static MTF_Objects objects;
 	Item _items[10];

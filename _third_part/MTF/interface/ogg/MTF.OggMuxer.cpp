@@ -64,7 +64,7 @@ void MTF_OggMuxer::OggPrint(const char* fmt, ...) {
 }
 #endif
 
-mtf_int32 MTF_OggMuxer::Init()
+mtf_i32 MTF_OggMuxer::Init()
 {
 	MTF_PRINT();
 	if (!_url) {
@@ -103,7 +103,7 @@ mtf_int32 MTF_OggMuxer::Init()
 	return 0;
 }
 
-mtf_int32 MTF_OggMuxer::receive(MTF_Data& iData)
+mtf_i32 MTF_OggMuxer::receive(MTF_Data& iData)
 {
 	OggRet_t ret;
 	if (iData._flags & MTF_DataFlag_ESO) {
@@ -136,22 +136,22 @@ mtf_int32 MTF_OggMuxer::receive(MTF_Data& iData)
 	return 0;
 }
 
-mtf_int32 MTF_OggMuxer::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_OggMuxer::Set(const char* key, mtf_void* val)
 {
 	if (MTF_String::StrCompare(key, "url"))
 	{
-		MTF_PRINT("url,%s", (const mtf_int8*)val);
-		_url = (const mtf_int8*)val;
+		MTF_PRINT("url,%s", (const char*)val);
+		_url = (const char*)val;
 		return 0;
 	}
 	else if(MTF_String::StrCompare(key, "pagebyte")){
-		_page_byte_round = (mtf_uint32)val;
+		_page_byte_round = (mtf_u32)val;
 		return 0;
 	}
 	
 	return MTF_Sink::Set(key, val);
 }
-mtf_int32 MTF_OggMuxer::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_OggMuxer::Get(const char* key, mtf_void* val)
 {
 	return MTF_Sink::Get(key, val);
 }

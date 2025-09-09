@@ -26,7 +26,7 @@ MTF_PcmDemuxer ::~MTF_PcmDemuxer ()
 	
 }
 
-mtf_int32 MTF_PcmDemuxer::Init()
+mtf_i32 MTF_PcmDemuxer::Init()
 {
 	MTF_PRINT();
 	if (!_url) {
@@ -39,19 +39,19 @@ mtf_int32 MTF_PcmDemuxer::Init()
 		return -1;
 	}
 
-	mtf_int32 size = _frameBytes;
-	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	mtf_i32 size = _frameBytes;
+	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
 	
 	
 	return 0;
 }
 
 
-mtf_int32 MTF_PcmDemuxer::generate(MTF_Data*& oData)
+mtf_i32 MTF_PcmDemuxer::generate(MTF_Data*& oData)
 {
 	if (!(_oData._flags & MTF_DataFlag_ESO))
 	{
-		mtf_int32 readedSize = fread(_oData.LeftData(), 1, _oData.LeftSize(), (FILE*)_pFile);
+		mtf_i32 readedSize = fread(_oData.LeftData(), 1, _oData.LeftSize(), (FILE*)_pFile);
 		if (readedSize < _oData.LeftSize()) {
 			_oData._flags |= MTF_DataFlag_ESO;
 		}
@@ -65,18 +65,18 @@ mtf_int32 MTF_PcmDemuxer::generate(MTF_Data*& oData)
 }
 
 
-mtf_int32 MTF_PcmDemuxer ::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_PcmDemuxer ::Set(const char* key, mtf_void* val)
 {
 	if (MTF_String::StrCompare(key, "url"))
 	{
-		MTF_PRINT("url,%s", (const mtf_int8*)val);
-		_url = (const mtf_int8*)val;
+		MTF_PRINT("url,%s", (const char*)val);
+		_url = (const char*)val;
 
 		return 0;
 	}
 	return MTF_AudioDemuxer::Set(key, val);
 }
-mtf_int32 MTF_PcmDemuxer ::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_PcmDemuxer ::Get(const char* key, mtf_void* val)
 {
 	return MTF_AudioDemuxer::Get(key, val);
 }

@@ -34,10 +34,10 @@ MTF_H265Dec::~MTF_H265Dec()
 	}
 }
 
-mtf_int32 MTF_H265Dec::Init()
+mtf_i32 MTF_H265Dec::Init()
 {	
 	//lib init
-	const mtf_int8* type = "h265_dec";
+	const char* type = "h265_dec";
 	MA_Ret ret;
 	ret = MAF_GetHandleSize(type, &_hdSize);
 	if (ret != MA_RET_SUCCESS)
@@ -56,25 +56,25 @@ mtf_int32 MTF_H265Dec::Init()
 	(mtf_void*)MTF_Memory::Free,	
 	};
 
-	const mtf_int8* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4;";
+	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4;";
 	ret = MAF_Init(_hd, script, param);
 	if (ret != MA_RET_SUCCESS)
 		MTF_PRINT("err");
 
 	//io data
-	mtf_int32 size = 2*1024*1024;
+	mtf_i32 size = 2*1024*1024;
 #if 0
-	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
 #endif
-	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
 
 	return 0;
 }
 
-mtf_int32 MTF_H265Dec::receive(MTF_Data& iData)
+mtf_i32 MTF_H265Dec::receive(MTF_Data& iData)
 {
 #if 0
-	mtf_int32 appendSize = _iData.LeftSize();
+	mtf_i32 appendSize = _iData.LeftSize();
 	appendSize = appendSize < iData._size ? appendSize : iData._size;
 	_iData.Append(iData.Data(), appendSize);
 	if (iData._flags & MTF_DataFlag_ESO)
@@ -91,7 +91,7 @@ mtf_int32 MTF_H265Dec::receive(MTF_Data& iData)
 	return 0;
 }
 
-mtf_int32 MTF_H265Dec::generate(MTF_Data*& oData)
+mtf_i32 MTF_H265Dec::generate(MTF_Data*& oData)
 {
 	_frames++;
 	AA_Data AA_oData;
@@ -109,19 +109,19 @@ mtf_int32 MTF_H265Dec::generate(MTF_Data*& oData)
 	return 0;
 }
 
-mtf_int32 MTF_H265Dec::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_H265Dec::Set(const char* key, mtf_void* val)
 {
 #if 0
 	if (MTF_String::StrCompare(key, "decayMs")) {
-		_decayMs = (mtf_int16)val; return 0;
+		_decayMs = (mtf_i16)val; return 0;
 	}
 	else if (MTF_String::StrCompare(key, "overlapMs")) {
-		_overlapMs = (mtf_int16)val; return 0;
+		_overlapMs = (mtf_i16)val; return 0;
 	}
 #endif
 	return MTF_VideoProcess::Set(key, val);
 }
-mtf_int32 MTF_H265Dec::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_H265Dec::Get(const char* key, mtf_void* val)
 {
 	return MTF_VideoProcess::Get(key, val);
 }

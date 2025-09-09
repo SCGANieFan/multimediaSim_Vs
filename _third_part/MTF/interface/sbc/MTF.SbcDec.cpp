@@ -32,10 +32,10 @@ MTF_SbcDec::~MTF_SbcDec()
 	}
 }
 
-mtf_int32 MTF_SbcDec::Init()
+mtf_i32 MTF_SbcDec::Init()
 {	
 	//lib init
-	const mtf_int8* type = "sbc_dec";
+	const char* type = "sbc_dec";
 	MA_Ret ret;
 	ret = MAF_GetHandleSize(type, &_hdSize);
 	if (ret != MA_RET_SUCCESS)
@@ -57,23 +57,23 @@ mtf_int32 MTF_SbcDec::Init()
 	(mtf_void*)_width,
 	};
 
-	const mtf_int8* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
+	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
 							 ",rate=$5,ch=$6,width=$7;";
 	ret = MAF_Init(_hd, script, param);
 	if (ret != MA_RET_SUCCESS)
 		MTF_PRINT("err");
 
 	//io data
-	mtf_int32 size = _frameBytes;
-	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
-	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	mtf_i32 size = _frameBytes;
+	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
 
 	return 0;
 }
 
-mtf_int32 MTF_SbcDec::receive(MTF_Data& iData)
+mtf_i32 MTF_SbcDec::receive(MTF_Data& iData)
 {
-	mtf_int32 appendSize = _iData.LeftSize();
+	mtf_i32 appendSize = _iData.LeftSize();
 	appendSize = appendSize < iData._size ? appendSize : iData._size;
 	_iData.Append(iData.Data(), appendSize);
 	if (iData._flags & MTF_DataFlag_ESO)
@@ -83,7 +83,7 @@ mtf_int32 MTF_SbcDec::receive(MTF_Data& iData)
 	return 0;
 }
 
-mtf_int32 MTF_SbcDec::generate(MTF_Data*& oData)
+mtf_i32 MTF_SbcDec::generate(MTF_Data*& oData)
 {
 	AA_Data AA_iData;
 	MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
@@ -107,19 +107,19 @@ mtf_int32 MTF_SbcDec::generate(MTF_Data*& oData)
 	return 0;
 }
 
-mtf_int32 MTF_SbcDec::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_SbcDec::Set(const char* key, mtf_void* val)
 {
 #if 0
 	if (MTF_String::StrCompare(key, "decayMs")) {
-		_decayMs = (mtf_int16)val; return 0;
+		_decayMs = (mtf_i16)val; return 0;
 	}
 	else if (MTF_String::StrCompare(key, "overlapMs")) {
-		_overlapMs = (mtf_int16)val; return 0;
+		_overlapMs = (mtf_i16)val; return 0;
 	}
 #endif
 	return MTF_AudioProcess::Set(key, val);
 }
-mtf_int32 MTF_SbcDec::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_SbcDec::Get(const char* key, mtf_void* val)
 {
 	return MTF_AudioProcess::Get(key, val);
 }

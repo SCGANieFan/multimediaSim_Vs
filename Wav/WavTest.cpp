@@ -14,7 +14,6 @@ using namespace MTFApi_ns;
 void WavTest()
 {
 	MTFApi::Init();
-	//MultiemdiaTestInit();
 
 	MTF_REGISTER(wav_demuxer);
 	MTF_REGISTER(pcm_demuxer);

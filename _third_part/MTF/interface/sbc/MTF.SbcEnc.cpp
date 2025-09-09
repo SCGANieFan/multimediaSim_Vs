@@ -32,10 +32,10 @@ MTF_SbcEnc::~MTF_SbcEnc()
 	}
 }
 
-mtf_int32 MTF_SbcEnc::Init()
+mtf_i32 MTF_SbcEnc::Init()
 {
 	//lib init
-	const mtf_int8* type = "sbc_enc";
+	const char* type = "sbc_enc";
 	MA_Ret ret;
 	ret = MAF_GetHandleSize(type, &_hdSize);
 	if (ret != MA_RET_SUCCESS)
@@ -53,12 +53,12 @@ mtf_int32 MTF_SbcEnc::Init()
 	else if (MAF_String::StrCompare(key, "allocMethod")) {
 	else if (MAF_String::StrCompare(key, "sbcMode")) {
 
-	mtf_uint8 _bitPool = 0;
-	mtf_uint8 _blocks = 0;
-	mtf_uint8 _subBands = 0;
-	mtf_uint8 _channelMode = 0;
-	mtf_uint8 _allocMethod = 0;
-	mtf_uint8 _sbcMode = 0;
+	mtf_u8 _bitPool = 0;
+	mtf_u8 _blocks = 0;
+	mtf_u8 _subBands = 0;
+	mtf_u8 _channelMode = 0;
+	mtf_u8 _allocMethod = 0;
+	mtf_u8 _sbcMode = 0;
 #endif
 	mtf_void* param[] = {
 	(mtf_void*)type,
@@ -77,7 +77,7 @@ mtf_int32 MTF_SbcEnc::Init()
 	(mtf_void*)_sbcMode,
 	};
 
-	const mtf_int8* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
+	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
 							 ",rate=$5,ch=$6,width=$7"\
 							 ",bitPool=$8,blocks=$9,subBands=$10,channelMode=$11,allocMethod=$12,sbcMode=$13;";
 	ret = MAF_Init(_hd, script, param);
@@ -85,16 +85,16 @@ mtf_int32 MTF_SbcEnc::Init()
 		MTF_PRINT("err");
 
 	//io data
-	mtf_int32 size = _frameBytes;
-	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
-	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	mtf_i32 size = _frameBytes;
+	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
 
 	return 0;
 }
 
-mtf_int32 MTF_SbcEnc::receive(MTF_Data& iData)
+mtf_i32 MTF_SbcEnc::receive(MTF_Data& iData)
 {
-	mtf_int32 appendSize = _iData.LeftSize();
+	mtf_i32 appendSize = _iData.LeftSize();
 	appendSize = appendSize < iData._size ? appendSize : iData._size;
 	_iData.Append(iData.Data(), appendSize);
 	if (iData._flags & MTF_DataFlag_ESO)
@@ -105,7 +105,7 @@ mtf_int32 MTF_SbcEnc::receive(MTF_Data& iData)
 }
 
 
-mtf_int32 MTF_SbcEnc::generate(MTF_Data*& oData)
+mtf_i32 MTF_SbcEnc::generate(MTF_Data*& oData)
 {
 #if 0
 	AA_Data AA_iData;
@@ -159,31 +159,31 @@ mtf_int32 MTF_SbcEnc::generate(MTF_Data*& oData)
 #endif
 }
 
-mtf_int32 MTF_SbcEnc::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_SbcEnc::Set(const char* key, mtf_void* val)
 {
 #if 1
 	if (MTF_String::StrCompare(key, "bitPool")) {
-		_bitPool = (mtf_int16)val; return 0;
+		_bitPool = (mtf_i16)val; return 0;
 	}
 	else if (MTF_String::StrCompare(key, "blocks")) {
-		_blocks = (mtf_int16)val; return 0;
+		_blocks = (mtf_i16)val; return 0;
 	}
 	else if (MTF_String::StrCompare(key, "subBands")) {
-		_subBands = (mtf_int16)val; return 0;
+		_subBands = (mtf_i16)val; return 0;
 	}
 	else if (MTF_String::StrCompare(key, "channelMode")) {
-		_channelMode = (mtf_int16)val; return 0;
+		_channelMode = (mtf_i16)val; return 0;
 	}
 	else if (MTF_String::StrCompare(key, "allocMethod")) {
-		_allocMethod = (mtf_int16)val; return 0;
+		_allocMethod = (mtf_i16)val; return 0;
 	}
 	else if (MTF_String::StrCompare(key, "sbcMode")) {
-		_sbcMode = (mtf_int16)val; return 0;
+		_sbcMode = (mtf_i16)val; return 0;
 	}
 #endif
 	return MTF_AudioProcess::Set(key, val);
 }
-mtf_int32 MTF_SbcEnc::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_SbcEnc::Get(const char* key, mtf_void* val)
 {
 	return MTF_AudioProcess::Get(key, val);
 }

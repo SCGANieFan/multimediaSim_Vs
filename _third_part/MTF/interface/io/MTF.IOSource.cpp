@@ -2,7 +2,7 @@
 #include "MTF.IOSource.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
-
+using namespace mtf_ns;
 void mtf_io_source_register()
 {
 	MTF_Objects::Registe<MTF_IOSource>("io_source");
@@ -26,7 +26,7 @@ MTF_IOSource ::~MTF_IOSource ()
 	
 }
 
-mtf_int32 MTF_IOSource::Init()
+mtf_i32 MTF_IOSource::Init()
 {
 	MTF_PRINT();
 	if (!_url) {
@@ -38,16 +38,16 @@ mtf_int32 MTF_IOSource::Init()
 		MTF_PRINT("error, no such file:%s", _url);
 		return -1;
 	}
-	_oData.Init((mtf_uint8*)MTF_MALLOC(_oPortMax), _oPortMax);
+	_oData.Init((mtf_u8*)MTF_MALLOC(_oPortMax), _oPortMax);
 	return 0;
 }
 
 
-mtf_int32 MTF_IOSource::generate(MTF_Data*& oData)
+mtf_i32 MTF_IOSource::generate(MTF_Data*& oData)
 {
 	if (!(_oData._flags & MTF_DataFlag_ESO))
 	{
-		mtf_int32 readedSize = fread(_oData.LeftData(), 1, _oData.LeftSize(), (FILE*)_pFile);
+		mtf_i32 readedSize = fread(_oData.LeftData(), 1, _oData.LeftSize(), (FILE*)_pFile);
 		if (readedSize < _oData.LeftSize()) {
 			_oData._flags |= MTF_DataFlag_ESO;
 		}
@@ -61,24 +61,24 @@ mtf_int32 MTF_IOSource::generate(MTF_Data*& oData)
 }
 
 
-mtf_int32 MTF_IOSource ::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_IOSource ::Set(const char* key, mtf_void* val)
 {
 	if (MTF_String::StrCompare(key, "url"))
 	{
-		MTF_PRINT("url,%s", (const mtf_int8*)val);
-		_url = (const mtf_int8*)val;
+		MTF_PRINT("url,%s", (const char*)val);
+		_url = (const char*)val;
 		return 0;
 	}
 	else if (MTF_String::StrCompare(key, "oPortMax"))
 	{
-		_oPortMax = (mtf_uint32)val;
+		_oPortMax = (mtf_u32)val;
 		if(_oPortMin>_oPortMax)
 			_oPortMin = _oPortMax;
 		return 0;
 	}
 	return MTF_Source::Set(key,val);
 }
-mtf_int32 MTF_IOSource ::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_IOSource ::Get(const char* key, mtf_void* val)
 {
 	return MTF_Source::Get(key,val);
 }

@@ -57,7 +57,7 @@ static maf_bool prase(maf_void* hd, const maf_int8* script, maf_void** param)
 		strLen0 -= posStart + shift;
 	}
 #if 0
-	const mtf_int8* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
+	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
 		",rate=$5,ch=$6,width=$7,fSamples=$8,decayMs=$9,overlapMs=$10";
 #endif
 }

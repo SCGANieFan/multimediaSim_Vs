@@ -7,7 +7,7 @@ MTF_Objects MTF_Objects::objects;
 
 MTF_Objects::MTF_Objects()
 {
-	MTF_MEM_SET((mtf_int8*)_items, 0, sizeof(_items));
+	MTF_MEM_SET((mtf_i8*)_items, 0, sizeof(_items));
 }
 MTF_Objects::~MTF_Objects()
 {
@@ -36,9 +36,9 @@ MTF_Objects::Item* MTF_Objects::Search(const char* type)
 
 bool MTF_Objects::IsTypeEqual(const char* type0, const char* type1)
 {
-	mtf_int32 len0 = MTF_String::StrLen(type0);
-	mtf_int32 len1 = MTF_String::StrLen(type1);
-	mtf_int32 len = len0 < len1 ? len0 : len1;
+	mtf_i32 len0 = MTF_String::StrLen(type0);
+	mtf_i32 len1 = MTF_String::StrLen(type1);
+	mtf_i32 len = len0 < len1 ? len0 : len1;
 	for (int32_t i = 0; i < len; i++)
 	{
 		if (type0[i] != type1[i])

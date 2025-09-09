@@ -1,6 +1,6 @@
 #include "MTF.Process.h"
 #include "MTF.String.h"
-
+using namespace mtf_ns;
 
 MTF_Process::MTF_Process()
 {
@@ -13,7 +13,7 @@ MTF_Process::~MTF_Process()
 }
 
 
-mtf_int32 MTF_Process::Pull(MTF_Data*& iData)
+mtf_i32 MTF_Process::Pull(MTF_Data*& iData)
 {
 	if (!_from)
 	{
@@ -22,7 +22,7 @@ mtf_int32 MTF_Process::Pull(MTF_Data*& iData)
 	}
 	return _from->Generate(iData);
 }
-mtf_int32 MTF_Process::Push(MTF_Data& oData)
+mtf_i32 MTF_Process::Push(MTF_Data& oData)
 {
 	if (!_to)
 	{
@@ -31,7 +31,7 @@ mtf_int32 MTF_Process::Push(MTF_Data& oData)
 	}
 	return _to->Receive(oData);
 }
-mtf_int32 MTF_Process::Receive(MTF_Data& iData)
+mtf_i32 MTF_Process::Receive(MTF_Data& iData)
 {
 	if (receive(iData) < 0)
 		return -1;
@@ -43,7 +43,7 @@ mtf_int32 MTF_Process::Receive(MTF_Data& iData)
 		return -1;
 	return 0;
 }
-mtf_int32 MTF_Process::Generate(MTF_Data*& oData)
+mtf_i32 MTF_Process::Generate(MTF_Data*& oData)
 {
 	MTF_Data* iData;
 	if (Pull(iData) < 0)
@@ -54,7 +54,7 @@ mtf_int32 MTF_Process::Generate(MTF_Data*& oData)
 		return -1;
 	return 0;
 }
-mtf_int32 MTF_Process::Run()
+mtf_i32 MTF_Process::Run()
 {
 	MTF_Data* iData;
 	if (Pull(iData) < 0)
@@ -71,7 +71,7 @@ mtf_int32 MTF_Process::Run()
 	return 0;
 }
 
-mtf_int32 MTF_Process::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_Process::Set(const char* key, mtf_void* val)
 {
 	if (MTF_String::StrCompare(key, "from")) {
 		_from = (MTF_Element*)val; return 0;
@@ -82,7 +82,7 @@ mtf_int32 MTF_Process::Set(const mtf_int8* key, mtf_void* val)
 	return MTF_Element::Set(key, val);
 }
 
-mtf_int32 MTF_Process::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_Process::Get(const char* key, mtf_void* val)
 {
 	return MTF_Element::Get(key, val);
 }

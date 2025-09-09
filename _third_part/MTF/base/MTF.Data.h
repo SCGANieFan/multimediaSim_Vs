@@ -13,20 +13,20 @@ public:
 	~MTF_Data();
 
 public:
-	mtf_int32 Init(mtf_uint8* buff, mtf_int32 len);
-	mtf_int32 DeInit();
-	mtf_int32 Append(mtf_uint8* buff, mtf_int32 len);
+	mtf_i32 Init(mtf_u8* buff, mtf_i32 len);
+	mtf_i32 DeInit();
+	mtf_i32 Append(mtf_u8* buff, mtf_i32 len);
 	mtf_void Clear();
-	mtf_uint8* Data();
-	mtf_uint8* LeftData();
-	mtf_int32 LeftSize();
-	mtf_int32 Used(mtf_int32 size);
+	mtf_u8* Data();
+	mtf_u8* LeftData();
+	mtf_i32 LeftSize();
+	mtf_i32 Used(mtf_i32 size);
 public:
-	mtf_int32 _size;
-	mtf_int32 _flags;
+	mtf_i32 _size;
+	mtf_i32 _flags;
 private:
-	mtf_uint8* _buff;
-	mtf_int32 _off;
-	mtf_int32 _max;
+	mtf_u8* _buff;
+	mtf_i32 _off;
+	mtf_i32 _max;
 };
 

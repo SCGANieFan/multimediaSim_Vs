@@ -344,7 +344,7 @@ void OggTest() {
 using namespace MTFApi_ns;
 
 #define PATH "../../source/container/ogg/"
-//#define FILE_NAME "test.opusx"
+#define FILE_NAME "test.opusx"
 //#define FILE_NAME "mbz_48k2h_40s.opusx"
 //#define FILE_NAME "test48k2ch.ogg"
 

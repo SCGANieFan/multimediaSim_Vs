@@ -1,6 +1,6 @@
 #include "MTF.Source.h"
 #include "MTF.String.h"
-
+using namespace mtf_ns;
 
 MTF_Source::MTF_Source()
 {
@@ -10,7 +10,7 @@ MTF_Source::~MTF_Source()
 {
 }
 
-mtf_int32 MTF_Source::Push(MTF_Data& oData)
+mtf_i32 MTF_Source::Push(MTF_Data& oData)
 {
 	if (!_to)
 	{
@@ -20,7 +20,7 @@ mtf_int32 MTF_Source::Push(MTF_Data& oData)
 	_to->Receive(oData);
 }
 
-mtf_int32 MTF_Source::Run()
+mtf_i32 MTF_Source::Run()
 {
 	MTF_Data* oData;
 	if (generate(oData) < 0)
@@ -30,13 +30,13 @@ mtf_int32 MTF_Source::Run()
 	return 0;
 }
 
-mtf_int32 MTF_Source::Generate(MTF_Data*& oData)
+mtf_i32 MTF_Source::Generate(MTF_Data*& oData)
 {
 	generate(oData);
 	return 0;
 }
 
-mtf_int32 MTF_Source::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_Source::Set(const char* key, mtf_void* val)
 {
 	if (MTF_String::StrCompare(key, "to"))
 	{
@@ -45,7 +45,7 @@ mtf_int32 MTF_Source::Set(const mtf_int8* key, mtf_void* val)
 	return MTF_Element::Set(key, val);
 }
 
-mtf_int32 MTF_Source::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_Source::Get(const char* key, mtf_void* val)
 {
 	return MTF_Element::Get(key, val);
 }

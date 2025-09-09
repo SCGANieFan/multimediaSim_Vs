@@ -27,7 +27,7 @@ MTF_IOSink::~MTF_IOSink()
 }
 
 
-mtf_int32 MTF_IOSink::Init()
+mtf_i32 MTF_IOSink::Init()
 {
 	MTF_PRINT();
 	if (!_url) {
@@ -40,12 +40,12 @@ mtf_int32 MTF_IOSink::Init()
 		return -1;
 	}
 #if 0
-	_iData.Init((mtf_uint8*)MTF_MALLOC(_iPortMax), _iPortMax);
+	_iData.Init((mtf_u8*)MTF_MALLOC(_iPortMax), _iPortMax);
 #endif
 	return 0;
 }
 
-mtf_int32 MTF_IOSink::receive(MTF_Data& iData)
+mtf_i32 MTF_IOSink::receive(MTF_Data& iData)
 {
 	if (iData._flags & MTF_DataFlag_ESO)
 		return -1;
@@ -54,24 +54,24 @@ mtf_int32 MTF_IOSink::receive(MTF_Data& iData)
 	return 0;
 }
 
-mtf_int32 MTF_IOSink::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_IOSink::Set(const char* key, mtf_void* val)
 {
 	if (MTF_String::StrCompare(key, "url"))
 	{
-		MTF_PRINT("url,%s", (const mtf_int8*)val);
-		_url = (const mtf_int8*)val;
+		MTF_PRINT("url,%s", (const char*)val);
+		_url = (const char*)val;
 		return 0;
 	}
 	else if (MTF_String::StrCompare(key, "iPortMax"))
 	{
-		_iPortMax = (mtf_uint32)val;
+		_iPortMax = (mtf_u32)val;
 		if(_iPortMin>_iPortMax)
 			_iPortMin = _iPortMax;
 		return 0;
 	}
 	return MTF_Sink::Set(key, val);
 }
-mtf_int32 MTF_IOSink::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_IOSink::Get(const char* key, mtf_void* val)
 {
 	return MTF_Sink::Get(key, val);
 }

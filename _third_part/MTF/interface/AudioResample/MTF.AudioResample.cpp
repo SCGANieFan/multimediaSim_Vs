@@ -34,11 +34,11 @@ MTF_AudioResample::~MTF_AudioResample()
 	}
 }
 
-mtf_int32 MTF_AudioResample::Init()
+mtf_i32 MTF_AudioResample::Init()
 {	
 	//lib init
 #if 1
-	const mtf_int8* type = "auio_resample";
+	const char* type = "auio_resample";
 
 	MA_Ret ret;
 	ret = MAF_GetHandleSize(type, &_hdSize);
@@ -62,22 +62,22 @@ mtf_int32 MTF_AudioResample::Init()
 	(mtf_void*)_oFs,
 	};
 
-	const mtf_int8* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
+	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
 							 ",rate=$5,ch=$6,width=$7,oFs=$8;";
 	ret = MAF_Init(_hd, script, param);
 	if (ret != MA_RET_SUCCESS)
 		MTF_PRINT("err");
 
 	//io data
-	mtf_int32 size = _frameBytes;
-	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	mtf_i32 size = _frameBytes;
+	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
 	size = 6* size;
-	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
 #endif
 	return 0;
 }
 
-mtf_int32 MTF_AudioResample::receive(MTF_Data& iData)
+mtf_i32 MTF_AudioResample::receive(MTF_Data& iData)
 {
 	_iData.Append(iData.Data(), iData._size);
 	iData.Used(iData._size);
@@ -86,7 +86,7 @@ mtf_int32 MTF_AudioResample::receive(MTF_Data& iData)
 
 #define FRAMES_LOST 5
 #define FRAMES_TOTAL 50
-mtf_int32 MTF_AudioResample::generate(MTF_Data*& oData)
+mtf_i32 MTF_AudioResample::generate(MTF_Data*& oData)
 {
 	AA_Data AA_iData;
 	MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
@@ -114,16 +114,16 @@ mtf_int32 MTF_AudioResample::generate(MTF_Data*& oData)
 	return 0;
 }
 
-mtf_int32 MTF_AudioResample::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_AudioResample::Set(const char* key, mtf_void* val)
 {
 #if 1
 	if (MTF_String::StrCompare(key, "oFs")) {
-		_oFs = ((mtf_int32)val); return 0;
+		_oFs = ((mtf_i32)val); return 0;
 	}
 #endif
 	return MTF_AudioProcess::Set(key, val);
 }
-mtf_int32 MTF_AudioResample::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_AudioResample::Get(const char* key, mtf_void* val)
 {
 	return MTF_AudioProcess::Get(key, val);
 }

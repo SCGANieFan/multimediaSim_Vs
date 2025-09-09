@@ -2,8 +2,8 @@
 #include "MTF.String.h"
 #include "MTF.Objects.h"
 #include "MAF.h"
-
-static const mtf_int8* type_this = "opus_dec";
+using namespace mtf_ns;
+static const char* type_this = "opus_dec";
 
 void mtf_opus_dec_register()
 {
@@ -34,10 +34,10 @@ MTF_OpusDec::~MTF_OpusDec()
 	}
 }
 
-mtf_int32 MTF_OpusDec::Init()
+mtf_i32 MTF_OpusDec::Init()
 {	
 	//lib init
-	const mtf_int8* type = type_this;
+	const char* type = type_this;
 	MA_Ret ret;
 	ret = MAF_GetHandleSize(type, &_hdSize);
 	if (ret != MA_RET_SUCCESS)
@@ -50,31 +50,31 @@ mtf_int32 MTF_OpusDec::Init()
 
 	mtf_void* param[] = {
 	(mtf_void*)type,
-	(mtf_void*)MTF_Memory::Malloc,
-	(mtf_void*)MTF_Memory::Realloc,
-	(mtf_void*)MTF_Memory::Calloc,
-	(mtf_void*)MTF_Memory::Free,
+	(mtf_void*)Malloc,
+	(mtf_void*)Realloc,
+	(mtf_void*)Calloc,
+	(mtf_void*)Free,
 	(mtf_void*)_rate,
 	(mtf_void*)_ch,
 	(mtf_void*)_width,
 	(mtf_void*)_frameSamples,
 	};
 
-	const mtf_int8* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
+	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
 							 ",rate=$5,ch=$6,width=$7,fSamples=$8;";
 	ret = MAF_Init(_hd, script, param);
 	if (ret != MA_RET_SUCCESS)
 		MTF_PRINT("err");
 
 	//io data
-	mtf_int32 size = _frameBytes;
-	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
-	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	mtf_i32 size = _frameBytes;
+	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
 
 	return 0;
 }
 
-mtf_int32 MTF_OpusDec::receive(MTF_Data& iData)
+mtf_i32 MTF_OpusDec::receive(MTF_Data& iData)
 {
 	_iData.Append(iData.Data(), iData._size);
 	if (iData._flags & MTF_DataFlag_ESO)
@@ -83,7 +83,7 @@ mtf_int32 MTF_OpusDec::receive(MTF_Data& iData)
 	return 0;
 }
 
-mtf_int32 MTF_OpusDec::generate(MTF_Data*& oData)
+mtf_i32 MTF_OpusDec::generate(MTF_Data*& oData)
 {
 	AA_Data AA_iData;
 	MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
@@ -106,22 +106,22 @@ mtf_int32 MTF_OpusDec::generate(MTF_Data*& oData)
 	return 0;
 }
 
-mtf_int32 MTF_OpusDec::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_OpusDec::Set(const char* key, mtf_void* val)
 {
 #if 0
 	if (MTF_String::StrCompare(key, "decayMs")) {
-		_decayMs = (mtf_int16)val; return 0;
+		_decayMs = (mtf_i16)val; return 0;
 	}
 	else if (MTF_String::StrCompare(key, "gainMs")) {
-		_gainMs = (mtf_int16)val; return 0;
+		_gainMs = (mtf_i16)val; return 0;
 	}
 	else if (MTF_String::StrCompare(key, "overlapMs")) {
-		_overlapMs = (mtf_int16)val; return 0;
+		_overlapMs = (mtf_i16)val; return 0;
 	}
 #endif
 	return MTF_AudioProcess::Set(key, val);
 }
-mtf_int32 MTF_OpusDec::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_OpusDec::Get(const char* key, mtf_void* val)
 {
 	return MTF_AudioProcess::Get(key, val);
 }

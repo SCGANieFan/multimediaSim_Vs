@@ -33,10 +33,10 @@ MTF_ApeDec::~MTF_ApeDec()
 	}
 }
 
-mtf_int32 MTF_ApeDec::Init()
+mtf_i32 MTF_ApeDec::Init()
 {	
 	//lib init
-	const mtf_int8* type = "ape_dec";
+	const char* type = "ape_dec";
 	MA_Ret ret;
 	ret = MAF_GetHandleSize(type, &_hdSize);
 	if (ret != MA_RET_SUCCESS)
@@ -55,21 +55,21 @@ mtf_int32 MTF_ApeDec::Init()
 	(mtf_void*)MTF_Memory::Free,
 	};
 
-	const mtf_int8* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4;";
+	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4;";
 	ret = MAF_Init(_hd, script, param);
 	if (ret != MA_RET_SUCCESS)
 		MTF_PRINT("err");
 
 	//io data
-	mtf_int32 size = _frameBytes;
-	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	mtf_i32 size = _frameBytes;
+	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
 	size = 10 * size;
-	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
 
 	return 0;
 }
 
-mtf_int32 MTF_ApeDec::receive(MTF_Data& iData)
+mtf_i32 MTF_ApeDec::receive(MTF_Data& iData)
 {
 	_iData.Append(iData.Data(), iData._size);
 	if (iData._flags & MTF_DataFlag_ESO)
@@ -87,7 +87,7 @@ mtf_int32 MTF_ApeDec::receive(MTF_Data& iData)
 
 #define FRAMES_LOST 5
 #define FRAMES_TOTAL 50
-mtf_int32 MTF_ApeDec::generate(MTF_Data*& oData)
+mtf_i32 MTF_ApeDec::generate(MTF_Data*& oData)
 {
 	AA_Data AA_iData;
 	MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
@@ -123,19 +123,19 @@ mtf_int32 MTF_ApeDec::generate(MTF_Data*& oData)
 	return 0;
 }
 
-mtf_int32 MTF_ApeDec::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_ApeDec::Set(const char* key, mtf_void* val)
 {
 #if 0
 	if (MTF_String::StrCompare(key, "decayMs")) {
-		_decayMs = (mtf_int16)val; return 0;
+		_decayMs = (mtf_i16)val; return 0;
 	}
 	else if (MTF_String::StrCompare(key, "overlapMs")) {
-		_overlapMs = (mtf_int16)val; return 0;
+		_overlapMs = (mtf_i16)val; return 0;
 	}
 #endif
 	return MTF_AudioProcess::Set(key, val);
 }
-mtf_int32 MTF_ApeDec::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_ApeDec::Get(const char* key, mtf_void* val)
 {
 	return MTF_AudioProcess::Get(key, val);
 }

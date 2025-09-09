@@ -3,7 +3,7 @@
 #include "MTF.String.h"
 #include "MTF.Objects.h"
 
-static const mtf_int8* type_this = "opus_demuxer";
+static const char* type_this = "opus_demuxer";
 
 void mtf_opus_demuxer_register()
 {
@@ -22,7 +22,7 @@ MTF_OpusDemuxer::~MTF_OpusDemuxer()
 	}
 }
 
-mtf_int32 MTF_OpusDemuxer::Init()
+mtf_i32 MTF_OpusDemuxer::Init()
 {	
 #if 0
 	//lib init
@@ -33,12 +33,12 @@ mtf_int32 MTF_OpusDemuxer::Init()
 	(mtf_void*)_frameSamples,
 	};
 
-	const mtf_int8* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
+	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
 							 ",rate=$5,ch=$6,width=$7,fSamples=$8;";
 	//io data
-	mtf_int32 size = _frameBytes;
-	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
-	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	mtf_i32 size = _frameBytes;
+	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
 #endif
 	MTF_PRINT();
 	if (!_url) {
@@ -57,12 +57,12 @@ mtf_int32 MTF_OpusDemuxer::Init()
 	if(!_rate)Set("rate", (void*)16000);
 	if(!_ch)Set("ch", (void*)1);
 	if(!_width)Set("width", (void*)2);
-	mtf_int32 size = 4096;
-	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	mtf_i32 size = 4096;
+	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
 	return 0;
 }
 
-mtf_int32 MTF_OpusDemuxer::generate(MTF_Data*& oData)
+mtf_i32 MTF_OpusDemuxer::generate(MTF_Data*& oData)
 {
 #if 0
 	AA_Data AA_iData;
@@ -86,15 +86,15 @@ mtf_int32 MTF_OpusDemuxer::generate(MTF_Data*& oData)
 	return 0;
 #endif
 #if 1
-	mtf_int32 readedSize;
-	mtf_uint8 tmp[8];
-	mtf_uint32 frameByte;
+	mtf_i32 readedSize;
+	mtf_u8 tmp[8];
+	mtf_u32 frameByte;
 	readedSize = fread(tmp, 1, 8, (FILE*)_pFile);
 	if (readedSize != 8) {
 		_oData._flags |= MTF_DataFlag_ESO;
 		goto exit;
 	}
-	frameByte = (mtf_uint32)tmp[0] << 24 | (mtf_uint32)tmp[1] << 16 | (mtf_uint32)tmp[2] << 8 | (mtf_uint32)tmp[3];
+	frameByte = (mtf_u32)tmp[0] << 24 | (mtf_u32)tmp[1] << 16 | (mtf_u32)tmp[2] << 8 | (mtf_u32)tmp[3];
 	if (_oData.LeftSize() < frameByte) {
 		MTF_PRINT("err,%d,%d", _oData.LeftSize(), frameByte);
 		return -1;
@@ -113,20 +113,20 @@ exit:
 #endif
 }
 
-mtf_int32 MTF_OpusDemuxer::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_OpusDemuxer::Set(const char* key, mtf_void* val)
 {
 #if 1
 	if (MTF_String::StrCompare(key, "url"))
 	{
-		MTF_PRINT("url,%s", (const mtf_int8*)val);
-		_url = (const mtf_int8*)val;
+		MTF_PRINT("url,%s", (const char*)val);
+		_url = (const char*)val;
 
 		return 0;
 	}
 #endif
 	return MTF_AudioDemuxer::Set(key, val);
 }
-mtf_int32 MTF_OpusDemuxer::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_OpusDemuxer::Get(const char* key, mtf_void* val)
 {
 	return MTF_AudioDemuxer::Get(key, val);
 }

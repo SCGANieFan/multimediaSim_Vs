@@ -8,7 +8,7 @@
 #include"MTF.Memory.h"
 #include"MTF.h"
 
-
+using namespace mtf_ns;
 
 
 namespace MTFApi_ns {
@@ -65,14 +65,49 @@ bool PraseElement(const char* str, int32_t strLen, MTF_Element**ele, void** para
 }
 
 
+void* MTf_Malloc_cb(int32_t size){
+	return malloc(size);
+}
+void* MTf_Realloc_cb(void* block, int32_t size){
+	return realloc(block, size);
+}
+void* MTf_Calloc_cb(int32_t count, int32_t size) {
+	return calloc(count, size);
+}
+void MTf_Free_cb(void* block) {
+	free(block);
+}
 
 int32_t MTFApi::Init()
 {
-	MTF_Memory::Init(malloc, realloc, calloc, free);
+	MTF_MemoryRegister("gbl", MTf_Malloc_cb, MTf_Realloc_cb, MTf_Calloc_cb, MTf_Free_cb);
+
 #if 0
 	MTF_REGISTER(pcm_demuxer);
 	MTF_REGISTER(music_plc);
 	MTF_REGISTER(pcm_muxer);
+#endif
+#if 0
+	constexpr mtf_u32 id32_0 = STR2ID32L("12342");
+	constexpr mtf_u32 id32_1 = STR2ID32L("22341");
+	mtf_u32 tmp = 0xc0f8bfa;
+	if (tmp == STR2ID32L("12342")) {
+		MTF_PRINT("equal");
+	}
+	else{
+		MTF_PRINT("not equal");
+	}
+	MTF_PRINT("%0x", id32_0);
+	MTF_PRINT("%0x", id32_1);
+
+	constexpr mtf_u64 id = STR2ID64NL("123");
+	char s[8];
+	ID2STRNL(id, s, sizeof(s));
+	MTF_PRINT("%s", s);
+#endif
+#if 1
+	MTF_Object *obj=new MTF_Object();
+	delete obj;
 #endif
 	return 0;
 }

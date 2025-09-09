@@ -12,12 +12,12 @@ MTF_VideoProcess::~MTF_VideoProcess()
 }
 
 
-mtf_int32 MTF_VideoProcess::Set(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_VideoProcess::Set(const char* key, mtf_void* val)
 {
 	return MTF_Process::Set(key, val) & MTF_VideoInfo::Set(key, val);
 }
 
-mtf_int32 MTF_VideoProcess::Get(const mtf_int8* key, mtf_void* val)
+mtf_i32 MTF_VideoProcess::Get(const char* key, mtf_void* val)
 {
 	return MTF_Process::Get(key, val) & MTF_VideoInfo::Get(key, val);
 }

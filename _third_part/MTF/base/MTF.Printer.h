@@ -8,7 +8,7 @@ public:
 	MTF_Printer();
 	~MTF_Printer();
 public:
-	static mtf_void Printf(const mtf_int8* _Format, ...);
+	static mtf_void Printf(const char* _Format, ...);
 private:
 };
 #define MTF_PRINTORI(fmt,...)	MTF_Printer::Printf(fmt, ##__VA_ARGS__)
