@@ -94,7 +94,7 @@ EXTERNC {
 		//check
 		if (!pStateIn)
 			return WAV_DEMUX_RET_FAIL;
-		return ((WavDemuxState*)pStateIn)->demuxer.Receive(in, inLen);
+		return ((WavDemuxState*)pStateIn)->demuxer.Receive(in, inLen)? WAV_DEMUX_RET_SUCCESS : WAV_DEMUX_RET_FAIL;
 	}
 
 	int32_t WavDemux_DeInit(void* pStateIn)

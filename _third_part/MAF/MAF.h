@@ -1,5 +1,5 @@
 #pragma once
-
+#if 0
 #include<stdint.h>
 
 typedef void* (*Malloc_t)(int32_t size);
@@ -54,3 +54,4 @@ EXTERNC MA_Ret MAF_Generate(void* hd, AA_Data* dataOut);
 EXTERNC MA_Ret MAF_Deinit(void* hd);
 
 
+#endif

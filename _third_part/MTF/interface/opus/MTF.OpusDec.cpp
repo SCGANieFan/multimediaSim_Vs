@@ -1,18 +1,26 @@
 #include "MTF.OpusDec.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
-#include "MAF.h"
+
+#include "OpusMemory.h"
+#include "OpusApi.h"
+using namespace OpusApi_ns;
+
+
 using namespace mtf_ns;
 static const char* type_this = "opus_dec";
 
 void mtf_opus_dec_register()
 {
 	MTF_Objects::Registe<MTF_OpusDec>(type_this);
-	MAF_REGISTER(opus_dec);
 }
 MTF_OpusDec::MTF_OpusDec()
 {
-
+	OpusApiMemory_t opusApiMemory;
+	opusApiMemory.malloc_cb = opus_malloc;
+	opusApiMemory.realloc_cb = opus_realloc;
+	opusApiMemory.free_cb = opus_free;
+	OpusApi::memory_register(&opusApiMemory);
 }
 
 MTF_OpusDec::~MTF_OpusDec()
@@ -29,42 +37,24 @@ MTF_OpusDec::~MTF_OpusDec()
 	}
 	if (_hd)
 	{
-		MAF_Deinit(_hd);
-		MTF_FREE(_hd);
+		if(_hd)
+			OpusApi::destory_decoder(_hd);
+		_hd = 0;
 	}
 }
 
 mtf_i32 MTF_OpusDec::Init()
 {	
-	//lib init
-	const char* type = type_this;
-	MA_Ret ret;
-	ret = MAF_GetHandleSize(type, &_hdSize);
-	if (ret != MA_RET_SUCCESS)
-		MTF_PRINT("err");
-	if (_hdSize < 1)
-		MTF_PRINT("err");
-	_hd = MTF_MALLOC(_hdSize);
-	if (!_hd)
-		MTF_PRINT("err");
+	MTF_PRINT("channels:%d", _ch);
+	MTF_PRINT("frameSamples:%d", _frameSamples);
+	MTF_PRINT("fsHz:%d", _rate);
 
-	mtf_void* param[] = {
-	(mtf_void*)type,
-	(mtf_void*)Malloc,
-	(mtf_void*)Realloc,
-	(mtf_void*)Calloc,
-	(mtf_void*)Free,
-	(mtf_void*)_rate,
-	(mtf_void*)_ch,
-	(mtf_void*)_width,
-	(mtf_void*)_frameSamples,
-	};
-
-	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
-							 ",rate=$5,ch=$6,width=$7,fSamples=$8;";
-	ret = MAF_Init(_hd, script, param);
-	if (ret != MA_RET_SUCCESS)
-		MTF_PRINT("err");
+	OpusApiRet_t ret = OpusApi::create_decoder(&_hd, _rate, _ch);
+	if (ret != OPUS_API_RET_SUCCESS) {
+		MTF_PRINT("Cannot create decoder: %d\n", ret);
+		return false;
+	}
+	MTF_PRINT("create decoder success\n");
 
 	//io data
 	mtf_i32 size = _frameBytes;
@@ -85,19 +75,18 @@ mtf_i32 MTF_OpusDec::receive(MTF_Data& iData)
 
 mtf_i32 MTF_OpusDec::generate(MTF_Data*& oData)
 {
-	AA_Data AA_iData;
-	MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
-	AA_iData.buff = _iData.Data();
-	AA_iData.max = AA_iData.size = _iData._size;
-
-	AA_Data AA_oData;
-	MTF_MEM_SET(&AA_oData, 0, sizeof(AA_Data));
-	AA_oData.buff = _oData.LeftData();
-	AA_oData.max = _oData.LeftSize();
-
-	MAF_Run(_hd, &AA_iData, &AA_oData);
+	//MAF_Run(_hd, &AA_iData, &AA_oData);
+	mtf_u8* iBuff = (mtf_u8*)_iData.Data();
+	mtf_i32 iSize = _iData._size;
+	mtf_i16* oBuff = (mtf_i16*)_oData.LeftData();
+	mtf_i32 oSample = _oData.LeftSize() / (2 * _ch);
+	mtf_bool isPlc = false;
+	OpusApiRet_t ret = OpusApi::decoder_run(_hd, iBuff, iSize, oBuff, &oSample, isPlc);
+	if (ret != OPUS_API_RET_SUCCESS) {
+		return -1;
+	}
 	_iData.Used(_iData._size);
-	_oData._size += AA_oData.size;
+	_oData._size += oSample * 2 * _ch;
 
 	if (_iData._flags & MTF_DataFlag_ESO){
 		_oData._flags |= MTF_DataFlag_ESO;

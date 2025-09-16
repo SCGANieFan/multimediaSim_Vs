@@ -1,13 +1,21 @@
 #include "MTF.OpusEnc.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
-#include "MAF.h"
+
+#include "OpusMemory.h"
+#include "OpusApi.h"
+using namespace OpusApi_ns;
+
 using namespace mtf_ns;
 static const char* type_this = "opus_enc";
 void mtf_opus_enc_register()
 {
 	MTF_Objects::Registe<MTF_OpusEnc>(type_this);
-	MAF_REGISTER(opus_enc);
+	OpusApiMemory_t opusApiMemory;
+	opusApiMemory.malloc_cb = opus_malloc;
+	opusApiMemory.realloc_cb = opus_realloc;
+	opusApiMemory.free_cb = opus_free;
+	OpusApi::memory_register(&opusApiMemory);
 }
 MTF_OpusEnc::MTF_OpusEnc()
 {
@@ -28,46 +36,39 @@ MTF_OpusEnc::~MTF_OpusEnc()
 	}
 	if (_hd)
 	{
-		MAF_Deinit(_hd);
-		MTF_FREE(_hd);
+		if(_hd)
+			OpusApi::destory_encoder(_hd);
+		_hd = 0;
 	}
 }
 
 mtf_i32 MTF_OpusEnc::Init()
 {	
-	//lib init
-	const char* type = type_this;
-	MA_Ret ret;
-	ret = MAF_GetHandleSize(type, &_hdSize);
-	if (ret != MA_RET_SUCCESS)
-		MTF_PRINT("err");
-	if (_hdSize < 1)
-		MTF_PRINT("err");
-	_hd = MTF_MALLOC(_hdSize);
-	if (!_hd)
-		MTF_PRINT("err");
+#if 1
+	MTF_PRINT("channels:%d", _ch);
+	MTF_PRINT("frameSamples:%d", _frameSamples);
+	MTF_PRINT("fsHz:%d", _rate);
 
-	mtf_void* param[] = {
-	(mtf_void*)type,
-	(mtf_void*)Malloc,
-	(mtf_void*)Realloc,
-	(mtf_void*)Calloc,
-	(mtf_void*)Free,
-	(mtf_void*)_rate,
-	(mtf_void*)_ch,
-	(mtf_void*)_width,
-	(mtf_void*)_frameSamples,
-	(mtf_void*)_bitrate,
-	(mtf_void*)_complexity,
-	(mtf_void*)_vbr,
-	};
+	bool haveHead = false;
+	OpusApiRet_t ret = OpusApi::create_encoder(&_hd, _rate, _ch, haveHead);
+	if (ret != OPUS_API_RET_SUCCESS)
+	{
+		MTF_PRINT("opus create fail, %d,(%p,%d,%d,%d)", _hd, _rate, _ch, haveHead);
+		return -1;
+	}
+	_frame0p1Ms = _frameSamples * 1000 * 10 / _rate;
+	ret = OpusApi::encoder_set(_hd, OpusApi_EncSetChhoose_e::OPUS_API_ENC_SET_BIT_RATE, (void*)_bitrate);
+	if (ret != OPUS_API_RET_SUCCESS) return -1;
+	ret = OpusApi::encoder_set(_hd, OpusApi_EncSetChhoose_e::OPUS_API_ENC_SET_FRAME_DURATION_0P1MS, (void*)_frame0p1Ms);
+	if (ret != OPUS_API_RET_SUCCESS) return -1;
+	ret = OpusApi::encoder_set(_hd, OpusApi_EncSetChhoose_e::OPUS_API_ENC_SET_USE_VBR, (void*)false);
+	if (ret != OPUS_API_RET_SUCCESS) return -1;
+	ret = OpusApi::encoder_set(_hd, OpusApi_EncSetChhoose_e::OPUS_API_ENC_SET_COMPLEXITY, (void*)_complexity);
+	if (ret != OPUS_API_RET_SUCCESS) return -1;
 
-	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
-							 ",rate=$5,ch=$6,width=$7,fSamples=$8,bitrate=$9,cpmplexity=$10,vbr=$11;";
-	ret = MAF_Init(_hd, script, param);
-	if (ret != MA_RET_SUCCESS)
-		MTF_PRINT("err");
-
+	MTF_PRINT("create encoder success");
+	return 0;
+#endif
 	//io data
 	mtf_i32 size = _frameBytes;
 	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
@@ -92,23 +93,25 @@ mtf_i32 MTF_OpusEnc::generate(MTF_Data*& oData)
 		oData = &_oData;
 		return 0;
 	}
-	AA_Data AA_iData;
-	MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
-	AA_iData.buff = _iData.Data();
-	AA_iData.max = AA_iData.size = _iData._size;
-
-	AA_Data AA_oData;
-	MTF_MEM_SET(&AA_oData, 0, sizeof(AA_Data));
-	AA_oData.buff = _oData.LeftData();
-	AA_oData.max = _oData.LeftSize();
-
-	MAF_Run(_hd, &AA_iData, &AA_oData);
-	_iData.Used(_iData._size);
-	_oData._size += AA_oData.size;
-	if (AA_oData.flags & AA_DataFlag_FRAME_IS_EOS) {
-		//_oData._flags |= MTF_DataFlag_ESO;
+#if 1
+	if (_iData._size < _frameBytes) {
+		_oData._flags |= MTF_DataFlag_ESO;
 		return -1;
 	}
+	mtf_i32 outLen;
+	mtf_i16* iBuff = (mtf_i16*)_iData.Data();
+	mtf_u8* oBuff = (mtf_u8*)_oData.LeftData();
+	mtf_i32 oSize = _oData.LeftSize();
+	OpusApiRet_t ret = OpusApi::encoder_run(_hd, iBuff, _frameSamples, oBuff, &oSize);
+	if (ret != OPUS_API_RET_SUCCESS) {
+		return -1;
+	}
+	if (oSize <= 0) {
+		return -1;
+	}
+#endif
+	_iData.Used(_frameBytes);
+	_oData._size += oSize;
 	oData = &_oData;
 	return 0;
 }

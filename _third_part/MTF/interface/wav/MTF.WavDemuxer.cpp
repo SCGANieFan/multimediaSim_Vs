@@ -1,12 +1,12 @@
 #include<stdio.h>
 #include"MTF.WavDemuxer.h"
 #include"MTF.Objects.h"
-#include"MAF.h"
+#include "WavDemux.h"
+
 using namespace mtf_ns;
 void mtf_wav_demuxer_register()
 {
 	MTF_Objects::Registe<MTF_WavDemuxer>("wav_demuxer");
-	MAF_REGISTER(wav_demux);
 }	
 
 
@@ -26,8 +26,12 @@ MTF_WavDemuxer ::~MTF_WavDemuxer ()
 	}
 	if (_hd)
 	{
-		MAF_Deinit(_hd);
-		MTF_FREE(_hd);
+#if 1
+		WavDemux_DeInit(_hd);
+		Free(_hd);
+		Free(_basePorting);
+#endif
+
 	}
 }
 
@@ -45,31 +49,38 @@ mtf_i32 MTF_WavDemuxer::Init()
 	}
 	
 #if 1
-	const char* type = "wav_demux";
-	MA_Ret ret;
-	ret = MAF_GetHandleSize(type, &_hdSize);
-	if (ret != MA_RET_SUCCESS)
-		MTF_PRINT("err");
-	if (_hdSize < 1)
-		MTF_PRINT("err");
-	_hd = MTF_MALLOC(_hdSize);
-	if (!_hd)
-		MTF_PRINT("err");
+	WavDemuxInitParam initParam;
+	MTF_MEM_SET(&initParam, 0, sizeof(WavDemuxInitParam));
 #if 1
-	mtf_void* param[] = {
-	(mtf_void*)type,
-	(mtf_void*)Malloc,
-	(mtf_void*)Realloc,
-	(mtf_void*)Calloc,
-	(mtf_void*)Free,
-	};
+	_basePorting = Malloc(sizeof(AlgoBasePorting_t));
+	AlgoBasePorting_t* basePorting = (AlgoBasePorting_t*)_basePorting;
 
-	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
-		";";
-	ret = MAF_Init(_hd, script, param);
-	if (ret != MA_RET_SUCCESS)
-		MTF_PRINT("err");
+	basePorting->Malloc = Malloc;
+	basePorting->Free = Free;
+	initParam.basePorting = basePorting;
+#if 0
+	initParam.fsHz = _rate;
+	initParam.channels = _ch;
+	initParam.width = _width;
+	initParam.frameSamples = _frameSamples;
+	initParam.overlapMs = _overlapMs;
+	initParam.decayTimeMs = _decayMs;
+#endif
+#endif
 
+	_hdSize = WavDemux_GetSize();
+	_hd = Malloc(_hdSize);
+	MTF_PRINT("_hd=%x,size:%d", (mtf_u32)_hd, _hdSize);
+	if (!_hd){
+		return -1;
+	}
+
+	mtf_i32 ret = WavDemux_Init(_hd, &initParam);
+
+	if (ret < 0)
+	{
+		return -1;
+	}
 #endif
 
 #if 1
@@ -79,37 +90,46 @@ mtf_i32 MTF_WavDemuxer::Init()
 		mtf_i32 readedSize = fread(readData, 1, readDataByte, (FILE*)_pFile);
 		if (readedSize <= 0)
 			return -1;
-
-		AA_Data AA_iData;
-		MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
-		AA_iData.buff = readData;
-		AA_iData.max = AA_iData.size = readDataByte;
-
-		MAF_Run(_hd, &AA_iData, 0);
-
+		
+		MTF_Data iData;
+		MTF_MEM_SET(&iData, 0, sizeof(MTF_Data));
+		iData.Init(readData, readDataByte);
+		iData._size += readDataByte;
+#if 1
+		mtf_i32 ret;
+		ret = WavDemux_Run(_hd,
+			iData.Data(),
+			iData._size);
+		if (ret != WAV_DEMUX_RET_SUCCESS){
+			return -1;
+		}
+		iData.Used(iData._size);
+		iData.Clear();
+#endif
 		mtf_u32 hasHead;
-		MAF_Get(_hd, "hasHead", (void**)&hasHead);
+		//MAF_Get(_hd, "hasHead", (void**)&hasHead);
+#if 1
+		void* param[3] = { &hasHead };
+		WavDemux_Get(_hd, WAV_DEMUX_GET_CHOOSE_HAS_HEAD, param);
+#endif
 		if ((mtf_bool)hasHead == true){
-			mtf_u32 rate;
-			mtf_u32 ch;
-			mtf_u32 width;
+			mtf_i32 rate;
+			mtf_i32 ch;
+			mtf_i32 width;
 			mtf_u32 dataPos;
-
-			MAF_Get(_hd, "rate", (void**)&rate);
-			MAF_Get(_hd, "ch", (void**)&ch);
-			MAF_Get(_hd, "width", (void**)&width);
-			MAF_Get(_hd, "dataPos", (void**)&dataPos);
-
+			param[0] = &rate;
+			param[1] = &ch;
+			param[2] = &width;
+			WavDemux_Get(_hd, WAV_DEMUX_GET_CHOOSE_BASIC_INFO, param);
 			Set("rate", (void*)rate);
 			Set("ch", (void*)ch);
 			Set("width", (void*)width);
 
+			WavDemux_Get(_hd, WAV_DEMUX_GET_CHOOSE_DATA_POS, (void**)&dataPos);
 			fseek((FILE*)_pFile, dataPos, SEEK_SET);
 			break;
 		}
 	}
-
-#endif
 	mtf_i32 size = 1024;
 	if (_frameBytes)
 		size = _frameBytes;

@@ -23,5 +23,9 @@ private:
 	mtf_i32 _bitrate;
 	mtf_i32 _complexity;
 	mtf_bool _vbr;
+
+
+	mtf_i32 _frame0p1Ms;
+
 };
 

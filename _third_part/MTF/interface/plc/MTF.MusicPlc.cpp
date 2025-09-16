@@ -1,16 +1,21 @@
 #include "MTF.MusicPlc.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
-#include "MAF.h"
+#include "plc_api.h"
+#include <stdarg.h>
+#include <stdio.h>
 
 void mtf_music_plc_register()
 {
 	MTF_Objects::Registe<MTF_MusicPlc>("music_plc");
-	MAF_REGISTER(music_plc);
+	//plc_api_register_music_plc_int16();
+	//plc_api_register_music_plc_int32();
+	//plc_api_register_music_plc_f32();
+	//plc_api_register_sbc_plc_i16();
+	plc_api_register_ts_plc_i16();
 }
 MTF_MusicPlc::MTF_MusicPlc()
 {
-
 }
 
 MTF_MusicPlc::~MTF_MusicPlc()
@@ -27,47 +32,105 @@ MTF_MusicPlc::~MTF_MusicPlc()
 	}
 	if (_hd)
 	{
-		MAF_Deinit(_hd);
+		MTF_PRINT();
+		if(_hd)
+			plc_api_destory(_hd);
+		_hd = 0;
 		MTF_FREE(_hd);
 	}
+}
+
+void* PlcMalloc(int size) {
+#if 1
+	static mtf_i32 sizeTotal = 0;
+	sizeTotal += size;
+	mtf_void* ptr = Malloc(size);
+	MTF_PRINT("malloc, ptr:%x, size:%d, sizeTotal:%d,", (mtf_u32)ptr, size, sizeTotal);
+	return ptr;
+#else
+	return Malloc(size);
+#endif
+}
+
+static void PlcFree(void* ptr) {
+#if 1
+	MTF_PRINT("free, ptr:%x", (mtf_u32)ptr);
+#endif
+	return Free(ptr);
+}
+
+static void PlcPrint(const char* fmt, ...) {
+	char buf[256];
+	va_list args;
+	va_start(args, fmt);
+	vsprintf(buf, fmt, args);
+	va_end(args);
+	printf(buf);
 }
 
 mtf_i32 MTF_MusicPlc::Init()
 {	
 	//lib init
-	const char* type = "music_plc";
-	MA_Ret ret;
-	ret = MAF_GetHandleSize(type, &_hdSize);
-	if (ret != MA_RET_SUCCESS)
-		MTF_PRINT("err");
-	if (_hdSize < 1)
-		MTF_PRINT("err");
-	_hd = MTF_MALLOC(_hdSize);
-	if (!_hd)
-		MTF_PRINT("err");
-
-	mtf_void* param[] = {
-	(mtf_void*)type,
-	(mtf_void*)Malloc,
-	(mtf_void*)Realloc,
-	(mtf_void*)Calloc,
-	(mtf_void*)Free,
-	(mtf_void*)_rate,
-	(mtf_void*)_ch,
-	(mtf_void*)_width,
-	(mtf_void*)_frameSamples,
-	(mtf_void*)_decayMs,
-	(mtf_void*)_gainMs,
-	(mtf_void*)_overlapMs,
-	};
-
-	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4"\
-							 ",rate=$5,ch=$6,width=$7,fSamples=$8,decayMs=$9,gainMs=$10,overlapMs=$11;";
+#if 0
 	ret = MAF_Init(_hd, script, param);
-	if (ret != MA_RET_SUCCESS) {
-		MTF_PRINT("err");
+#else
+	MTF_PRINT();
+	plc_api_param_t initParam;
+	MTF_MEM_SET(&initParam, 0, sizeof(plc_api_param_t));
+	initParam.fs_hz = _rate;
+	initParam.channels = _ch;
+	initParam.frame_samples = _frameSamples;
+	initParam.channel_select = 0xffff;
+	initParam.data_type = plc_api_data_type_e::PLC_API_DATA_TYPE_SHORT_16;
+	//initParam.dataType = plc_api_data_type_e::PLC_API_DATA_TYPE_INT_32;
+	//initParam.dataType = plc_api_data_type_e::PLC_API_DATA_TYPE_FLOAT_32;
+#if 0
+	initParam.mode = plc_api_mode_e::PLC_API_MODE_MUSIC_PLC;
+#if 1
+	initParam.param_set = plc_api_param_set_e::PLC_API_PARAM_SET_KEY_APP;
+	initParam.key = PLC_API_KEY;
+	initParam.application = plc_api_application_e::PLC_API_APPLICATION_AUTO;
+	//initParam.application = plc_api_application_e::PLC_API_APPLICATION_MUSIC;
+#else
+	initParam.param_set = plc_api_param_set_e::PLC_API_PARAM_SET_PARAM;
+	initParam.overlap_samples = 5 * initParam.fs_hz / 1000;
+	initParam.hold_samples_after_lost = 0 * initParam.fs_hz / 1000;
+	initParam.attenuate_samples_after_lost = 50 * initParam.fs_hz / 1000;
+	initParam.gain_samples_after_no_lost = 50 * initParam.fs_hz / 1000;
+	initParam.seek_samples = 15 * initParam.fs_hz / 1000;
+	initParam.no_seek_samples = 4 * initParam.fs_hz / 1000;
+	initParam.match_samples = 4 * initParam.fs_hz / 1000;
+#endif
+#endif
+#if 0
+	initParam.mode = plc_api_mode_e::PLC_API_MODE_SBC_PLC;
+	initParam.param_set = plc_api_param_set_e::PLC_API_PARAM_SET_PARAM;
+#if 0
+	initParam.sbc_plc.codec_type = sbc_plc_codec_type_e::SBC_PLC_CODEC_TYPE_SBC;
+#else
+	initParam.sbc_plc.search_size = 256;
+	initParam.sbc_plc.match_size = 64;
+	initParam.sbc_plc.olal = 60;
+	initParam.sbc_plc.recover = 60;
+#endif
+#endif
+#if 1
+	initParam.mode = plc_api_mode_e::PLC_API_MODE_TS_PLC;
+	initParam.param_set = plc_api_param_set_e::PLC_API_PARAM_SET_PARAM;
+	initParam.ts_plc.recv = 0;
+#endif
+
+	initParam.cb_malloc = PlcMalloc;
+	initParam.cb_free = PlcFree;
+	initParam.cb_printf = PlcPrint;
+	//_hd = _memory.Malloc(_hdSize);
+	plc_api_ret_t ret = plc_api_create(&_hd, &initParam);
+	if (ret != PLC_API_RET_SUCCESS) {
+		MTF_PRINT("plc_api_create fail, %d", ret);
 		return -1;
 	}
+
+#endif
 
 	//io data
 	mtf_i32 size = _frameBytes;
@@ -90,33 +153,63 @@ mtf_i32 MTF_MusicPlc::receive(MTF_Data& iData)
 #define FRAMES_TOTAL 100
 mtf_i32 MTF_MusicPlc::generate(MTF_Data*& oData)
 {
-	AA_Data AA_iData;
-	MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
-	AA_iData.buff = _iData.Data();
-	AA_iData.max = AA_iData.size = _iData._size;
-
 	//_frames++;
 	if ((_frames % FRAMES_TOTAL) + 1 > (FRAMES_TOTAL - FRAMES_LOST))
-	{
-		AA_iData.flags |= AA_DataFlag_FRAME_IS_EMPTY;
-	}
+		_iData._flags |= MTF_DataFlag_EMPTY;
 	else
-		AA_iData.flags &= ~AA_DataFlag_FRAME_IS_EMPTY;
+		_iData._flags &= ~MTF_DataFlag_EMPTY;
+
 	_frames++;
 
-	AA_Data AA_oData;
-	MTF_MEM_SET(&AA_oData, 0, sizeof(AA_Data));
-	AA_oData.buff = _oData.LeftData();
-	AA_oData.max = _oData.LeftSize();
+	mtf_i32 ret = 0;
+	mtf_i32 outByte = _oData.LeftSize();
+#if 0
+	if (dataIn->CheckFlag(MAFA_FRAME_IS_EMPTY)) {
+		outByte = _frameSamples * _width * _ch;
+		MAF_MEM_SET(dataOut->GetLeftData(), 0, outByte);
+		dataOut->Append(outByte);
+	}
+	else {
+		dataOut->Append(dataIn->GetData(), dataIn->GetSize());
+	}
 
-	MAF_Run(_hd, &AA_iData, &AA_oData);
+#else
+	if (_iData._flags& MTF_DataFlag_EMPTY) {
+		_iData._flags & ~MTF_DataFlag_EMPTY;
+		ret = plc_api_run(
+			_hd,
+			NULL,
+			0,
+			0,
+			_oData.LeftData(),
+			&outByte,
+			0xffff);
+		_oData._size+= outByte;
+	}
+	else {
+		ret = plc_api_run(
+			_hd,
+			_iData.Data(),
+			_iData._size,
+			0,
+			_oData.LeftData(),
+			&outByte,
+			0x0000);
+		_oData._size += outByte;
+	}
+
+	if (ret !=PLC_API_RET_SUCCESS)
+	{
+		return -1;
+	}
 	_iData.Used(_iData._size);
-	_oData._size += AA_oData.size;
-
+	_iData.Clear();
+#endif
 	if (_iData._flags & MTF_DataFlag_ESO){
 		_oData._flags |= MTF_DataFlag_ESO;
 	}
 	oData = &_oData;
+	MTF_PRINT("[%d]%d", _frames,oData->_size);
 	return 0;
 }
 
