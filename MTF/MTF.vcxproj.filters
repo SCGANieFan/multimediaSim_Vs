@@ -73,6 +73,18 @@
     <ClInclude Include="..\_third_part\MTF\interface\io\MTF.IOSink.h">
       <Filter>interface</Filter>
     </ClInclude>
+    <ClInclude Include="..\_third_part\MTF\base\MTF.Memory_c.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\MTF\base\MTF.MemoryBuff.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\MTF\base\MTF.MemoryCallback.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\MTF\base\MTF.MemoryBuffNode.h">
+      <Filter>base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\_third_part\MTF\base\MTF.Interface.cpp">
@@ -135,6 +147,18 @@
     </ClCompile>
     <ClCompile Include="..\_third_part\MTF\interface\io\MTF.IOSink.cpp">
       <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\MTF\base\MTF.Memory_c.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\MTF\base\MTF.MemoryCallback.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\MTF\base\MTF.MemoryBuff.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\MTF\base\MTF.MemoryBuffNode.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -27,6 +27,10 @@
     <ClInclude Include="..\_third_part\MTF\base\MTF.Element.h" />
     <ClInclude Include="..\_third_part\MTF\base\MTF.Interface.h" />
     <ClInclude Include="..\_third_part\MTF\base\MTF.Memory.h" />
+    <ClInclude Include="..\_third_part\MTF\base\MTF.MemoryBuff.h" />
+    <ClInclude Include="..\_third_part\MTF\base\MTF.MemoryBuffNode.h" />
+    <ClInclude Include="..\_third_part\MTF\base\MTF.MemoryCallback.h" />
+    <ClInclude Include="..\_third_part\MTF\base\MTF.Memory_c.h" />
     <ClInclude Include="..\_third_part\MTF\base\MTF.Object.h" />
     <ClInclude Include="..\_third_part\MTF\base\MTF.Objects.h" />
     <ClInclude Include="..\_third_part\MTF\base\MTF.Port.h" />
@@ -51,6 +55,10 @@
     <ClCompile Include="..\_third_part\MTF\base\MTF.Element.cpp" />
     <ClCompile Include="..\_third_part\MTF\base\MTF.Interface.cpp" />
     <ClCompile Include="..\_third_part\MTF\base\MTF.Memory.cpp" />
+    <ClCompile Include="..\_third_part\MTF\base\MTF.MemoryBuff.cpp" />
+    <ClCompile Include="..\_third_part\MTF\base\MTF.MemoryBuffNode.cpp" />
+    <ClCompile Include="..\_third_part\MTF\base\MTF.MemoryCallback.cpp" />
+    <ClCompile Include="..\_third_part\MTF\base\MTF.Memory_c.cpp" />
     <ClCompile Include="..\_third_part\MTF\base\MTF.Object.cpp" />
     <ClCompile Include="..\_third_part\MTF\base\MTF.Objects.cpp" />
     <ClCompile Include="..\_third_part\MTF\base\MTF.Port.cpp" />

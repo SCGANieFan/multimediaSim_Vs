@@ -78,9 +78,13 @@ void MTf_Free_cb(void* block) {
 	free(block);
 }
 
+#define GBL_BYTE 100*1024
+static mtf_u8 gbl_heap[GBL_BYTE];
+
 int32_t MTFApi::Init()
 {
-	MTF_MemoryRegister("gbl", MTf_Malloc_cb, MTf_Realloc_cb, MTf_Calloc_cb, MTf_Free_cb);
+	//MTF_MemoryRegister("gbl", MTf_Malloc_cb, MTf_Realloc_cb, MTf_Calloc_cb, MTf_Free_cb);
+	MTF_MemoryRegister("gbl", gbl_heap, sizeof(gbl_heap));
 
 #if 0
 	MTF_REGISTER(pcm_demuxer);

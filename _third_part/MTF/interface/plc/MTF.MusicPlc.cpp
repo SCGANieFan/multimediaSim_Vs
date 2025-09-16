@@ -36,7 +36,6 @@ MTF_MusicPlc::~MTF_MusicPlc()
 		if(_hd)
 			plc_api_destory(_hd);
 		_hd = 0;
-		MTF_FREE(_hd);
 	}
 }
 
@@ -209,7 +208,7 @@ mtf_i32 MTF_MusicPlc::generate(MTF_Data*& oData)
 		_oData._flags |= MTF_DataFlag_ESO;
 	}
 	oData = &_oData;
-	MTF_PRINT("[%d]%d", _frames,oData->_size);
+	// MTF_PRINT("[%d]%d", _frames,oData->_size);
 	return 0;
 }
 
