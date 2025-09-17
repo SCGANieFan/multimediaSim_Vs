@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 #include"MAF.Audio.h"
 
@@ -20,3 +21,4 @@ private:
 	maf_int16 _decayMs = 0;
 	maf_int16 _overlapMs = 0;
 };
+#endif

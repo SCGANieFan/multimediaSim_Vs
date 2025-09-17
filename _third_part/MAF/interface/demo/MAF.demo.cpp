@@ -1,4 +1,4 @@
-#if 1
+#if 0
 #include "MAF.demo.h"
 #include "MAF.Objects.h"
 #include "MAF.String.h"

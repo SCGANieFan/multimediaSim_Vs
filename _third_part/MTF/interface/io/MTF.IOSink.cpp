@@ -1,7 +1,7 @@
-#include <stdio.h>
 #include "MTF.IOSink.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
+#include "MTF.Porting.h"
 
 void mtf_io_sink_register()
 {
@@ -16,7 +16,7 @@ MTF_IOSink::MTF_IOSink()
 MTF_IOSink::~MTF_IOSink()
 {
 	if (_pFile)
-		fclose((FILE*)_pFile);
+		FileClosePorting(_pFile);
 #if 0
 	if (_iData.Data())
 	{
@@ -34,7 +34,7 @@ mtf_i32 MTF_IOSink::Init()
 		MTF_PRINT("error, _url = 0");
 		return -1;
 	}
-	_pFile = fopen(_url, "wb+");
+	_pFile = FileOpenPorting(_url, "wb+");
 	if (!_pFile) {
 		MTF_PRINT("error, no such file:%s", _url);
 		return -1;
@@ -49,7 +49,7 @@ mtf_i32 MTF_IOSink::receive(MTF_Data& iData)
 {
 	if (iData._flags & MTF_DataFlag_ESO)
 		return -1;
-	fwrite(iData.Data(), 1, iData._size, (FILE*)_pFile);
+	FileWritePorting(_pFile, iData.Data(), iData._size);
 	iData.Used(iData._size);
 	return 0;
 }

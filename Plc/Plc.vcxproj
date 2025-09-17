@@ -476,7 +476,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ALGO_AUDIO_PATH)/process/plc/src;$(ALGO_AUDIO_PATH)/process/plc/tsplc/src;$(ALGO_AUDIO_PATH)/process/plc/tsplc;$(ALGO_AUDIO_PATH)/process/plc/lpcplc/c;$(ALGO_AUDIO_PATH)/process/plc/lpcplc/inc;$(ALGO_AUDIO_PATH)/process/plc/lpcplc;$(ALGO_AUDIO_PATH)/process/plc/sbcplc;$(ALGO_AUDIO_PATH)/process/plc/sbcplc/c;$(ALGO_AUDIO_PATH)/process/plc/musicplc;$(ALGO_AUDIO_PATH)/process/plc/inc;$(MTF_PATH)/interface/plc;$(MAF_PATH)/interface/plc;$(ALGO_PATH)/base;$(ALGO_AUDIO_PATH)/com;$(MAF_PATH);$(MAF_PATH)/base;$(MAF_PATH)/inc;$(MTF_PATH);$(MTF_PATH)/base</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ALGO_AUDIO_PATH)/process/plc/src;$(ALGO_AUDIO_PATH)/process/plc/tsplc/src;$(ALGO_AUDIO_PATH)/process/plc/tsplc;$(ALGO_AUDIO_PATH)/process/plc/lpcplc/c;$(ALGO_AUDIO_PATH)/process/plc/lpcplc/inc;$(ALGO_AUDIO_PATH)/process/plc/lpcplc;$(ALGO_AUDIO_PATH)/process/plc/sbcplc;$(ALGO_AUDIO_PATH)/process/plc/sbcplc/c;$(ALGO_AUDIO_PATH)/process/plc/musicplc;$(ALGO_AUDIO_PATH)/process/plc/inc;$(MTF_PATH)/interface/plc;$(MAF_PATH)/interface/plc;$(ALGO_PATH)/base;$(ALGO_AUDIO_PATH)/com;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <CompileAs>CompileAsCpp</CompileAs>
       <Optimization>Disabled</Optimization>
@@ -550,7 +550,6 @@
     <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\time_stretch.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\vector_scaling_operations.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\ts_plc_algo_api_c.cpp" />
-    <ClCompile Include="..\_third_part\MAF\interface\plc\MAFA.MusicPlc.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\plc\MTF.MusicPlc.cpp" />
     <ClCompile Include="PlcTest.cpp" />
   </ItemGroup>
@@ -600,7 +599,6 @@
     <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\time_stretch.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\typedefs.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\ts_plc_algo_api_c.h" />
-    <ClInclude Include="..\_third_part\MAF\interface\plc\MAFA.MusicPlc.h" />
     <ClInclude Include="..\_third_part\MTF\interface\plc\MTF.MusicPlc.h" />
     <ClInclude Include="PlcTest.h" />
   </ItemGroup>

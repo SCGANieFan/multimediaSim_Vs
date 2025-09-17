@@ -2,9 +2,7 @@
 #include "MTF.MemoryBuff.h"
 #include "MTF.String.h"
 #include "MTF.Printer.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include "MTF.Porting.h"
 using namespace mtf_ns;
 
 #define __align_bits 3u
@@ -140,7 +138,7 @@ mtf_void* MTF_MemoryBuff_c::Calloc(mtf_i32 count, mtf_i32 size) {
 	auto node = alloc(size0);
 	if (!node) return 0;
 	auto ptr = node->Buff();
-	memset(ptr, 0, size0);
+	MTF_MEM_SET(ptr, 0, size0);
 	return ptr;
 }
 mtf_void MTF_MemoryBuff_c::Free(mtf_void* block) {
@@ -267,7 +265,7 @@ MTF_MemoryBuff_c::Node* MTF_MemoryBuff_c::realloc(Node* node, unsigned size) {
 	auto dst = alloc(size);
 	if (!dst) return 0;
 	auto len = min(size, node->Size());
-	memcpy(dst->Buff(), node->Buff(), len);
+	MTF_MEM_CPY(dst->Buff(), node->Buff(), len);
 	free(node);
 	return dst;
 }
@@ -462,7 +460,7 @@ MTF_MemoryBuff_c::Node* MTF_MemoryBuff_c::getNode(void* ptr)const {
 }
 
 char* MTF_MemoryBuff_c::Print(char* ptr, char* end) const {
-	ptr += snprintf(ptr, end - ptr, "(%u)%u/%u,%u/%u"
+	ptr += SnprintfPorting(ptr, end - ptr, "(%u)%u/%u,%u/%u"
 		, _threshold
 		,_freeCount, _totalCount
 		,_free, _total

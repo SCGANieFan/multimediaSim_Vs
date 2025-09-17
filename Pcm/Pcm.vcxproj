@@ -67,14 +67,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\_third_part\MAF\interface\pcm\MAFA.PcmDemux.cpp" />
-    <ClCompile Include="..\_third_part\MAF\interface\pcm\MAFA.PcmMux.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\pcm\MTF.PcmDemuxer.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\pcm\MTF.PcmMuxer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\_third_part\MAF\interface\pcm\MAFA.PcmDemux.h" />
-    <ClInclude Include="..\_third_part\MAF\interface\pcm\MAFA.PcmMux.h" />
     <ClInclude Include="..\_third_part\MTF\interface\pcm\MTF.PcmDemuxer.h" />
     <ClInclude Include="..\_third_part\MTF\interface\pcm\MTF.PcmMuxer.h" />
   </ItemGroup>
@@ -420,7 +416,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(MTF_PATH)/interface/pcm;$(MAF_PATH)/interface/pcm;$(MAF_PATH);$(MAF_PATH)/base;$(MAF_PATH)/inc;$(MTF_PATH);$(MTF_PATH)/base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MTF_PATH)/interface/pcm;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WholeProgramOptimization>false</WholeProgramOptimization>

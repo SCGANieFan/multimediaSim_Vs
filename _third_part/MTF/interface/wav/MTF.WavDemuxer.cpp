@@ -1,6 +1,6 @@
-#include<stdio.h>
 #include"MTF.WavDemuxer.h"
 #include"MTF.Objects.h"
+#include"MTF.Porting.h"
 #include "WavDemux.h"
 
 using namespace mtf_ns;
@@ -18,7 +18,8 @@ MTF_WavDemuxer ::MTF_WavDemuxer ()
 MTF_WavDemuxer ::~MTF_WavDemuxer ()
 {
 	if (_pFile)
-		fclose((FILE*)_pFile);
+		FileClosePorting(_pFile);
+	
 	if (_oData.Data())
 	{
 		_oData.Used(_oData._size);
@@ -42,7 +43,7 @@ mtf_i32 MTF_WavDemuxer::Init()
 		MTF_PRINT("error, _url = 0");
 		return -1;
 	}
-	_pFile = fopen(_url, "rb+");
+	_pFile = FileOpenPorting(_url, "rb+");
 	if (!_pFile) {
 		MTF_PRINT("error, no such file:%s", _url);
 		return -1;
@@ -87,7 +88,7 @@ mtf_i32 MTF_WavDemuxer::Init()
 	const mtf_i32 readDataByte = 1024;
 	mtf_u8 readData[readDataByte];
 	while (1){
-		mtf_i32 readedSize = fread(readData, 1, readDataByte, (FILE*)_pFile);
+		mtf_i32 readedSize = FileReadPorting(_pFile, readData, readDataByte);
 		if (readedSize <= 0)
 			return -1;
 		
@@ -126,7 +127,7 @@ mtf_i32 MTF_WavDemuxer::Init()
 			Set("width", (void*)width);
 
 			WavDemux_Get(_hd, WAV_DEMUX_GET_CHOOSE_DATA_POS, (void**)&dataPos);
-			fseek((FILE*)_pFile, dataPos, SEEK_SET);
+			FileSeekPorting(_pFile, dataPos, FILE_PORTING_SEEK_SET);
 			break;
 		}
 	}
@@ -142,7 +143,7 @@ mtf_i32 MTF_WavDemuxer::Init()
 mtf_i32 MTF_WavDemuxer::generate(MTF_Data*& oData)
 {
 #if 1
-	mtf_i32 readedSize = fread(_oData.LeftData(), 1, _oData.LeftSize(), (FILE*)_pFile);
+	mtf_i32 readedSize = FileReadPorting(_pFile, _oData.LeftData(), _oData.LeftSize());
 	//MTF_PRINT("%d,%d",_oData.LeftSize(), readedSize);
 	if (readedSize <= 0){
 		if (_oData._size <= 0)

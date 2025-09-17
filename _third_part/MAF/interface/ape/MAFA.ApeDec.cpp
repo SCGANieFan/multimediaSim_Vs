@@ -17,10 +17,10 @@ maf_int32 MAFA_ApeDec::Init()
 	MAF_PRINT();
 	_malloc = _memory.GetMalloc();
 	_free = _memory.GetFree();
-	_basePorting = _memory.Malloc(sizeof(AlgoBasePorting));
-	AlgoBasePorting* basePorting = (AlgoBasePorting*)_basePorting;
-	basePorting->Malloc = (ALGO_Malloc_t)MallocLocal;
-	basePorting->Free = (ALGO_Free_t)FreeLocal;
+	_basePorting = _memory.Malloc(sizeof(AlgoBasePorting_c));
+	AlgoBasePorting_c* basePorting = (AlgoBasePorting_c*)_basePorting;
+	//basePorting->Malloc = (ALGO_Malloc_t)MallocLocal;
+	//basePorting->Free = (ALGO_Free_t)FreeLocal;
 	return 0;
 }
 

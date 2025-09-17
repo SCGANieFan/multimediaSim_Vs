@@ -1,24 +1,117 @@
 #include "MTF.String.h"
-#include<string.h>
 using namespace mtf_ns;
-MTF_String::MTF_String()
-{
+#if 1
+static inline void memset_add64_inner(mtf_u32* p32, mtf_u32 v8, mtf_i32 length) {
+	mtf_i32 lengthFrac = length & 15;
+	mtf_i32 lengthInt = length - lengthFrac;
+	for (mtf_i32 i = 0; i < lengthInt; i += 16) {
+		*p32++ = 0;
+		*p32++ = 0;
+		*p32++ = 0;
+		*p32++ = 0;
+	}
+	if (lengthFrac) {
+		mtf_u8* p8 = (mtf_u8*)p32;
+		for (mtf_i32 i = lengthInt; i < length; i += 1) {
+			*p8++ = 0;
+		}
+	}
 }
-MTF_String::~MTF_String()
-{
+
+static void* memset_m(void* dst, mtf_u8 val, mtf_i32 length) {
+	mtf_u32 addRem8 = (mtf_u32)dst & 7;
+	if (addRem8 == 0) {
+		memset_add64_inner((mtf_u32*)dst, val, length);
+	}
+	else {
+		mtf_u8* p8 = (mtf_u8*)dst;
+		mtf_i32 pendLen = 8 - addRem8;
+		if (length > pendLen) {
+			for (mtf_i32 i = 0; i < pendLen; i += 1) {
+				*p8++ = val;
+			}
+			mtf_u32* p32 = (mtf_u32*)p8;
+			length -= pendLen;
+			memset_add64_inner(p32, val, length);
+		}
+		else {
+			for (mtf_i32 i = 0; i < length; i += 1) {
+				*p8++ = val;
+			}
+		}
+	}
+	return 0;
 }
+
+static void* memcpy_m(void* dst, const void* src, mtf_i32 length) {
+	mtf_u32 addDstRem4 = (mtf_u32)dst & 3;
+	mtf_u32 addSrcRem4 = (mtf_u32)src & 3;
+	if (addDstRem4
+		|| addSrcRem4) {
+		const mtf_u8* pSrc8 = (const mtf_u8*)src;
+		mtf_u8* pDst8 = (mtf_u8*)dst;
+		for (mtf_i32 i = 0; i < length; i++) {
+			*pDst8++ = *pSrc8++;
+		}
+	}
+	else {
+		const mtf_u32* pSrc32 = (const mtf_u32*)src;
+		mtf_u32* pDst32 = (mtf_u32*)dst;
+		mtf_i32 lengthFrac = length & 15;
+		mtf_i32 lengthInt = length - lengthFrac;
+		for (mtf_i32 i = 0; i < lengthInt; i += 16) {
+			*pDst32++ = *pSrc32++;
+			*pDst32++ = *pSrc32++;
+			*pDst32++ = *pSrc32++;
+			*pDst32++ = *pSrc32++;
+		}
+		if (lengthFrac) {
+			mtf_u8* pSrc8 = (mtf_u8*)pSrc32;
+			mtf_u8* pDst8 = (mtf_u8*)pDst32;
+			for (mtf_i32 i = lengthInt; i < length; i += 1) {
+				*pDst8++ = *pSrc8++;
+			}
+		}
+	}
+	return 0;
+}
+
+static inline void* memcpy_reverse_inner(void* dst, const void* src, mtf_i32 length) {
+	mtf_u8* pSrc8 = (mtf_u8*)src;
+	mtf_u8* pDst8 = (mtf_u8*)dst;
+	mtf_i32 diffLen = pDst8 - pSrc8;
+	pSrc8 += length - 1;
+	pDst8 += length - 1;
+	for (mtf_i32 i = 0; i < length; i++) {
+		*pDst8-- = *pSrc8--;
+	}
+	return 0;
+}
+
+static void* memmove_m(void* dst, const void* src, mtf_i32 length) {
+	if (src >= dst) {
+		memcpy_m(dst, src, length);
+	}
+	else {
+		memcpy_reverse_inner(dst, src, length);
+	}
+	return 0;
+}
+
+#endif
+
 
 void* MTF_String::MemCpy(mtf_i8* dst, mtf_i8* src, mtf_i32 size)
 {
-	return memcpy(dst, src, size);
+	return memcpy_m(dst, src, size);
 }
 void* MTF_String::MemSet(mtf_i8* dst, mtf_i32 val, mtf_i32 size)
 {
-	return memset(dst, val, size);
+	return memset_m(dst, val, size);
 }
 void* MTF_String::MemMove(mtf_i8* dst, mtf_i8* src, mtf_i32 size)
 {
-	return memmove(dst, src, size);
+	return memmove_m(dst, src, size);
 }
 
 
@@ -152,6 +245,4 @@ namespace mtf_ns {
 	}
 	void ID2StringNoLose(mtf_u32 id, char* s, mtf_u16 len) {
 	}
-
-
 }

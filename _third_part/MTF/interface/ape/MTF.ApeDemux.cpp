@@ -1,16 +1,31 @@
-#include <stdio.h>
 #include "MTF.ApeDemux.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
-#include "MAF.h"
-
+//#include "MTF.Porting.h"
+#include "ApeDemux.h"
+using namespace mtf_ns;
 #define MIN(a,b) (a)<(b)?(a):(b)
 
 mtf_void mtf_ape_demux_register()
 {
 	MTF_Objects::Registe<MTF_ApeDemux>("ape_demux");
-	MAF_REGISTER(ape_demux);
 }
+
+static mtf_void* MallocLocal(int32_t size)
+{
+	static mtf_i32 sizeTotal = 0;
+	sizeTotal += size;
+	mtf_void* ptr = Malloc(size);
+	MTF_PRINT("malloc, ptr:%x, size:%d, sizeTotal:%d,", (mtf_u32)ptr, size, sizeTotal);
+	return ptr;
+}
+
+static mtf_void FreeLocal(mtf_void* block)
+{
+	MTF_PRINT("free, ptr:%x", (mtf_u32)block);
+	return Free(block);
+}
+
 MTF_ApeDemux::MTF_ApeDemux()
 {
 
@@ -25,11 +40,20 @@ MTF_ApeDemux::~MTF_ApeDemux()
 	}
 	if (_hd)
 	{
+#if 0
 		MAF_Deinit(_hd);
 		MTF_FREE(_hd);
+#else
+		MTF_PRINT();
+		ApeDemux_DeInit(_hd);
+		if (_hd)
+			Free(_hd);
+		if (_basePorting)
+			Free(_basePorting);
+#endif
 	}
 	if (_pFile)
-		fclose((FILE*)_pFile);
+		FileClosePorting(_pFile);
 }
 
 mtf_i32 MTF_ApeDemux::Init()
@@ -39,36 +63,24 @@ mtf_i32 MTF_ApeDemux::Init()
 		MTF_PRINT("error, _url = 0");
 		return -1;
 	}
-	_pFile = fopen(_url, "rb+");
+	_pFile = FileOpenPorting(_url, "rb+");
 	if (!_pFile) {
 		MTF_PRINT("error, no such file:%s", _url);
 		return -1;
 	}
 
 	//lib init
-	const char* type = "ape_demux";
-	MA_Ret ret;
-	ret = MAF_GetHandleSize(type, &_hdSize);
-	if (ret != MA_RET_SUCCESS)
-		MTF_PRINT("err");
-	if (_hdSize < 1)
-		MTF_PRINT("err");
-	_hd = MTF_MALLOC(_hdSize);
-	if (!_hd)
-		MTF_PRINT("err");
-
-	mtf_void* param[] = {
-	(mtf_void*)type,
-	(mtf_void*)MTF_Memory::Malloc,
-	(mtf_void*)MTF_Memory::Realloc,
-	(mtf_void*)MTF_Memory::Calloc,
-	(mtf_void*)MTF_Memory::Free,
-	};
-
-	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4;";
-	ret = MAF_Init(_hd, script, param);
-	if (ret != MA_RET_SUCCESS)
-		MTF_PRINT("err");
+	MTF_PRINT();
+	_hdSize = ApeDemux_GetSize();
+	_hd = Malloc(_hdSize);
+	MTF_PRINT("_hd=%x,size:%d", (mtf_u32)_hd, _hdSize);
+	if (!_hd) {
+		return -1;
+	}
+	mtf_i32 ret = ApeDemux_Init(_hd);
+	if (ret < 0) {
+		return -1;
+	}
 
 #if 1
 	MTF_MEM_SET(&_extraInfo, 0, sizeof(ExtraInfo_t));
@@ -77,16 +89,20 @@ mtf_i32 MTF_ApeDemux::Init()
 	const mtf_i32 readDataLen = 512;
 	mtf_u8 readData[readDataLen];
 	while (1){
-		fread(readData, 1, readDataLen, (FILE*)_pFile);
-		AA_Data AA_iData;
-		MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
-		AA_iData.buff = readData;
-		AA_iData.size = readDataLen;
+		FileReadPorting(_pFile, readData, readDataLen);
+#if 0
 		MAF_Run(_hd, &AA_iData, 0);
+#else
+		mtf_i32 ret;
+		ret = ApeDemux_Run(_hd, readData, readDataLen);
+		if (ret < 0) {
+			return -1;
+		}
+#endif
 		mtf_u32 isRunFinish;
-		MAF_Get(_hd, "isRunFinish", (mtf_void**)&isRunFinish);
+		ApeDemux_Get(_hd, ApeDemuxGet_e::APE_DEMUX_GET_IS_RUN_FINISH, (mtf_void**)&isRunFinish);
 		if (isRunFinish) {
-			MAF_Get(_hd, "apeHeader", (mtf_void**)&_extraInfo.apeHeader);
+			ApeDemux_Get(_hd, ApeDemuxGet_e::APE_DEMUX_GET_HEADE, (mtf_void**)&_extraInfo.apeHeader);
 			break;
 		}
 	}
@@ -94,21 +110,21 @@ mtf_i32 MTF_ApeDemux::Init()
 	mtf_i32 seekTablePos;
 	mtf_i32 seekTableSizeByte;
 	mtf_void *param0[]={&seekTablePos,&seekTableSizeByte};
-	MAF_Get(_hd, "seekTable", (mtf_void**)param0);
+	ApeDemux_Get(_hd, ApeDemuxGet_e::APE_DEMUX_GET_SEEK_TABLE, (mtf_void**)param0);
 	SeekTableManger seekTableManger;
 	seekTableManger.Init(seekTablePos,seekTableSizeByte,_pFile);
 	_startPos = 150 * 1024;
-	mtf_u32 _startPosTmp;
+	mtf_u32 _startPosTmp = 0;
 	while (1) {
 	seekTableManger.UpdataSeektable();
 	if (seekTableManger.GetValidSeekTableNum() == 0)
 			break;
 		mtf_void* param1[] = { (mtf_void*)seekTableManger.GetValidSeekTable(),(mtf_void*)seekTableManger.GetValidSeekTableByte() };
-		MAF_Set(_hd, "seekTable", (mtf_void**)param1);
+		ApeDemux_Set(_hd, ApeDemuxSet_e::APE_DEMUX_SET_SEEK_TABLE, (mtf_void**)param1); return 0;
 		_startPosTmp = _startPos;
 		mtf_u32 seekTableNumOffset;
 		mtf_void* param2[3] = { &_startPosTmp, &seekTableNumOffset ,&_extraInfo.skip };
-		if (MAF_Get(_hd, "startInfoFromPos", (mtf_void**)param2)== MA_RET_SUCCESS){
+		if (ApeDemux_Get(_hd, ApeDemuxGet_e::APE_DEMUX_GET_START_INFO_FROM_POS, (mtf_void**)param2) == APERET_SUCCESS){
 			_extraInfo.startFrame += seekTableNumOffset;
 			if (_extraInfo.startFrame == 0)
 				_extraInfo.startFrame = 1;
@@ -119,14 +135,14 @@ mtf_i32 MTF_ApeDemux::Init()
 	}
 	_startPos = _startPosTmp;
 	MTF_PRINT("startFrame:%d, startPos:%d,_startSkip:%d", _extraInfo.startFrame, _startPos, _extraInfo.skip);
-	fseek((FILE*)_pFile, _startPos, SEEK_SET);
+	FileSeekPorting(_pFile, _startPos, FileSeekPorting_e::FILE_PORTING_SEEK_SET);
 	_isFirstFrame = true;
 #endif
 	mtf_u32 rate;
 	mtf_u32 ch;
 	mtf_u32 width;
 	mtf_void* param3[3] = { &rate,&ch, &width };
-	MAF_Get(_hd, "audioInfo", (mtf_void**)param3);
+	ApeDemux_Get(_hd, ApeDemuxGet_e::APE_DEMUX_GET_AUDIO_INFO, (mtf_void**)param3);
 	MTF_AudioDemuxer::Set("rate", (mtf_void*)rate);
 	MTF_AudioDemuxer::Set("ch", (mtf_void*)ch);
 	MTF_AudioDemuxer::Set("width", (mtf_void*)width);
@@ -153,7 +169,8 @@ mtf_i32 MTF_ApeDemux::generate(MTF_Data*& oData)
 			return 0;
 		}
 
-		mtf_i32 readedSize = fread(_oData.LeftData(), 1, _oData.LeftSize(), (FILE*)_pFile);
+		mtf_i32 readedSize = FileReadPorting(_pFile, _oData.LeftData(), _oData.LeftSize());
+		
 		if (readedSize < _oData.LeftSize()) {
 			_oData._flags |= MTF_DataFlag_ESO;
 		}

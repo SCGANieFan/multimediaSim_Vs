@@ -1,5 +1,6 @@
 #include"MTF.h"
 #include <stdio.h>
+using namespace MTFApi_ns;
 #define PATH "../../source/audio/ape/"
 
 #if 0
@@ -40,7 +41,7 @@ char filenames[][50] = {
 
 void ApeTest()
 {
-	MultiemdiaTestInit();
+	MTFApi::Init();
 
 	MTF_REGISTER(ape_demux);
 	MTF_REGISTER(ape_dec);
@@ -63,6 +64,6 @@ void ApeTest()
 		"|ape_dec|-->"
 		"|wav_muxer,url=$1|"
 		};
-		MultiemdiaApi(str, param);
+		MTFApi::Api(str, param);
 	}
 }

@@ -336,7 +336,7 @@ STATIC INLINE i32 Ape_Decode(ApeDecoder* pMusicPlcStateIn, uint8_t* in, int32_t 
 	return APE_RET_SUCCESS;
 }
 
-i32 ApeDecoder::Init(AlgoBasePorting* basePorting, ApeContext_t* contextIn, u32 startFrameNum, u32 skip)
+i32 ApeDecoder::Init(AlgoBasePorting_c* basePorting, ApeContext_t* contextIn, u32 startFrameNum, u32 skip)
 {
 	MM.Init(basePorting);
 #if 1

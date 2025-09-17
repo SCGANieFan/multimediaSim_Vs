@@ -1,5 +1,7 @@
 #pragma once
 #include"MTF.AudioDemuxer.h"
+#include"MTF.Porting.h"
+using namespace mtf_ns;
 class MTF_ApeDemux :public MTF_AudioDemuxer
 {
 
@@ -27,14 +29,14 @@ private:
 			_seektableReadSizeByte = tableNumTmp * 4;
 			_seektableRead = (mtf_i32*)MTF_MALLOC(_seektableReadSizeByte);
 			_pFile = pFile;
-			fseek((FILE*)_pFile, _seekTablePos, SEEK_SET);
+			FileSeekPorting(_pFile, _seekTablePos, FileSeekPorting_e::FILE_PORTING_SEEK_SET);
 
 		}
 		void UpdataSeektable() {
 			_seektableReadValidSizeByte = _seekTableSizeByte - _seekTableUsedSizeByte;
 			_seektableReadValidSizeByte = _seektableReadValidSizeByte < _seektableReadSizeByte ? _seektableReadValidSizeByte : _seektableReadSizeByte;
 			if(_seektableReadValidSizeByte)
-				fread(_seektableRead, 1, _seektableReadValidSizeByte, (FILE*)_pFile);
+				FileReadPorting(_pFile, _seektableRead, _seektableReadValidSizeByte);
 		}
 		mtf_i32 GetValidSeekTableNum() {
 			return _seektableReadValidSizeByte>>2;
@@ -86,5 +88,6 @@ private:
 private:
 	void* _pFile = 0;
 	const char* _url = 0;
+	mtf_void* _basePorting = 0;
 };
 

@@ -1,6 +1,5 @@
 #if 0
 #pragma once
-#include<stdint.h>
 #include<new>
 
 class MAF_Object

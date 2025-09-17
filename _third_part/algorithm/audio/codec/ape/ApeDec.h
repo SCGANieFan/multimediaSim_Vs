@@ -11,7 +11,7 @@ typedef enum {
 
 typedef struct
 {
-	AlgoBasePorting* basePorting;
+	AlgoBasePorting_c* basePorting;
 	void* context;
 	uint32_t startFrame;
 	uint32_t skip;

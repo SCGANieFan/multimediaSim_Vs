@@ -1,6 +1,6 @@
-#include<stdio.h>
 #include"MTF.OggDemuxer.h"
 #include"MTF.Objects.h"
+#include"MTF.Porting.h"
 using namespace mtf_ns;
 void mtf_ogg_demuxer_register()
 {
@@ -16,7 +16,7 @@ MTF_OggDemuxer ::MTF_OggDemuxer ()
 MTF_OggDemuxer ::~MTF_OggDemuxer ()
 {
 	if (_pFile)
-		fclose((FILE*)_pFile);
+		FileClosePorting(_pFile);
 	if (_oData.Data())
 	{
 		_oData.Used(_oData._size);
@@ -35,7 +35,7 @@ mtf_i32 MTF_OggDemuxer::Init()
 		MTF_PRINT("error, _url = 0");
 		return -1;
 	}
-	_pFile = fopen(_url, "rb+");
+	_pFile = FileOpenPorting(_url, "rb+");
 	if (!_pFile) {
 		MTF_PRINT("error, no such file:%s", _url);
 		return -1;
@@ -112,7 +112,7 @@ mtf_i32 MTF_OggDemuxer::Init()
 mtf_i32 MTF_OggDemuxer::generate(MTF_Data*& oData)
 {
 #if 1
-	mtf_i32 readedSize = fread(_oData.LeftData(), 1, _oData.LeftSize(), (FILE*)_pFile);
+	mtf_i32 readedSize = FileReadPorting(_pFile, _oData.LeftData(), _oData.LeftSize());
 	if (readedSize <= 0){
 		if (_oData._size <= 0)
 			_oData._flags |= MTF_DataFlag_EMPTY;

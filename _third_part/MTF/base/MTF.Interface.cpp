@@ -1,6 +1,4 @@
 #if 0
-#include<string.h>
-#include<stdlib.h>
 #include "MAF.Objects.h"
 
 typedef void* (*Create_t)(void* buff);

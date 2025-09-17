@@ -7,6 +7,12 @@
     <Filter Include="interface">
       <UniqueIdentifier>{01f02e1a-21ec-4075-aa83-1617ff16fb60}</UniqueIdentifier>
     </Filter>
+    <Filter Include="porting">
+      <UniqueIdentifier>{148d4754-6294-45a4-9a70-2d610782e818}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="porting\Win32">
+      <UniqueIdentifier>{00efeeef-56a9-4ab2-abfd-7a6f1b95c3bd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\_third_part\MTF\base\MTF.Element.h">
@@ -85,6 +91,12 @@
     <ClInclude Include="..\_third_part\MTF\base\MTF.MemoryBuffNode.h">
       <Filter>base</Filter>
     </ClInclude>
+    <ClInclude Include="..\_third_part\MTF\porting\MTF.Porting.h">
+      <Filter>porting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\MTF\porting\win32\MTF.Std.h">
+      <Filter>porting\Win32</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\_third_part\MTF\base\MTF.Interface.cpp">
@@ -159,6 +171,21 @@
     </ClCompile>
     <ClCompile Include="..\_third_part\MTF\base\MTF.MemoryBuffNode.cpp">
       <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\MTF\porting\win32\MTF.Log.cpp">
+      <Filter>porting\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\MTF\porting\win32\MTF.File.cpp">
+      <Filter>porting\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\MTF\porting\win32\MTF.Std.cpp">
+      <Filter>porting\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\MTF\porting\win32\MTF.Thread.cpp">
+      <Filter>porting\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\MTF\porting\win32\MTF.Time.cpp">
+      <Filter>porting\Win32</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

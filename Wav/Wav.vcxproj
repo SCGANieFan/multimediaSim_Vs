@@ -405,7 +405,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ALGO_PATH)/base;$(ALGO_PATH)/container/wav;$(ALGO_AUDIO_PATH)/com;$(MTF_PATH)/interface/wav;$(MAF_PATH)/interface/wav;$(MAF_PATH);$(MAF_PATH)/base;$(MAF_PATH)/inc;$(MTF_PATH);$(MTF_PATH)/base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ALGO_PATH)/base;$(ALGO_PATH)/container/wav;$(ALGO_AUDIO_PATH)/com;$(MTF_PATH)/interface/wav;$(MAF_PATH)/interface/wav;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -524,8 +524,6 @@
     <ClInclude Include="..\_third_part\algorithm\container\wav\Wav.Inner.Muxer.h" />
     <ClInclude Include="..\_third_part\algorithm\container\wav\WavDemux.h" />
     <ClInclude Include="..\_third_part\algorithm\container\wav\WavMux.h" />
-    <ClInclude Include="..\_third_part\MAF\interface\wav\MAFA.WavDemux.h" />
-    <ClInclude Include="..\_third_part\MAF\interface\wav\MAFA.WavMux.h" />
     <ClInclude Include="..\_third_part\MTF\interface\wav\MTF.WavDemuxer.h" />
     <ClInclude Include="..\_third_part\MTF\interface\wav\MTF.WavMuxer.h" />
     <ClInclude Include="WavTest.h" />
@@ -535,8 +533,6 @@
     <ClCompile Include="..\_third_part\algorithm\container\wav\Wav.Inner.Muxer.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\wav\WavDemux.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\wav\WavMux.cpp" />
-    <ClCompile Include="..\_third_part\MAF\interface\wav\MAFA.WavDemux.cpp" />
-    <ClCompile Include="..\_third_part\MAF\interface\wav\MAFA.WavMux.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\wav\MTF.WavDemuxer.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\wav\MTF.WavMuxer.cpp" />
     <ClCompile Include="WavTest.cpp" />

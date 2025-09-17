@@ -2,8 +2,7 @@
 #include "MTF.MemoryBuffNode.h"
 #include "MTF.String.h"
 #include "MTF.Printer.h"
-#include <stdlib.h>
-#include <stdio.h>
+#include "MTF.Porting.h"
 using namespace mtf_ns;
 using Node = MTF_MemoryBuffNode_c;
 
@@ -38,14 +37,14 @@ bool MTF_MemoryBuffNode_c::Check()const {
 	return true;
 }
 char* MTF_MemoryBuffNode_c::Print(char* ptr, char* end) const {
-	ptr += snprintf(ptr, end - ptr, "%08x,%08x", vs[0], vs[1]);
+	ptr += SnprintfPorting(ptr, end - ptr, "%08x,%08x", vs[0], vs[1]);
 	return ptr;
 }
 void MTF_MemoryBuffNode_c::Print(uint32_t idx) const {
 	dbgNodeX("%d,%p,%08x,%08x,%p,%u,%d\n", idx, this, vs[0], vs[1], Buff(), Size(),IsFree());
 }
 char* MTF_MemoryBuffNode_c::Dump(char* ptr, char* end) const {
-	ptr += snprintf(ptr, end - ptr, "%08x %08x", vs[0], vs[1]);
+	ptr += SnprintfPorting(ptr, end - ptr, "%08x %08x", vs[0], vs[1]);
 	return ptr;
 }
 Node* MTF_MemoryBuffNode_c::Insert0(int index,bool used) {

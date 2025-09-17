@@ -1,7 +1,6 @@
 #include "MTF.demo.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
-#include "MAF.h"
 
 void mtf_audio_demo_register()
 {

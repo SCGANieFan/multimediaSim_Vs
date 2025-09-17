@@ -1,25 +1,28 @@
-#include<stdarg.h>
 #include "MTF.Printer.h"
+#include "MTF.Porting.h"
+#include <stdio.h>
+namespace mtf_ns {
 
-#ifdef _WIN32
-#include<stdio.h>
-#define printf_inner(fmt,...)		printf(fmt,##__VA_ARGS__)
-#else
-#define printf_ori(fmt,...)		
-#endif
 
-MTF_Printer::MTF_Printer()
-{
-}
-MTF_Printer::~MTF_Printer()
-{
-}
-mtf_void MTF_Printer::Printf(const char* _Format, ...)
-{
+mtf_void PrintfOri(const char* format, ...) {
+    VaListPorting_t args;
+    VaStartPorting(args, format);
     char buf[256];
-    va_list args;
-    va_start(args, _Format);
-    vsprintf(buf, (const char*)_Format, args);
-    va_end(args);
-    printf_inner(buf);
+    VsprintfPorting(buf, "%lld[%u]%s\n", TimeMsPorting(), ThreadIdPorting());
+    LogNoFormatPorting(buf);
+}
+
+mtf_void Printf(mtf_u16 ch, const char* format, ...) {
+    VaListPorting_t args;
+    VaStartPorting(args, format);
+    char buf[256];
+    VsprintfPorting(buf, "%lld[%u][%u]", TimeMsPorting(), ch, ThreadIdPorting());
+    VsprintfPorting(buf + MTF_String::StrLen(buf), format, args);
+    LogNoFormatPorting(buf);
+}
+
+mtf_void PrintfNoformat(const char* buf) {
+    LogNoFormatPorting(buf);
+}
+
 }

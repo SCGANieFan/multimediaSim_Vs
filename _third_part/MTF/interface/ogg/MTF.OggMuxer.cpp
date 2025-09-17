@@ -1,7 +1,6 @@
-#include<stdio.h>
-#include <stdarg.h>
 #include"MTF.OggMuxer.h"
 #include"MTF.Objects.h"
+#include"MTF.Porting.h"
 #include "ogg_api.h"
 
 #define LOG_OGG MTF_PRINT
@@ -23,7 +22,7 @@ MTF_OggMuxer::~MTF_OggMuxer()
 		ogg_muxer_api_destory(_hd);
 	}
 	if (_pFile)
-		fclose((FILE*)_pFile);
+		FileClosePorting(_pFile);
 #endif
 
 }
@@ -56,10 +55,10 @@ void MTF_OggMuxer::OggFree(void* ptr) {
 }
 void MTF_OggMuxer::OggPrint(const char* fmt, ...) {
 	static char buf[256];
-	va_list args;
-	va_start(args, fmt);
-	vsprintf(buf, fmt, args);
-	va_end(args);
+	VaListPorting_t args;
+	VaStartPorting(args, fmt);
+	VsprintfPorting(buf, fmt, args);
+	VaEndPorting(args);
 	MTF_PRINTORI("%s",buf);
 }
 #endif
@@ -71,7 +70,7 @@ mtf_i32 MTF_OggMuxer::Init()
 		MTF_PRINT("error, _url = 0");
 		return -1;
 	}
-	_pFile = fopen(_url, "wb+");
+	_pFile = FileOpenPorting(_url, "wb+");
 	if (!_pFile) {
 		MTF_PRINT("error, no such file:%s", _url);
 		return -1;
@@ -126,8 +125,8 @@ mtf_i32 MTF_OggMuxer::receive(MTF_Data& iData)
 		OggPage_t oggPage;
 		ret = ogg_muxer_api_generate(_hd, &oggPage);
 		if (ret == OGG_RET_SUCCESS) {
-			fwrite(oggPage.headData, 1, oggPage.headLen, (FILE*)_pFile);
-			fwrite(oggPage.bodyData, 1, oggPage.bodyLen, (FILE*)_pFile);
+			FileWritePorting(_pFile, oggPage.headData, oggPage.headLen);
+			FileWritePorting(_pFile, oggPage.bodyData, oggPage.bodyLen);
 			LOG_OGG("%d", oggPage.headLen + oggPage.bodyLen);
 		}
 		else

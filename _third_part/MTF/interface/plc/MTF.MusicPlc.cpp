@@ -1,9 +1,8 @@
 #include "MTF.MusicPlc.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
+#include "MTF.Porting.h"
 #include "plc_api.h"
-#include <stdarg.h>
-#include <stdio.h>
 
 void mtf_music_plc_register()
 {
@@ -60,11 +59,11 @@ static void PlcFree(void* ptr) {
 
 static void PlcPrint(const char* fmt, ...) {
 	char buf[256];
-	va_list args;
-	va_start(args, fmt);
-	vsprintf(buf, fmt, args);
-	va_end(args);
-	printf(buf);
+	VaListPorting_t args;
+	VaStartPorting(args, fmt);
+	VsprintfPorting(buf, fmt, args);
+	VaEndPorting(args);
+	MTF_PRINTORI("%s", buf);
 }
 
 mtf_i32 MTF_MusicPlc::Init()

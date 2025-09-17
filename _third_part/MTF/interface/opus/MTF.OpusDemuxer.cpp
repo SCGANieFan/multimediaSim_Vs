@@ -1,7 +1,7 @@
-#include<stdio.h>
 #include "MTF.OpusDemuxer.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
+#include "MTF.Porting.h"
 
 static const char* type_this = "opus_demuxer";
 
@@ -45,7 +45,7 @@ mtf_i32 MTF_OpusDemuxer::Init()
 		MTF_PRINT("error, _url = 0");
 		return -1;
 	}
-	_pFile = fopen(_url, "rb+");
+	_pFile = FileOpenPorting(_url, "rb+");
 	if (!_pFile) {
 		MTF_PRINT("error, no such file:%s", _url);
 		return -1;
@@ -89,7 +89,7 @@ mtf_i32 MTF_OpusDemuxer::generate(MTF_Data*& oData)
 	mtf_i32 readedSize;
 	mtf_u8 tmp[8];
 	mtf_u32 frameByte;
-	readedSize = fread(tmp, 1, 8, (FILE*)_pFile);
+	readedSize = FileReadPorting(_pFile, tmp, 8);
 	if (readedSize != 8) {
 		_oData._flags |= MTF_DataFlag_ESO;
 		goto exit;
@@ -99,7 +99,7 @@ mtf_i32 MTF_OpusDemuxer::generate(MTF_Data*& oData)
 		MTF_PRINT("err,%d,%d", _oData.LeftSize(), frameByte);
 		return -1;
 	}
-	readedSize = fread(_oData.LeftData(), 1, frameByte, (FILE*)_pFile);
+	readedSize = FileReadPorting(_pFile, _oData.LeftData(), frameByte);
 	if (readedSize < frameByte) {
 		_oData._flags |= MTF_DataFlag_ESO;
 		goto exit;

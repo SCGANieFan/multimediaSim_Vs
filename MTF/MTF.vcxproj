@@ -45,6 +45,8 @@
     <ClInclude Include="..\_third_part\MTF\interface\io\MTF.IOSink.h" />
     <ClInclude Include="..\_third_part\MTF\interface\io\MTF.IOSource.h" />
     <ClInclude Include="..\_third_part\MTF\MTF.h" />
+    <ClInclude Include="..\_third_part\MTF\porting\MTF.Porting.h" />
+    <ClInclude Include="..\_third_part\MTF\porting\win32\MTF.Std.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\_third_part\MTF\base\MTF.AudioDemuxer.cpp" />
@@ -72,6 +74,11 @@
     <ClCompile Include="..\_third_part\MTF\interface\io\MTF.IOSink.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\io\MTF.IOSource.cpp" />
     <ClCompile Include="..\_third_part\MTF\MTF.cpp" />
+    <ClCompile Include="..\_third_part\MTF\porting\win32\MTF.File.cpp" />
+    <ClCompile Include="..\_third_part\MTF\porting\win32\MTF.Log.cpp" />
+    <ClCompile Include="..\_third_part\MTF\porting\win32\MTF.Std.cpp" />
+    <ClCompile Include="..\_third_part\MTF\porting\win32\MTF.Thread.cpp" />
+    <ClCompile Include="..\_third_part\MTF\porting\win32\MTF.Time.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -135,7 +142,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(MTF_PATH);$(MTF_PATH)/base</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>

@@ -409,7 +409,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ALGO_AUDIO_PATH)/com;$(ALGO_AUDIO_PATH)/demo;$(ALGO_PATH)/base;$(MAF_PATH);$(MAF_PATH)/base;$(MAF_PATH)/inc;$(MAF_PATH)/interface/demo;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/demo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ALGO_AUDIO_PATH)/com;$(ALGO_AUDIO_PATH)/demo;$(ALGO_PATH)/base;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/demo;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
@@ -528,7 +528,6 @@
     <ClCompile Include="..\_third_part\algorithm\audio\com\Algo.AudioCal.Resample.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\demo\audiodemo.cpp" />
     <ClCompile Include="..\_third_part\algorithm\base\Algo.Memory.cpp" />
-    <ClCompile Include="..\_third_part\MAF\interface\demo\MAF.demo.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\demo\MTF.demo.cpp" />
     <ClCompile Include="MTF_demoTest.cpp" />
   </ItemGroup>
@@ -557,7 +556,6 @@
     <ClInclude Include="..\_third_part\algorithm\base\Algo.Memory.h" />
     <ClInclude Include="..\_third_part\algorithm\base\Algo.Printer.h" />
     <ClInclude Include="..\_third_part\algorithm\base\Algo.Type.h" />
-    <ClInclude Include="..\_third_part\MAF\interface\demo\MAF.demo.h" />
     <ClInclude Include="..\_third_part\MTF\interface\demo\MTF.demo.h" />
     <ClInclude Include="MTF_demoTest.h" />
   </ItemGroup>

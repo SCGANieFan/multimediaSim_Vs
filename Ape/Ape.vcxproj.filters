@@ -4,9 +4,6 @@
     <Filter Include="lib">
       <UniqueIdentifier>{ce62a4e1-330f-44cf-bc65-2fcbe5bf86bd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="maf">
-      <UniqueIdentifier>{03ff545e-dd44-4845-976a-2cad40b59409}</UniqueIdentifier>
-    </Filter>
     <Filter Include="mtf">
       <UniqueIdentifier>{4cacdb8c-920a-48c5-ac63-a02a8f37380c}</UniqueIdentifier>
     </Filter>
@@ -36,12 +33,6 @@
     </ClCompile>
     <ClCompile Include="..\_third_part\algorithm\audio\codec\ape\ApeDec.cpp">
       <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\MAF\interface\ape\MAFA.ApeDemux.cpp">
-      <Filter>maf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\MAF\interface\ape\MAFA.ApeDec.cpp">
-      <Filter>maf</Filter>
     </ClCompile>
     <ClCompile Include="..\_third_part\MTF\interface\ape\MTF.ApeDemux.cpp">
       <Filter>mtf</Filter>
@@ -87,12 +78,6 @@
     </ClInclude>
     <ClInclude Include="..\_third_part\algorithm\audio\codec\ape\ApeCom.h">
       <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\MAF\interface\ape\MAFA.ApeDemux.h">
-      <Filter>maf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\MAF\interface\ape\MAFA.ApeDec.h">
-      <Filter>maf</Filter>
     </ClInclude>
     <ClInclude Include="..\_third_part\MTF\interface\ape\MTF.ApeDemux.h">
       <Filter>mtf</Filter>

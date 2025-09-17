@@ -1,6 +1,4 @@
 
-#include<stdlib.h>
-
 #include"MTF.Objects.h"
 #include"MTF.Element.h"
 #include"MTF.String.h"
@@ -83,6 +81,11 @@ static mtf_u8 gbl_heap[GBL_BYTE];
 
 int32_t MTFApi::Init()
 {
+	MTF_PRINT();
+	MTF_PRINT_ERR();
+	MTF_PRINT_WARN();
+	MTF_PRINT_NOTE();
+
 	//MTF_MemoryRegister("gbl", MTf_Malloc_cb, MTf_Realloc_cb, MTf_Calloc_cb, MTf_Free_cb);
 	MTF_MemoryRegister("gbl", gbl_heap, sizeof(gbl_heap));
 

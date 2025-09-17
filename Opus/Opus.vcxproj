@@ -84,7 +84,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>HAVE_CONFIG_H;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(MAF_PATH);$(MAF_PATH)/base;$(MAF_PATH)/inc;$(MAF_PATH)/interface/opus;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/interface/opus;$(ALGO_AUDIO_PATH)/codec/opus/;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/celt;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/include;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/silk;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/silk/fixed;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32;$(MTF_PATH)/interface/opus;$(ALGO_AUDIO_PATH)/codec/opus/;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/celt;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/include;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/silk;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/silk/fixed;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -212,9 +212,6 @@
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_private.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\tansig_table.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\OpusApi.h" />
-    <ClInclude Include="..\_third_part\MAF\interface\opus\MAFA.OpusDec.h" />
-    <ClInclude Include="..\_third_part\MAF\interface\opus\MAFA.OpusEnc.h" />
-    <ClInclude Include="..\_third_part\MAF\interface\opus\OpusMemory.h" />
     <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusDec.h" />
     <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusDemuxer.h" />
     <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusEnc.h" />
@@ -355,9 +352,6 @@
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_projection_encoder.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\repacketizer.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\OpusApi.cpp" />
-    <ClCompile Include="..\_third_part\MAF\interface\opus\MAFA.OpusDec.cpp" />
-    <ClCompile Include="..\_third_part\MAF\interface\opus\MAFA.OpusEnc.cpp" />
-    <ClCompile Include="..\_third_part\MAF\interface\opus\OpusMemory.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusDec.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusDemuxer.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusEnc.cpp" />

@@ -4,9 +4,6 @@
     <Filter Include="lib">
       <UniqueIdentifier>{e3790de4-cc13-4b33-adce-e8a2e6bde521}</UniqueIdentifier>
     </Filter>
-    <Filter Include="maf">
-      <UniqueIdentifier>{989ba753-302b-4c8c-8853-25833e6f50a7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="mtf">
       <UniqueIdentifier>{1d505b0b-1ca1-47ce-b4d7-ad6e9bc387f3}</UniqueIdentifier>
     </Filter>
@@ -37,9 +34,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PlcTest.cpp" />
-    <ClCompile Include="..\_third_part\MAF\interface\plc\MAFA.MusicPlc.cpp">
-      <Filter>maf</Filter>
-    </ClCompile>
     <ClCompile Include="..\_third_part\MTF\interface\plc\MTF.MusicPlc.cpp">
       <Filter>mtf</Filter>
     </ClCompile>
@@ -121,9 +115,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PlcTest.h" />
-    <ClInclude Include="..\_third_part\MAF\interface\plc\MAFA.MusicPlc.h">
-      <Filter>maf</Filter>
-    </ClInclude>
     <ClInclude Include="..\_third_part\MTF\interface\plc\MTF.MusicPlc.h">
       <Filter>mtf</Filter>
     </ClInclude>

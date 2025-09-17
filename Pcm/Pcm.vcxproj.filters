@@ -4,9 +4,6 @@
     <Filter Include="lib">
       <UniqueIdentifier>{9a07871f-9cb4-4968-900c-1547a06d0c68}</UniqueIdentifier>
     </Filter>
-    <Filter Include="maf">
-      <UniqueIdentifier>{38dedcf9-c36d-4caf-940a-1c8942e366cd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="mtf">
       <UniqueIdentifier>{bf58faa7-61a4-4550-9a17-9b5d69b1547d}</UniqueIdentifier>
     </Filter>
@@ -18,12 +15,6 @@
     <ClCompile Include="..\_third_part\MTF\interface\pcm\MTF.PcmDemuxer.cpp">
       <Filter>mtf</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\MAF\interface\pcm\MAFA.PcmMux.cpp">
-      <Filter>maf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\MAF\interface\pcm\MAFA.PcmDemux.cpp">
-      <Filter>maf</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\_third_part\MTF\interface\pcm\MTF.PcmMuxer.h">
@@ -31,12 +22,6 @@
     </ClInclude>
     <ClInclude Include="..\_third_part\MTF\interface\pcm\MTF.PcmDemuxer.h">
       <Filter>mtf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\MAF\interface\pcm\MAFA.PcmDemux.h">
-      <Filter>maf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\MAF\interface\pcm\MAFA.PcmMux.h">
-      <Filter>maf</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

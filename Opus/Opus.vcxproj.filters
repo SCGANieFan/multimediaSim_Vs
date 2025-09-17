@@ -19,9 +19,6 @@
     <Filter Include="lib\src">
       <UniqueIdentifier>{b5198e52-0370-4873-ba75-82f637ad660a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="maf">
-      <UniqueIdentifier>{5299ca94-20ac-4f74-8551-e9256afbbe0d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="mtf">
       <UniqueIdentifier>{c4ae31f3-9d16-4e92-aeef-37f193609aca}</UniqueIdentifier>
     </Filter>
@@ -46,12 +43,6 @@
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_multistream.h">
       <Filter>lib\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\MAF\interface\opus\MAFA.OpusEnc.h">
-      <Filter>maf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\MAF\interface\opus\MAFA.OpusDec.h">
-      <Filter>maf</Filter>
-    </ClInclude>
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\config.h">
       <Filter>lib\include</Filter>
     </ClInclude>
@@ -66,9 +57,6 @@
     </ClInclude>
     <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusEnc.h">
       <Filter>mtf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\MAF\interface\opus\OpusMemory.h">
-      <Filter>maf</Filter>
     </ClInclude>
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\analysis.h">
       <Filter>lib\src</Filter>
@@ -253,12 +241,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OpusTest.cpp" />
-    <ClCompile Include="..\_third_part\MAF\interface\opus\MAFA.OpusEnc.cpp">
-      <Filter>maf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\MAF\interface\opus\MAFA.OpusDec.cpp">
-      <Filter>maf</Filter>
-    </ClCompile>
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\OpusApi.cpp">
       <Filter>lib</Filter>
     </ClCompile>
@@ -267,9 +249,6 @@
     </ClCompile>
     <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusEnc.cpp">
       <Filter>mtf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\MAF\interface\opus\OpusMemory.cpp">
-      <Filter>maf</Filter>
     </ClCompile>
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\analysis.cpp">
       <Filter>lib\src</Filter>

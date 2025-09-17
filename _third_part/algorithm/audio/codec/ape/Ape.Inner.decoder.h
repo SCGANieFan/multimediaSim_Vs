@@ -14,7 +14,7 @@ public:
     MemoryManger_c* GetMM() { return &MM; }
 
 public:
-    i32 Init(AlgoBasePorting* basePorting, ApeContext_t* contextIn, u32 startFrameNum, u32 skip);
+    i32 Init(AlgoBasePorting_c* basePorting, ApeContext_t* contextIn, u32 startFrameNum, u32 skip);
     i32 Run(uint8_t* in, int32_t inLen, uint8_t* out, int32_t* outLen);
     i32 DeInitInner();
 

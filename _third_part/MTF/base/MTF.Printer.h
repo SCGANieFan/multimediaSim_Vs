@@ -2,14 +2,23 @@
 #include"MTF.Type.h"
 #include"MTF.String.h"
 
-class MTF_Printer
-{
-public:
-	MTF_Printer();
-	~MTF_Printer();
-public:
-	static mtf_void Printf(const char* _Format, ...);
-private:
+namespace mtf_ns {
+
+	
+mtf_void PrintfOri(const char* format, ...);
+mtf_void Printf(mtf_u16 ch, const char* format, ...);
+mtf_void PrintfNoformat(const char* buf);
+
+#define MTF_PRINT_CH_DEFAULT 9
+#define MTF_PRINT_CH_ERROR 0
+#define MTF_PRINT_CH_WARN 1
+#define MTF_PRINT_CH_NOTE 2
+
+#define MTF_PRINTORI(fmt,...)			PrintfOri(fmt, ##__VA_ARGS__)
+#define MTF_PRINT_DEMO(ch,fmt,...)		Printf(ch, "<%s>[%s](%d)" fmt "\n", MTF_String::BaseName(__FILE__), __func__, __LINE__, ##__VA_ARGS__)
+#define MTF_PRINT(fmt,...)				MTF_PRINT_DEMO(MTF_PRINT_CH_DEFAULT,fmt, ##__VA_ARGS__)
+#define MTF_PRINT_ERR(fmt,...)			MTF_PRINT_DEMO(MTF_PRINT_CH_ERROR,fmt,##__VA_ARGS__)
+#define MTF_PRINT_WARN(fmt,...)			MTF_PRINT_DEMO(MTF_PRINT_CH_WARN,fmt,##__VA_ARGS__)
+#define MTF_PRINT_NOTE(fmt,...)			MTF_PRINT_DEMO(MTF_PRINT_CH_NOTE,fmt,##__VA_ARGS__)
+
 };
-#define MTF_PRINTORI(fmt,...)	MTF_Printer::Printf(fmt, ##__VA_ARGS__)
-#define MTF_PRINT(fmt,...)		MTF_Printer::Printf("<%s>[%s](%d)" fmt "\n", MTF_String::BaseName(__FILE__), __func__, __LINE__, ##__VA_ARGS__)

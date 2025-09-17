@@ -2,7 +2,6 @@
 #include "MTF.String.h"
 #include "MTF.Objects.h"
 
-#include "OpusMemory.h"
 #include "OpusApi.h"
 using namespace OpusApi_ns;
 
@@ -12,9 +11,9 @@ void mtf_opus_enc_register()
 {
 	MTF_Objects::Registe<MTF_OpusEnc>(type_this);
 	OpusApiMemory_t opusApiMemory;
-	opusApiMemory.malloc_cb = opus_malloc;
-	opusApiMemory.realloc_cb = opus_realloc;
-	opusApiMemory.free_cb = opus_free;
+	opusApiMemory.malloc_cb = Malloc;
+	opusApiMemory.realloc_cb = Realloc;
+	opusApiMemory.free_cb = Free;
 	OpusApi::memory_register(&opusApiMemory);
 }
 MTF_OpusEnc::MTF_OpusEnc()

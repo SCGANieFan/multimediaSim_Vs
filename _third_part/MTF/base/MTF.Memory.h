@@ -16,6 +16,9 @@ void* Calloc(int32_t count, int32_t size);
 void* CallocName(const char* name, int32_t count, int32_t size);
 void Free(void* block);
 void FreeName(const char* name, void* block);
+//template<class T>
+//static T* New() { T* ptr = Malloc(sizeof(T)); new T() }
+
 bool MTF_MemoryRegister(const char* name, mtf_u8* buf, mtf_u32 len);
 bool MTF_MemoryRegister(const char* name, Malloc_cb malloc, Realloc_cb realloc, Calloc_cb calloc, Free_cb free);
 
@@ -26,12 +29,6 @@ bool MTF_MemoryRegister(const char* name, Malloc_cb malloc, Realloc_cb realloc, 
 #define MTF_REALLOC(block,size)     Realloc(block,size)
 #define MTF_CALLOC(count,size)      Calloc(count,size)
 #define MTF_FREE(block)             Free(block)
-#else
-#include<stdlib.h>
-#define MTF_MALLOC(size)            malloc(size)
-#define MTF_REALLOC(block,size)     realloc(block,size)
-#define MTF_CALLOC(count,size)      calloc(count,size)
-#define MTF_FREE(block)             free(block)
 
 #endif
 }

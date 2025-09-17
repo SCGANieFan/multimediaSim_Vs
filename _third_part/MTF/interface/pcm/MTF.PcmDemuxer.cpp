@@ -1,7 +1,7 @@
-#include <stdio.h>
 #include "MTF.PcmDemuxer.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
+#include "MTF.Porting.h"
 
 void mtf_pcm_demuxer_register()
 {
@@ -16,7 +16,7 @@ MTF_PcmDemuxer ::MTF_PcmDemuxer ()
 MTF_PcmDemuxer ::~MTF_PcmDemuxer ()
 {
 	if (_pFile)
-		fclose((FILE*)_pFile);
+		FileClosePorting(_pFile);
 
 	if (_oData.Data())
 	{
@@ -33,7 +33,7 @@ mtf_i32 MTF_PcmDemuxer::Init()
 		MTF_PRINT("error, _url = 0");
 		return -1;
 	}
-	_pFile = fopen(_url, "rb+");
+	_pFile = FileOpenPorting(_url, "rb+");
 	if (!_pFile) {
 		MTF_PRINT("error, no such file:%s", _url);
 		return -1;
@@ -51,7 +51,7 @@ mtf_i32 MTF_PcmDemuxer::generate(MTF_Data*& oData)
 {
 	if (!(_oData._flags & MTF_DataFlag_ESO))
 	{
-		mtf_i32 readedSize = fread(_oData.LeftData(), 1, _oData.LeftSize(), (FILE*)_pFile);
+		mtf_i32 readedSize = FileReadPorting(_pFile, _oData.LeftData(), _oData.LeftSize());
 		if (readedSize < _oData.LeftSize()) {
 			_oData._flags |= MTF_DataFlag_ESO;
 		}

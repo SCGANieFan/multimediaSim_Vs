@@ -94,7 +94,6 @@ maf_int32 MAF_String::Search(const maf_int8* str, const maf_int8* temp, maf_int3
 
 maf_int32 MAF_String::Search(const maf_int8* str, const maf_int8* temp, maf_bool dir)
 {
-
 	maf_int32 strLen = StrLen(str);
 	return Search(str, temp, 0, strLen, dir);
 }

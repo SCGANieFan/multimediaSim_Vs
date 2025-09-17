@@ -1,14 +1,46 @@
 #include "MTF.ApeDec.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
-#include "MAF.h"
+#include "ApeDec.h"
+using namespace mtf_ns;
 
 void mtf_ape_dec_register()
 {
 	MTF_Objects::Registe<MTF_ApeDec>("ape_dec");
-	MAF_REGISTER(ape_dec);
 }
 
+static mtf_void* MallocLocal(int32_t size)
+{
+#if 1
+	static mtf_i32 sizeTotal = 0;
+	sizeTotal += size;
+	mtf_void* ptr = Malloc(size);
+	MTF_PRINT("malloc, ptr:%x, size:%d, sizeTotal:%d,", (mtf_u32)ptr, size, sizeTotal);
+	return ptr;
+#else
+	return Malloc(size);
+#endif	
+}
+
+mtf_void FreeLocal(mtf_void* block)
+{
+#if 1
+	MTF_PRINT("free, ptr:%x", (mtf_u32)block);
+#endif
+	return Free(block);
+}
+
+class ApeBasePorting_c :public AlgoBasePorting_c {
+public:
+	ApeBasePorting_c() {}
+	~ApeBasePorting_c() {}
+public:
+	virtual void* Malloc(int32_t size) { return mtf_ns::Malloc(size); }
+	virtual void Free(void* block) { mtf_ns::Free(block); }
+public:
+	void (*print_cb)(const char* fmt, ...);
+};
+static ApeBasePorting_c apeBasePorting;
 MTF_ApeDec::MTF_ApeDec()
 {
 
@@ -28,38 +60,29 @@ MTF_ApeDec::~MTF_ApeDec()
 	}
 	if (_hd)
 	{
+#if 0
 		MAF_Deinit(_hd);
 		MTF_FREE(_hd);
+#else
+		MTF_PRINT();
+		ApeDec_DeInit(_hd);
+		Free(_hd);
+		Free(_basePorting);
+#endif
 	}
 }
 
 mtf_i32 MTF_ApeDec::Init()
 {	
 	//lib init
-	const char* type = "ape_dec";
-	MA_Ret ret;
-	ret = MAF_GetHandleSize(type, &_hdSize);
-	if (ret != MA_RET_SUCCESS)
-		MTF_PRINT("err");
-	if (_hdSize < 1)
-		MTF_PRINT("err");
-	_hd = MTF_MALLOC(_hdSize);
-	if (!_hd)
-		MTF_PRINT("err");
-
-	mtf_void* param[] = {
-	(mtf_void*)type,
-	(mtf_void*)MTF_Memory::Malloc,
-	(mtf_void*)MTF_Memory::Realloc,
-	(mtf_void*)MTF_Memory::Calloc,
-	(mtf_void*)MTF_Memory::Free,
-	};
-
-	const char* script = "type=$0,Malloc=$1,Realloc=$2,Calloc=$3,Free=$4;";
+#if 0
 	ret = MAF_Init(_hd, script, param);
-	if (ret != MA_RET_SUCCESS)
-		MTF_PRINT("err");
+#else
+	MTF_PRINT();
+	apeBasePorting.print_cb = MTF_Printf;
+	_basePorting = &apeBasePorting;
 
+#endif
 	//io data
 	mtf_i32 size = _frameBytes;
 	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
@@ -89,30 +112,39 @@ mtf_i32 MTF_ApeDec::receive(MTF_Data& iData)
 #define FRAMES_TOTAL 50
 mtf_i32 MTF_ApeDec::generate(MTF_Data*& oData)
 {
-	AA_Data AA_iData;
-	MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
-	AA_iData.buff = _iData.Data();
-	AA_iData.max = AA_iData.size = _iData._size;
-	if (_iData._flags & MTF_DataFlag_ESO)
-	{
-		AA_iData.flags = AA_DataFlag_FRAME_IS_EOS;
-	}
-	if (_iData._flags & MTF_DataFlag_EXTRA_INFO)
-	{
-		_iData._flags &= ~AA_DataFlag_FRAME_IS_EXTRA_INFO;
-		AA_iData.flags = AA_DataFlag_FRAME_IS_EXTRA_INFO;
-	}
 	_frames++;
+	if (_iData._flags&MTF_DataFlag_EXTRA_INFO) {
+		_iData._flags&=~MTF_DataFlag_EXTRA_INFO;
+		_hdSize = ApeDec_GetSize();
+		_hd = Malloc(_hdSize);
+		MTF_PRINT("_hd=%x,size:%d", (mtf_u32)_hd, _hdSize);
+		if (!_hd) {
+			return false;
+		}
+		ApeDecInitParam_t initParam;
+		MTF_MEM_SET(&initParam, 0, sizeof(ApeDecInitParam_t));
+		initParam.basePorting = (AlgoBasePorting_c*)_basePorting;
+		initParam.context = (void*)*(mtf_u32*)_iData.Data();
+		initParam.startFrame = *(mtf_u32*)(_iData.Data() + 4);
+		initParam.skip = *(mtf_u32*)(_iData.Data() + 8);
+		mtf_i32 ret = ApeDec_Init(_hd, &initParam);
+		_iData.Used(12);
+		if (ret < 0) {
+			return false;
+		}
+	}
 
-	AA_Data AA_oData;
-	MTF_MEM_SET(&AA_oData, 0, sizeof(AA_Data));
-	AA_oData.buff = _oData.LeftData();
-	AA_oData.max = _oData.LeftSize();
-
-	MAF_Run(_hd, &AA_iData, &AA_oData);
+	if (_iData._flags&MTF_DataFlag_ESO) {
+		ApeDec_Set(_hd, ApeDecSet_e::APE_DEC_SET_E_HAS_IN_CACHE, (void*)false);
+	}
+	
+	mtf_i32 outByte = oData->LeftSize();
+	mtf_i32 ret = ApeDec_Run(_hd, _iData.Data(), _iData._size, oData->LeftData(), &outByte);
+	if (ret < 0) {
+		return -1;
+	}
 	_iData.Used(_iData._size);
-	_oData._size += AA_oData.size;
-
+	_oData._size+= outByte;
 	//exit check
 	if ((_iData._flags & MTF_DataFlag_ESO)
 		&& _oData._size <= 0)

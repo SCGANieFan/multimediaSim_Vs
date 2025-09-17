@@ -1,7 +1,7 @@
-#include<stdio.h>
 #include "MTF.OpusMuxer.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
+#include "MTF.Porting.h"
 
 static const char* type_this = "opus_muxer";
 
@@ -17,7 +17,7 @@ MTF_OpusMuxer::MTF_OpusMuxer()
 MTF_OpusMuxer::~MTF_OpusMuxer()
 {
 	if (_pFile)
-		fclose((FILE*)_pFile);
+		FileClosePorting(_pFile);
 }
 
 mtf_i32 MTF_OpusMuxer::Init()
@@ -27,7 +27,7 @@ mtf_i32 MTF_OpusMuxer::Init()
 		MTF_PRINT("error, _url = 0");
 		return -1;
 	}
-	_pFile = fopen(_url, "wb+");
+	_pFile = FileOpenPorting(_url, "wb+");
 	if (!_pFile) {
 		MTF_PRINT("error, no such file:%s", _url);
 		return -1;
@@ -46,8 +46,8 @@ mtf_i32 MTF_OpusMuxer::receive(MTF_Data& iData)
 	head[1] = (iData._size << 16) & 0xff;
 	head[2] = (iData._size << 8) & 0xff;
 	head[3] = (iData._size) & 0xff;
-	fwrite(head, 1, 8, (FILE*)_pFile);
-	fwrite(iData.Data(), 1, iData._size, (FILE*)_pFile);
+	FileWritePorting(_pFile, head, 8);
+	FileWritePorting(_pFile, iData.Data(), iData._size);
 	iData.Used(iData._size);
 	return 0;
 }

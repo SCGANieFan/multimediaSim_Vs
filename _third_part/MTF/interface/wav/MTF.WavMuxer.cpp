@@ -1,7 +1,6 @@
-#include<stdio.h>
 #include"MTF.WavMuxer.h"
 #include"MTF.Objects.h"
-//#include"MAF.h"
+#include"MTF.Porting.h"
 #include "WavMux.h"
 using namespace mtf_ns;
 void mtf_wav_muxer_register()
@@ -17,10 +16,11 @@ MTF_WavMuxer::MTF_WavMuxer()
 
 MTF_WavMuxer::~MTF_WavMuxer()
 {
-    fseek((FILE*)_pFile, 0, SEEK_SET);
+    
+    FileSeekPorting(_pFile, 0, FileSeekPorting_e::FILE_PORTING_SEEK_SET);
     if(_hd)
         WavMux_Get(_hd, WAV_MUX_GET_CHOOSE_HEAD, (void**)_head.Data());
-    fwrite(_head.Data(), _head._size, 1, (FILE*)_pFile);
+    FileWritePorting(_pFile, _head.Data(), _head._size);
     if (_hd){
         MTF_PRINT();
 #if 1
@@ -30,7 +30,7 @@ MTF_WavMuxer::~MTF_WavMuxer()
 #endif
     }
     if (_pFile)
-        fclose((FILE*)_pFile);
+        FileClosePorting(_pFile);
 }
 
 static mtf_void* MallocLocal(int32_t size)
@@ -62,7 +62,7 @@ mtf_i32 MTF_WavMuxer::Init()
         MTF_PRINT("error, _url = 0");
         return -1;
     }
-    _pFile = fopen(_url, "wb+");
+    _pFile = FileOpenPorting(_url, "wb+");
     if (!_pFile) {
         MTF_PRINT("error, no such file:%s", _url);
         return -1;
@@ -97,8 +97,7 @@ mtf_i32 MTF_WavMuxer::Init()
     mtf_u8* buf = (mtf_u8*)MTF_MALLOC(headSize);
     _head.Init(buf, headSize);
     _head._size = headSize;
-    fseek((FILE*)_pFile, headSize, SEEK_SET);
-
+    FileSeekPorting(_pFile, headSize, FileSeekPorting_e::FILE_PORTING_SEEK_SET);
     void* param[] = { (void*)_rate,(void*)_ch,(void*)_width };
     WavMux_Set(_hd, WAV_MUX_SET_CHOOSE_BASIC_INFO, param);
     return 0;
@@ -117,7 +116,7 @@ mtf_i32 MTF_WavMuxer::receive(MTF_Data& iData)
         return -1;
     }
 #if 1
-    fwrite(iData.Data(), 1, iData._size, (FILE*)_pFile);
+    FileWritePorting(_pFile, iData.Data(), iData._size);
     iData.Used(iData._size);
     if (iData._flags & MTF_DataFlag_ESO)
         return -1;

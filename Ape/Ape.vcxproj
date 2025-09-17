@@ -405,7 +405,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ALGO_AUDIO_PATH)/codec/ape;$(ALGO_AUDIO_PATH)/codec/ape/opt;$(MTF_PATH)/interface/ape;$(MAF_PATH)/interface/ape;$(ALGO_PATH)/base;$(ALGO_AUDIO_PATH)/com;$(MAF_PATH);$(MAF_PATH)/base;$(MAF_PATH)/inc;$(MTF_PATH);$(MTF_PATH)/base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ALGO_AUDIO_PATH)/codec/ape;$(ALGO_AUDIO_PATH)/codec/ape/opt;$(MTF_PATH)/interface/ape;$(MAF_PATH)/interface/ape;$(ALGO_PATH)/base;$(ALGO_AUDIO_PATH)/com;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/Porting;$(MTF_PATH)/porting/win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -526,8 +526,6 @@
     <ClCompile Include="..\_third_part\algorithm\audio\codec\ape\Ape.Inner.rollbuffer.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\ape\ApeDec.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\ape\ApeDemux.cpp" />
-    <ClCompile Include="..\_third_part\MAF\interface\ape\MAFA.ApeDec.cpp" />
-    <ClCompile Include="..\_third_part\MAF\interface\ape\MAFA.ApeDemux.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\ape\MTF.ApeDec.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\ape\MTF.ApeDemux.cpp" />
     <ClCompile Include="ApeTest.cpp" />
@@ -545,8 +543,6 @@
     <ClInclude Include="..\_third_part\algorithm\audio\codec\ape\ApeCom.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\codec\ape\ApeDec.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\codec\ape\ApeDemux.h" />
-    <ClInclude Include="..\_third_part\MAF\interface\ape\MAFA.ApeDec.h" />
-    <ClInclude Include="..\_third_part\MAF\interface\ape\MAFA.ApeDemux.h" />
     <ClInclude Include="..\_third_part\MTF\interface\ape\MTF.ApeDec.h" />
     <ClInclude Include="..\_third_part\MTF\interface\ape\MTF.ApeDemux.h" />
     <ClInclude Include="ApeTest.h" />
