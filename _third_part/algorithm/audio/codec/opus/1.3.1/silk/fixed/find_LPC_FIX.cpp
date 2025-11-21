@@ -38,7 +38,8 @@ void silk_find_LPC_FIX(
     silk_encoder_state              *psEncC,                                /* I/O  Encoder state                                                               */
     opus_int16                      NLSF_Q15[],                             /* O    NLSFs                                                                       */
     const opus_int16                x[],                                    /* I    Input signal                                                                */
-    const opus_int32                minInvGain_Q30                          /* I    Inverse of max prediction gain                                              */
+    const opus_int32                minInvGain_Q30,                         /* I    Inverse of max prediction gain                                              */
+    char *g_stack
 )
 {
     opus_int     k, subfr_length;
@@ -52,7 +53,7 @@ void silk_find_LPC_FIX(
     opus_int     res_nrg_interp_Q, res_nrg_Q, res_tmp_nrg_Q;
     opus_int16   a_tmp_Q12[ MAX_LPC_ORDER ];
     opus_int16   NLSF0_Q15[ MAX_LPC_ORDER ];
-    SAVE_STACK;
+
 
     subfr_length = psEncC->subfr_length + psEncC->predictLPCOrder;
 
@@ -84,7 +85,7 @@ void silk_find_LPC_FIX(
         /* Convert to NLSFs */
         silk_A2NLSF( NLSF_Q15, a_tmp_Q16, psEncC->predictLPCOrder );
 
-        ALLOC( LPC_res, 2 * subfr_length, opus_int16 );
+        ALLOC( g_stack, LPC_res, 2 * subfr_length, opus_int16 );
 
         /* Search over interpolation indices to find the one with lowest residual energy */
         for( k = 3; k >= 0; k-- ) {
@@ -95,7 +96,7 @@ void silk_find_LPC_FIX(
             silk_NLSF2A( a_tmp_Q12, NLSF0_Q15, psEncC->predictLPCOrder, psEncC->arch );
 
             /* Calculate residual energy with NLSF interpolation */
-            silk_LPC_analysis_filter( LPC_res, x, a_tmp_Q12, 2 * subfr_length, psEncC->predictLPCOrder, psEncC->arch );
+            silk_LPC_analysis_filter( LPC_res, x, a_tmp_Q12, 2 * subfr_length, psEncC->predictLPCOrder, psEncC->arch, g_stack );
 
             silk_sum_sqr_shift( &res_nrg0, &rshift0, LPC_res + psEncC->predictLPCOrder,                subfr_length - psEncC->predictLPCOrder );
             silk_sum_sqr_shift( &res_nrg1, &rshift1, LPC_res + psEncC->predictLPCOrder + subfr_length, subfr_length - psEncC->predictLPCOrder );
@@ -147,5 +148,5 @@ void silk_find_LPC_FIX(
     }
 
     celt_assert( psEncC->indices.NLSFInterpCoef_Q2 == 4 || ( psEncC->useInterpolatedNLSFs && !psEncC->first_frame_after_reset && psEncC->nb_subfr == MAX_NB_SUBFR ) );
-    RESTORE_STACK;
+
 }

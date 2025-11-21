@@ -142,7 +142,8 @@ void silk_noise_shape_analysis_FIX(
     silk_encoder_control_FIX        *psEncCtrl,                             /* I/O  Encoder control FIX                                                         */
     const opus_int16                *pitch_res,                             /* I    LPC residual from pitch analysis                                            */
     const opus_int16                *x,                                     /* I    Input signal [ frame_length + la_shape ]                                    */
-    int                              arch                                   /* I    Run-time architecture                                                       */
+    int                              arch,                                  /* I    Run-time architecture                                                       */
+    char *g_stack
 )
 {
     silk_shape_state_FIX *psShapeSt = &psEnc->sShape;
@@ -155,7 +156,7 @@ void silk_noise_shape_analysis_FIX(
     opus_int32   AR_Q24[       MAX_SHAPE_LPC_ORDER ];
     VARDECL( opus_int16, x_windowed );
     const opus_int16 *x_ptr, *pitch_res_ptr;
-    SAVE_STACK;
+
 
     /* Point to start of first LPC analysis block */
     x_ptr = x - psEnc->sCmn.la_shape;
@@ -244,7 +245,7 @@ void silk_noise_shape_analysis_FIX(
     /********************************************/
     /* Compute noise shaping AR coefs and gains */
     /********************************************/
-    ALLOC( x_windowed, psEnc->sCmn.shapeWinLength, opus_int16 );
+    ALLOC( g_stack, x_windowed, psEnc->sCmn.shapeWinLength, opus_int16 );
     for( k = 0; k < psEnc->sCmn.nb_subfr; k++ ) {
         /* Apply window: sine slope followed by flat part followed by cosine slope */
         opus_int shift, slope_part, flat_part;
@@ -265,7 +266,7 @@ void silk_noise_shape_analysis_FIX(
             silk_warped_autocorrelation_FIX( auto_corr, &scale, x_windowed, warping_Q16, psEnc->sCmn.shapeWinLength, psEnc->sCmn.shapingLPCOrder, arch );
         } else {
             /* Calculate regular auto correlation */
-            silk_autocorr( auto_corr, &scale, x_windowed, psEnc->sCmn.shapeWinLength, psEnc->sCmn.shapingLPCOrder + 1, arch );
+            silk_autocorr( auto_corr, &scale, x_windowed, psEnc->sCmn.shapeWinLength, psEnc->sCmn.shapingLPCOrder + 1, arch, g_stack );
         }
 
         /* Add white noise, as a fraction of energy */
@@ -402,6 +403,6 @@ void silk_noise_shape_analysis_FIX(
         psEncCtrl->HarmShapeGain_Q14[ k ] = ( opus_int )silk_RSHIFT_ROUND( psShapeSt->HarmShapeGain_smth_Q16, 2 );
         psEncCtrl->Tilt_Q14[ k ]          = ( opus_int )silk_RSHIFT_ROUND( psShapeSt->Tilt_smth_Q16,          2 );
     }
-    RESTORE_STACK;
+
 }
 #endif /* OVERRIDE_silk_noise_shape_analysis_FIX */

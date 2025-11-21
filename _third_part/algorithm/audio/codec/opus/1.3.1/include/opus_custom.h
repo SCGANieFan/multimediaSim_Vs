@@ -36,22 +36,17 @@
 #define OPUS_CUSTOM_H
 
 #include "opus_defines.h"
-
+#include "opus_base_port.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifdef CUSTOM_MODES
-# define OPUS_CUSTOM_EXPORT OPUS_EXPORT
-# define OPUS_CUSTOM_EXPORT_STATIC OPUS_EXPORT
-#else
 # define OPUS_CUSTOM_EXPORT
 # ifdef OPUS_BUILD
 #  define OPUS_CUSTOM_EXPORT_STATIC static OPUS_INLINE
 # else
 #  define OPUS_CUSTOM_EXPORT_STATIC
 # endif
-#endif
 
 /** @defgroup opus_custom Opus Custom
   * @{
@@ -139,26 +134,6 @@ OPUS_CUSTOM_EXPORT_STATIC OPUS_WARN_UNUSED_RESULT int opus_custom_encoder_get_si
     const OpusCustomMode *mode,
     int channels
 ) OPUS_ARG_NONNULL(1);
-
-# ifdef CUSTOM_MODES
-/** Initializes a previously allocated encoder state
-  * The memory pointed to by st must be the size returned by opus_custom_encoder_get_size.
-  * This is intended for applications which use their own allocator instead of malloc.
-  * @see opus_custom_encoder_create(),opus_custom_encoder_get_size()
-  * To reset a previously initialized state use the OPUS_RESET_STATE CTL.
-  * @param [in] st <tt>OpusCustomEncoder*</tt>: Encoder state
-  * @param [in] mode <tt>OpusCustomMode *</tt>: Contains all the information about the characteristics of
-  *  the stream (must be the same characteristics as used for the
-  *  decoder)
-  * @param [in] channels <tt>int</tt>: Number of channels
-  * @return OPUS_OK Success or @ref opus_errorcodes
-  */
-OPUS_CUSTOM_EXPORT int opus_custom_encoder_init(
-    OpusCustomEncoder *st,
-    const OpusCustomMode *mode,
-    int channels
-) OPUS_ARG_NONNULL(1) OPUS_ARG_NONNULL(2);
-# endif
 #endif
 
 
@@ -172,6 +147,7 @@ OPUS_CUSTOM_EXPORT int opus_custom_encoder_init(
   * @return Newly created encoder state.
 */
 OPUS_CUSTOM_EXPORT OPUS_WARN_UNUSED_RESULT OpusCustomEncoder *opus_custom_encoder_create(
+    OpusBasePort_t *basePort,
     const OpusCustomMode *mode,
     int channels,
     int *error
@@ -281,6 +257,7 @@ OPUS_CUSTOM_EXPORT_STATIC int opus_custom_decoder_init(
   * @return Newly created decoder state.
   */
 OPUS_CUSTOM_EXPORT OPUS_WARN_UNUSED_RESULT OpusCustomDecoder *opus_custom_decoder_create(
+    OpusBasePort_t *basePort,
     const OpusCustomMode *mode,
     int channels,
     int *error

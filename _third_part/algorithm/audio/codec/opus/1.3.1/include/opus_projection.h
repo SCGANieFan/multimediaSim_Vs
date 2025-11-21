@@ -159,13 +159,15 @@ OPUS_EXPORT OPUS_WARN_UNUSED_RESULT opus_int32 opus_projection_ambisonics_encode
   *                                   failure.
   */
 OPUS_EXPORT OPUS_WARN_UNUSED_RESULT OpusProjectionEncoder *opus_projection_ambisonics_encoder_create(
+    OpusBasePort_t *basePort,
     opus_int32 Fs,
     int channels,
     int mapping_family,
     int *streams,
     int *coupled_streams,
     int application,
-    int *error
+    int *error,
+    int global_stack_size
 ) OPUS_ARG_NONNULL(4) OPUS_ARG_NONNULL(5);
 
 
@@ -218,7 +220,8 @@ OPUS_EXPORT int opus_projection_ambisonics_encoder_init(
     int mapping_family,
     int *streams,
     int *coupled_streams,
-    int application
+    int application,
+    int global_stack_size
 ) OPUS_ARG_NONNULL(1) OPUS_ARG_NONNULL(5) OPUS_ARG_NONNULL(6);
 
 
@@ -395,13 +398,15 @@ OPUS_EXPORT OPUS_WARN_UNUSED_RESULT opus_int32 opus_projection_decoder_get_size(
   *                                   failure.
   */
 OPUS_EXPORT OPUS_WARN_UNUSED_RESULT OpusProjectionDecoder *opus_projection_decoder_create(
+    OpusBasePort_t *basePort,
     opus_int32 Fs,
     int channels,
     int streams,
     int coupled_streams,
     unsigned char *demixing_matrix,
     opus_int32 demixing_matrix_size,
-    int *error
+    int *error,
+    int global_stack_size
 ) OPUS_ARG_NONNULL(5);
 
 
@@ -451,7 +456,8 @@ OPUS_EXPORT int opus_projection_decoder_init(
     int streams,
     int coupled_streams,
     unsigned char *demixing_matrix,
-    opus_int32 demixing_matrix_size
+    opus_int32 demixing_matrix_size,
+    int global_stack_size
 ) OPUS_ARG_NONNULL(1) OPUS_ARG_NONNULL(6);
 
 

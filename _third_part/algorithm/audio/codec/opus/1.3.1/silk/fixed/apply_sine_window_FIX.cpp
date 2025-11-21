@@ -46,7 +46,7 @@ static const opus_int16 freq_table_Q16[ 27 ] = {
     3885,    3612,    3375,    3167,    2984,    2820,    2674,    2542,    2422,
     2313,    2214,    2123,    2038,    1961,    1889,    1822,    1760,    1702,
 };
-
+#ifndef HIFI_OPT
 void silk_apply_sine_window(
     opus_int16                  px_win[],           /* O    Pointer to windowed signal                                  */
     const opus_int16            px[],               /* I    Pointer to input signal                                     */
@@ -99,3 +99,57 @@ void silk_apply_sine_window(
         S1_Q16 = silk_min( S1_Q16, ( (opus_int32)1 << 16 ) );
     }
 }
+#else
+#include <xtensa/tie/xt_misc.h>
+#include <xtensa/tie/xt_mul.h>
+void silk_apply_sine_window(
+    opus_int16                  px_win[],           /* O    Pointer to windowed signal                                  */
+    const opus_int16            px[],               /* I    Pointer to input signal                                     */
+    const opus_int              win_type,           /* I    Selects a window type                                       */
+    const opus_int              length              /* I    Window length, multiple of 4                                */
+)
+{
+    celt_assert(win_type == 1 || win_type == 2);
+    /* Length must be in a range from 16 to 120 and a multiple of 4 */
+    celt_assert( length >= 16 && length <= 120 );
+    celt_assert( ( length & 3 ) == 0 );
+    /* Frequency */
+    int k = ( length >> 2 ) - 4;
+    celt_assert( k >= 0 && k <= 26 );
+    short f_Q16 = freq_table_Q16[k];
+    /* Factor used for cosine approximation */
+    int c_Q16 = (f_Q16 *-f_Q16) >> 16;
+    silk_assert( c_Q16 >= -32768 );
+    /* initialize state */
+    int S0_Q16, S1_Q16;
+    if( win_type == 1 ) {
+        /* start from 0 */
+        S0_Q16 = 0;
+        /* approximation of sin(f) */
+        S1_Q16 = f_Q16 + (length >> 3);
+    } else {
+        /* start from 1 */
+        S0_Q16 = (1 << 16);
+        /* approximation of cos(f) */
+        S1_Q16 = (1 << 16) + (c_Q16 >> 1) + (length >> 4);
+    }
+    /* Uses the recursive equation:   sin(n*f) = 2 * cos(f) * sin((n-1)*f) - sin((n-2)*f)    */
+    /* 4 samples at a time */
+    ae_int16x4 * src = (ae_int16x4*)px;
+    ae_valign align = AE_LA64_PP(src);
+    ae_int16x4 s1;
+    for( k = 0; k < length; k += 4 ) {
+        int tmp_sum1 = (S0_Q16 + S1_Q16) >> 1;
+        S0_Q16 = (int)(int64_t)(AE_MUL32_LL(S1_Q16, c_Q16) >> 16) + (S1_Q16 << 1) - S0_Q16 + 1;
+        S0_Q16 = XT_MIN(S0_Q16, (1 << 16));
+        int tmp_sum2 = (S0_Q16 + S1_Q16) >> 1;
+        AE_LA16X4_IP(s1, align, src);
+        px_win[k] = (short)(int64_t)(AE_MUL32X16_L3(tmp_sum1, s1) >> 16);
+        px_win[k + 1] = (short)(int64_t)(AE_MUL32X16_L2(S1_Q16, s1) >> 16);
+        px_win[k + 2] = (short)(int64_t)(AE_MUL32X16_L1(tmp_sum2, s1) >> 16);
+        px_win[k + 3] = (short)(int64_t)(AE_MUL32X16_L0(S0_Q16, s1) >> 16);
+        S1_Q16 = (int)(int64_t)(AE_MUL32_LL(S0_Q16, c_Q16) >> 16) + (S0_Q16 << 1) - S1_Q16;
+        S1_Q16 = XT_MIN(S1_Q16, (1 << 16));
+    }
+}
+#endif

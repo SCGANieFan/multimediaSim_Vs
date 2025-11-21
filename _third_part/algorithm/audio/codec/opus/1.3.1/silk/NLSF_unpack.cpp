@@ -32,6 +32,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "main.h"
 
 /* Unpack predictor values and indices for entropy coding tables */
+#ifndef HIFI_OPT
 void silk_NLSF_unpack(
           opus_int16            ec_ix[],                        /* O    Indices to entropy tables [ LPC_ORDER ]     */
           opus_uint8            pred_Q8[],                      /* O    LSF predictor [ LPC_ORDER ]                 */
@@ -52,4 +53,23 @@ void silk_NLSF_unpack(
         pred_Q8[ i + 1 ] = psNLSF_CB->pred_Q8[ i + ( silk_RSHIFT( entry, 4 ) & 1 ) * ( psNLSF_CB->order - 1 ) + 1 ];
     }
 }
-
+#else
+void silk_NLSF_unpack(
+          opus_int16            ec_ix[],                        /* O    Indices to entropy tables [ LPC_ORDER ]     */
+          opus_uint8            pred_Q8[],                      /* O    LSF predictor [ LPC_ORDER ]                 */
+    const silk_NLSF_CB_struct   *psNLSF_CB,                     /* I    Codebook object                             */
+    const opus_int              CB1_index                       /* I    Index of vector in first LSF codebook       */
+)
+{
+    int order = psNLSF_CB->order;
+    const unsigned char * ec_sel_ptr = &psNLSF_CB->ec_sel[CB1_index * order >> 1];
+    const unsigned char * p_pred_Q8 = psNLSF_CB->pred_Q8;
+    for(int i = 0; i < order; i += 2) {
+        unsigned char entry = *ec_sel_ptr++;
+        ec_ix[i] = ((entry >> 1) & 7) * 9;
+        pred_Q8[i] = p_pred_Q8[i + (entry & 1) * (order - 1)];
+        ec_ix[i + 1] = ((entry >> 5) & 7) * 9;
+        pred_Q8[i + 1] = p_pred_Q8[i + ((entry >> 4) & 1) * (order - 1) + 1];
+    }
+}
+#endif

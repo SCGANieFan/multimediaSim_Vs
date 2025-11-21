@@ -51,13 +51,13 @@
 #endif
 
 void pitch_downsample(celt_sig * OPUS_RESTRICT x[], opus_val16 * OPUS_RESTRICT x_lp,
-      int len, int C, int arch);
+      int len, int C, int arch, char *g_stack);
 
 void pitch_search(const opus_val16 * OPUS_RESTRICT x_lp, opus_val16 * OPUS_RESTRICT y,
-                  int len, int max_pitch, int *pitch, int arch);
+                  int len, int max_pitch, int *pitch, int arch, char *g_stack);
 
 opus_val16 remove_doubling(opus_val16 *x, int maxperiod, int minperiod,
-      int N, int *T0, int prev_period, opus_val16 prev_gain, int arch);
+      int N, int *T0, int prev_period, opus_val16 prev_gain, int arch, char *g_stack);
 
 
 /* OPT: This is the kernel you really want to optimize. It gets used a lot

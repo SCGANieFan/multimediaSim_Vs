@@ -45,11 +45,12 @@ void celt_fir_c(
          opus_val16 *y,
          int N,
          int ord,
-         int arch);
+         int arch,
+         char *g_stack);
 
 #if !defined(OVERRIDE_CELT_FIR)
-#define celt_fir(x, num, y, N, ord, arch) \
-    (celt_fir_c(x, num, y, N, ord, arch))
+#define celt_fir(x, num, y, N, ord, arch, g_stack) \
+    (celt_fir_c(x, num, y, N, ord, arch, g_stack))
 #endif
 
 void celt_iir(const opus_val32 *x,
@@ -58,9 +59,10 @@ void celt_iir(const opus_val32 *x,
          int N,
          int ord,
          opus_val16 *mem,
-         int arch);
+         int arch,
+         char *g_stack);
 
 int _celt_autocorr(const opus_val16 *x, opus_val32 *ac,
-         const opus_val16 *window, int overlap, int lag, int n, int arch);
+         const opus_val16 *window, int overlap, int lag, int n, int arch, char *g_stack);
 
 #endif /* PLC_H */

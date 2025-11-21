@@ -28,7 +28,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
+#if (COMPILE_CELT_ENC)||(COMPILE_CELT_DEC)
 #include "entcode.h"
 #include "arch.h"
 
@@ -150,4 +150,5 @@ const opus_uint32 SMALL_DIV_TABLE[129] = {
    0x010FEF01, 0x010DB20A, 0x010B7E6E, 0x010953F3,
    0x01073260, 0x0105197F, 0x0103091B, 0x01010101
 };
+#endif
 #endif

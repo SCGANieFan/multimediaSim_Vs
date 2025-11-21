@@ -66,16 +66,17 @@ void silk_resampler_private_IIR_FIR(
     void                            *SS,            /* I/O  Resampler state             */
     opus_int16                      out[],          /* O    Output signal               */
     const opus_int16                in[],           /* I    Input signal                */
-    opus_int32                      inLen           /* I    Number of input samples     */
+    opus_int32                      inLen,          /* I    Number of input samples     */
+    char *g_stack
 )
 {
     silk_resampler_state_struct *S = (silk_resampler_state_struct *)SS;
     opus_int32 nSamplesIn;
     opus_int32 max_index_Q16, index_increment_Q16;
     VARDECL( opus_int16, buf );
-    SAVE_STACK;
 
-    ALLOC( buf, 2 * S->batchSize + RESAMPLER_ORDER_FIR_12, opus_int16 );
+
+    ALLOC( g_stack, buf, 2 * S->batchSize + RESAMPLER_ORDER_FIR_12, opus_int16 );
 
     /* Copy buffered samples to start of buffer */
     silk_memcpy( buf, S->sFIR.i16, RESAMPLER_ORDER_FIR_12 * sizeof( opus_int16 ) );
@@ -103,5 +104,5 @@ void silk_resampler_private_IIR_FIR(
 
     /* Copy last part of filtered signal to the state for the next call */
     silk_memcpy( S->sFIR.i16, &buf[ nSamplesIn << 1 ], RESAMPLER_ORDER_FIR_12 * sizeof( opus_int16 ) );
-    RESTORE_STACK;
+
 }

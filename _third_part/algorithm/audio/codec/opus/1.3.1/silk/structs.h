@@ -45,8 +45,13 @@ extern "C"
 typedef struct {
     opus_int16                  xq[           2 * MAX_FRAME_LENGTH ]; /* Buffer for quantized output signal                             */
     opus_int32                  sLTP_shp_Q14[ 2 * MAX_FRAME_LENGTH ];
+#ifdef HIFI_OPT
+    opus_int32                  sLPC_Q14[ MAX_SUB_FRAME_LENGTH + NSQ_LPC_BUF_LENGTH ] __attribute__ ((aligned (8)));
+    opus_int32                  sAR2_Q14[ MAX_SHAPE_LPC_ORDER ] __attribute__ ((aligned (8)));
+#else
     opus_int32                  sLPC_Q14[ MAX_SUB_FRAME_LENGTH + NSQ_LPC_BUF_LENGTH ];
     opus_int32                  sAR2_Q14[ MAX_SHAPE_LPC_ORDER ];
+#endif
     opus_int32                  sLF_AR_shp_Q14;
     opus_int32                  sDiff_shp_Q14;
     opus_int                    lagPrev;
@@ -225,6 +230,7 @@ typedef struct {
     opus_int                     LBRR_GainIncreases;                /* Gains increment for coding LBRR frames                           */
     SideInfoIndices              indices_LBRR[ MAX_FRAMES_PER_PACKET ];
     opus_int8                    pulses_LBRR[ MAX_FRAMES_PER_PACKET ][ MAX_FRAME_LENGTH ];
+    OpusBasePort_t *basePort;
 } silk_encoder_state;
 
 
@@ -305,7 +311,7 @@ typedef struct {
     int                         arch;
 
     silk_PLC_struct sPLC;
-
+    OpusBasePort_t *basePort;
 } silk_decoder_state;
 
 /************************/

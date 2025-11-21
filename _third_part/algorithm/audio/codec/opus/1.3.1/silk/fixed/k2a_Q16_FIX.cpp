@@ -32,6 +32,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "SigProc_FIX.h"
 
 /* Step up function, converts reflection coefficients to prediction coefficients */
+#ifndef HIFI_OPT
 void silk_k2a_Q16(
     opus_int32                  *A_Q24,             /* O    Prediction coefficients [order] Q24                         */
     const opus_int32            *rc_Q16,            /* I    Reflection coefficients [order] Q16                         */
@@ -52,3 +53,5 @@ void silk_k2a_Q16(
         A_Q24[ k ] = -silk_LSHIFT( rc, 8 );
     }
 }
+#else
+#endif

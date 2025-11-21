@@ -19,11 +19,14 @@
     <Filter Include="lib\src">
       <UniqueIdentifier>{b5198e52-0370-4873-ba75-82f637ad660a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="maf">
-      <UniqueIdentifier>{5299ca94-20ac-4f74-8551-e9256afbbe0d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="mtf">
       <UniqueIdentifier>{c4ae31f3-9d16-4e92-aeef-37f193609aca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="demo">
+      <UniqueIdentifier>{dd2fcd94-1173-42a5-8a33-3230e5970203}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\api">
+      <UniqueIdentifier>{00b7f3cd-d166-4c35-a432-80a257bd701a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -46,19 +49,7 @@
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_multistream.h">
       <Filter>lib\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\MAF\interface\opus\MAFA.OpusEnc.h">
-      <Filter>maf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\MAF\interface\opus\MAFA.OpusDec.h">
-      <Filter>maf</Filter>
-    </ClInclude>
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\config.h">
-      <Filter>lib\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\OpusApi.h">
-      <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_memory.h">
       <Filter>lib\include</Filter>
     </ClInclude>
     <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusDec.h">
@@ -66,9 +57,6 @@
     </ClInclude>
     <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusEnc.h">
       <Filter>mtf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\MAF\interface\opus\OpusMemory.h">
-      <Filter>maf</Filter>
     </ClInclude>
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\analysis.h">
       <Filter>lib\src</Filter>
@@ -244,26 +232,44 @@
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\celt\vq.h">
       <Filter>lib\celt</Filter>
     </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api_private.h">
+      <Filter>lib\api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_dec_normal.h">
+      <Filter>lib\api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_enc_normal.h">
+      <Filter>lib\api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api.h">
+      <Filter>lib\api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_api_test_info.h">
+      <Filter>demo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\demo\heap_api.h">
+      <Filter>demo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\demo\hal_trace.h">
+      <Filter>demo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_base_port_inner.h">
+      <Filter>lib\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_config.h">
+      <Filter>lib\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_base_port.h">
+      <Filter>lib\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OpusTest.cpp" />
-    <ClCompile Include="..\_third_part\MAF\interface\opus\MAFA.OpusEnc.cpp">
-      <Filter>maf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\MAF\interface\opus\MAFA.OpusDec.cpp">
-      <Filter>maf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\OpusApi.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
     <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusDec.cpp">
       <Filter>mtf</Filter>
     </ClCompile>
     <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusEnc.cpp">
       <Filter>mtf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\MAF\interface\opus\OpusMemory.cpp">
-      <Filter>maf</Filter>
     </ClCompile>
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\analysis.cpp">
       <Filter>lib\src</Filter>
@@ -284,9 +290,6 @@
       <Filter>lib\src</Filter>
     </ClCompile>
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_encoder.cpp">
-      <Filter>lib\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_memory.cpp">
       <Filter>lib\src</Filter>
     </ClCompile>
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_multistream.cpp">
@@ -660,6 +663,54 @@
     </ClCompile>
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\celt\vq.cpp">
       <Filter>lib\celt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api_private.cpp">
+      <Filter>lib\api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_dec_normal.cpp">
+      <Filter>lib\api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_enc_normal.cpp">
+      <Filter>lib\api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api.cpp">
+      <Filter>lib\api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_api_test_info_dec_48k1ch.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_api_test_info_dec_48k2ch.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_api_test_info_enc_16k1ch.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_api_test_info_enc_16k2ch.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_api_test_info_enc_48k1ch.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_api_test_info_enc_48k2ch.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_api_test.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_api_test_info.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_api_test_info_dec_16k1ch.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_api_test_info_dec_16k2ch.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\heap_api.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_base_port.cpp">
+      <Filter>lib\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

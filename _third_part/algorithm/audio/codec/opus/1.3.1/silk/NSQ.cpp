@@ -89,7 +89,8 @@ void silk_NSQ_c
     const opus_int32            Gains_Q16[ MAX_NB_SUBFR ],                  /* I    Quantization step sizes         */
     const opus_int              pitchL[ MAX_NB_SUBFR ],                     /* I    Pitch lags                      */
     const opus_int              Lambda_Q10,                                 /* I    Rate/distortion tradeoff        */
-    const opus_int              LTP_scale_Q14                               /* I    LTP state scaling               */
+    const opus_int              LTP_scale_Q14,                              /* I    LTP state scaling               */
+    char *g_stack
 )
 {
     opus_int            k, lag, start_idx, LSF_interpolation_flag;
@@ -100,7 +101,7 @@ void silk_NSQ_c
     opus_int32          HarmShapeFIRPacked_Q14;
     opus_int            offset_Q10;
     VARDECL( opus_int32, x_sc_Q10 );
-    SAVE_STACK;
+
 
     NSQ->rand_seed = psIndices->Seed;
 
@@ -117,9 +118,9 @@ void silk_NSQ_c
         LSF_interpolation_flag = 1;
     }
 
-    ALLOC( sLTP_Q15, psEncC->ltp_mem_length + psEncC->frame_length, opus_int32 );
-    ALLOC( sLTP, psEncC->ltp_mem_length + psEncC->frame_length, opus_int16 );
-    ALLOC( x_sc_Q10, psEncC->subfr_length, opus_int32 );
+    ALLOC( g_stack, sLTP_Q15, psEncC->ltp_mem_length + psEncC->frame_length, opus_int32 );
+    ALLOC( g_stack, sLTP, psEncC->ltp_mem_length + psEncC->frame_length, opus_int16 );
+    ALLOC( g_stack, x_sc_Q10, psEncC->subfr_length, opus_int32 );
     /* Set up pointers to start of sub frame */
     NSQ->sLTP_shp_buf_idx = psEncC->ltp_mem_length;
     NSQ->sLTP_buf_idx     = psEncC->ltp_mem_length;
@@ -146,7 +147,7 @@ void silk_NSQ_c
                 celt_assert( start_idx > 0 );
 
                 silk_LPC_analysis_filter( &sLTP[ start_idx ], &NSQ->xq[ start_idx + k * psEncC->subfr_length ],
-                    A_Q12, psEncC->ltp_mem_length - start_idx, psEncC->predictLPCOrder, psEncC->arch );
+                    A_Q12, psEncC->ltp_mem_length - start_idx, psEncC->predictLPCOrder, psEncC->arch, g_stack );
 
                 NSQ->rewhite_flag = 1;
                 NSQ->sLTP_buf_idx = psEncC->ltp_mem_length;
@@ -170,7 +171,7 @@ void silk_NSQ_c
     /* Save quantized speech and noise shaping signals */
     silk_memmove( NSQ->xq,           &NSQ->xq[           psEncC->frame_length ], psEncC->ltp_mem_length * sizeof( opus_int16 ) );
     silk_memmove( NSQ->sLTP_shp_Q14, &NSQ->sLTP_shp_Q14[ psEncC->frame_length ], psEncC->ltp_mem_length * sizeof( opus_int32 ) );
-    RESTORE_STACK;
+
 }
 
 /***********************************/
@@ -180,6 +181,11 @@ void silk_NSQ_c
 #if !defined(OPUS_X86_MAY_HAVE_SSE4_1)
 static OPUS_INLINE
 #endif
+
+#if 1
+// #if !defined(HIFI_OPT)
+/*original function*/
+/*MCPS:44045650(18472300/84079900)*/
 void silk_noise_shape_quantizer(
     silk_nsq_state      *NSQ,                   /* I/O  NSQ state                       */
     opus_int            signalType,             /* I    Signal type                     */
@@ -364,7 +370,11 @@ void silk_noise_shape_quantizer(
     /* Update LPC synth buffer */
     silk_memcpy( NSQ->sLPC_Q14, &NSQ->sLPC_Q14[ length ], NSQ_LPC_BUF_LENGTH * sizeof( opus_int32 ) );
 }
+#elif (defined(HIFI_OPT) && defined(ORIGINAL_PRECISION))
+#else
+#endif
 
+#ifndef HIFI_OPT
 static OPUS_INLINE void silk_nsq_scale_states(
     const silk_encoder_state *psEncC,           /* I    Encoder State                   */
     silk_nsq_state      *NSQ,                   /* I/O  NSQ state                       */
@@ -435,3 +445,5 @@ static OPUS_INLINE void silk_nsq_scale_states(
         NSQ->prev_gain_Q16 = Gains_Q16[ subfr ];
     }
 }
+#else
+#endif

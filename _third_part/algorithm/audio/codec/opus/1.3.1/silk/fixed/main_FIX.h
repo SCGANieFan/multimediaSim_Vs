@@ -67,7 +67,8 @@ void silk_HP_variable_cutoff(
 /* Encoder main function */
 void silk_encode_do_VAD_FIX(
     silk_encoder_state_FIX          *psEnc,                                 /* I/O  Pointer to Silk FIX encoder state                                           */
-    opus_int                        activity                                /* I    Decision of Opus voice activity detector                                    */
+    opus_int                        activity,                               /* I    Decision of Opus voice activity detector                                    */
+    char *g_stack
 );
 
 /* Encoder main function */
@@ -77,14 +78,17 @@ opus_int silk_encode_frame_FIX(
     ec_enc                          *psRangeEnc,                            /* I/O  compressor data structure                                                   */
     opus_int                        condCoding,                             /* I    The type of conditional coding to use                                       */
     opus_int                        maxBits,                                /* I    If > 0: maximum number of output bits                                       */
-    opus_int                        useCBR                                  /* I    Flag to force constant-bitrate operation                                    */
+    opus_int                        useCBR,                                 /* I    Flag to force constant-bitrate operation                                    */
+    char *g_stack
 );
 
 /* Initializes the Silk encoder state */
 opus_int silk_init_encoder(
+    OpusBasePort_t *basePort,
     silk_encoder_state_Fxx          *psEnc,                                 /* I/O  Pointer to Silk FIX encoder state                                           */
     int                              arch                                   /* I    Run-time architecture                                                       */
 );
+
 
 /* Control the Silk encoder */
 opus_int silk_control_encoder(
@@ -92,7 +96,8 @@ opus_int silk_control_encoder(
     silk_EncControlStruct           *encControl,                            /* I    Control structure                                                           */
     const opus_int                  allow_bw_switch,                        /* I    Flag to allow switching audio bandwidth                                     */
     const opus_int                  channelNb,                              /* I    Channel number                                                              */
-    const opus_int                  force_fs_kHz
+    const opus_int                  force_fs_kHz,
+    char *g_stack
 );
 
 /**************************/
@@ -104,7 +109,8 @@ void silk_noise_shape_analysis_FIX(
     silk_encoder_control_FIX        *psEncCtrl,                             /* I/O  Encoder control FIX                                                         */
     const opus_int16                *pitch_res,                             /* I    LPC residual from pitch analysis                                            */
     const opus_int16                *x,                                     /* I    Input signal [ frame_length + la_shape ]                                    */
-    int                              arch                                   /* I    Run-time architecture                                                       */
+    int                              arch,                                  /* I    Run-time architecture                                                       */
+    char *g_stack
 );
 
 /* Autocorrelations for a warped frequency axis */
@@ -138,7 +144,8 @@ void silk_find_pitch_lags_FIX(
     silk_encoder_control_FIX        *psEncCtrl,                             /* I/O  encoder control                                                             */
     opus_int16                      res[],                                  /* O    residual                                                                    */
     const opus_int16                x[],                                    /* I    Speech signal                                                               */
-    int                             arch                                    /* I    Run-time architecture                                                       */
+    int                             arch,                                   /* I    Run-time architecture                                                       */
+    char *g_stack
 );
 
 /* Find LPC and LTP coefficients */
@@ -147,7 +154,8 @@ void silk_find_pred_coefs_FIX(
     silk_encoder_control_FIX        *psEncCtrl,                             /* I/O  encoder control                                                             */
     const opus_int16                res_pitch[],                            /* I    Residual from pitch analysis                                                */
     const opus_int16                x[],                                    /* I    Speech signal                                                               */
-    opus_int                        condCoding                              /* I    The type of conditional coding to use                                       */
+    opus_int                        condCoding,                             /* I    The type of conditional coding to use                                       */
+    char *g_stack
 );
 
 /* LPC analysis */
@@ -155,7 +163,8 @@ void silk_find_LPC_FIX(
     silk_encoder_state              *psEncC,                                /* I/O  Encoder state                                                               */
     opus_int16                      NLSF_Q15[],                             /* O    NLSFs                                                                       */
     const opus_int16                x[],                                    /* I    Input signal                                                                */
-    const opus_int32                minInvGain_Q30                          /* I    Inverse of max prediction gain                                              */
+    const opus_int32                minInvGain_Q30,                         /* I    Inverse of max prediction gain                                              */
+    char *g_stack
 );
 
 /* LTP analysis */
@@ -191,7 +200,8 @@ void silk_residual_energy_FIX(
     const opus_int                  subfr_length,                           /* I    Subframe length                                                             */
     const opus_int                  nb_subfr,                               /* I    Number of subframes                                                         */
     const opus_int                  LPC_order,                              /* I    LPC order                                                                   */
-    int                             arch                                    /* I    Run-time architecture                                                       */
+    int                             arch,                                   /* I    Run-time architecture                                                       */
+    char *g_stack
 );
 
 /* Residual energy: nrg = wxx - 2 * wXx * c + c' * wXX * c */

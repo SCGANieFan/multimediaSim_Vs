@@ -45,14 +45,15 @@ POSSIBILITY OF SUCH DAMAGE.
    this should be safe in pretty much all cases, even though it is not technically
    C89-compliant. */
 #define USE_CELT_FIR 0
-
+#ifndef HIFI_OPT
 void silk_LPC_analysis_filter(
     opus_int16                  *out,               /* O    Output signal                                               */
     const opus_int16            *in,                /* I    Input signal                                                */
     const opus_int16            *B,                 /* I    MA prediction coefficients, Q12 [order]                     */
     const opus_int32            len,                /* I    Signal length                                               */
     const opus_int32            d,                  /* I    Filter order                                                */
-    int                         arch                /* I    Run-time architecture                                       */
+    int                         arch,               /* I    Run-time architecture                                       */
+    char *g_stack
 )
 {
     opus_int   j;
@@ -73,7 +74,7 @@ void silk_LPC_analysis_filter(
     for ( j = 0; j < d; j++ ) {
         num[ j ] = -B[ j ];
     }
-    celt_fir( in + d, num, out + d, len - d, d, arch );
+    celt_fir( in + d, num, out + d, len - d, d, arch, g_stack );
     for ( j = 0; j < d; j++ ) {
         out[ j ] = 0;
     }
@@ -109,3 +110,5 @@ void silk_LPC_analysis_filter(
     silk_memset( out, 0, d * sizeof( opus_int16 ) );
 #endif
 }
+#else
+#endif

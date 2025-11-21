@@ -42,6 +42,7 @@ typedef struct {
     opus_int                         nChannelsAPI;
     opus_int                         nChannelsInternal;
     opus_int                         prev_decode_only_middle;
+    OpusBasePort_t *basePort;
 } silk_decoder;
 
 /*********************/
@@ -61,14 +62,16 @@ opus_int silk_Get_Decoder_Size(                         /* O    Returns error co
 
 /* Reset decoder state */
 opus_int silk_InitDecoder(                              /* O    Returns error code                              */
+    OpusBasePort_t *basePort,
     void                            *decState           /* I/O  State                                           */
 )
 {
     opus_int n, ret = SILK_NO_ERROR;
+    ((silk_decoder *)decState)->basePort = basePort;
     silk_decoder_state *channel_state = ((silk_decoder *)decState)->channel_state;
 
     for( n = 0; n < DECODER_NUM_CHANNELS; n++ ) {
-        ret  = silk_init_decoder( &channel_state[ n ] );
+        ret  = silk_init_decoder(basePort, &channel_state[ n ] );
     }
     silk_memset(&((silk_decoder *)decState)->sStereo, 0, sizeof(((silk_decoder *)decState)->sStereo));
     /* Not strictly needed, but it's cleaner that way */
@@ -86,7 +89,8 @@ opus_int silk_Decode(                                   /* O    Returns error co
     ec_dec                          *psRangeDec,        /* I/O  Compressor data structure                       */
     opus_int16                      *samplesOut,        /* O    Decoded output speech vector                    */
     opus_int32                      *nSamplesOut,       /* O    Number of samples decoded                       */
-    int                             arch                /* I    Run-time architecture                           */
+    int                             arch,               /* I    Run-time architecture                           */
+    char *g_stack
 )
 {
     opus_int   i, n, decode_only_middle = 0, ret = SILK_NO_ERROR;
@@ -102,7 +106,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
     opus_int has_side;
     opus_int stereo_to_mono;
     int delay_stack_alloc;
-    SAVE_STACK;
+
 
     celt_assert( decControl->nChannelsInternal == 1 || decControl->nChannelsInternal == 2 );
 
@@ -117,7 +121,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
 
     /* If Mono -> Stereo transition in bitstream: init state of second channel */
     if( decControl->nChannelsInternal > psDec->nChannelsInternal ) {
-        ret += silk_init_decoder( &channel_state[ 1 ] );
+        ret += silk_init_decoder( psDec->basePort, &channel_state[ 1 ] );
     }
 
     stereo_to_mono = decControl->nChannelsInternal == 1 && psDec->nChannelsInternal == 2 &&
@@ -144,13 +148,13 @@ opus_int silk_Decode(                                   /* O    Returns error co
                 channel_state[ n ].nb_subfr = 4;
             } else {
                 celt_assert( 0 );
-                RESTORE_STACK;
+
                 return SILK_DEC_INVALID_FRAME_SIZE;
             }
             fs_kHz_dec = ( decControl->internalSampleRate >> 10 ) + 1;
             if( fs_kHz_dec != 8 && fs_kHz_dec != 12 && fs_kHz_dec != 16 ) {
                 celt_assert( 0 );
-                RESTORE_STACK;
+
                 return SILK_DEC_INVALID_SAMPLING_FREQUENCY;
             }
             ret += silk_decoder_set_fs( &channel_state[ n ], fs_kHz_dec, decControl->API_sampleRate );
@@ -167,7 +171,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
 
     if( decControl->API_sampleRate > (opus_int32)MAX_API_FS_KHZ * 1000 || decControl->API_sampleRate < 8000 ) {
         ret = SILK_DEC_INVALID_SAMPLING_FREQUENCY;
-        RESTORE_STACK;
+
         return( ret );
     }
 
@@ -260,7 +264,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
        usage. We need to use a < and not a <= because of the two extra samples. */
     delay_stack_alloc = decControl->internalSampleRate*decControl->nChannelsInternal
           < decControl->API_sampleRate*decControl->nChannelsAPI;
-    ALLOC( samplesOut1_tmp_storage1, delay_stack_alloc ? ALLOC_NONE
+    ALLOC( g_stack, samplesOut1_tmp_storage1, delay_stack_alloc ? ALLOC_NONE
            : decControl->nChannelsInternal*(channel_state[ 0 ].frame_length + 2 ),
            opus_int16 );
     if ( delay_stack_alloc )
@@ -297,7 +301,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
             } else {
                 condCoding = CODE_CONDITIONALLY;
             }
-            ret += silk_decode_frame( &channel_state[ n ], psRangeDec, &samplesOut1_tmp[ n ][ 2 ], &nSamplesOutDec, lostFlag, condCoding, arch);
+            ret += silk_decode_frame( &channel_state[ n ], psRangeDec, &samplesOut1_tmp[ n ][ 2 ], &nSamplesOutDec, lostFlag, condCoding, arch, g_stack);
         } else {
             silk_memset( &samplesOut1_tmp[ n ][ 2 ], 0, nSamplesOutDec * sizeof( opus_int16 ) );
         }
@@ -317,7 +321,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
     *nSamplesOut = silk_DIV32( nSamplesOutDec * decControl->API_sampleRate, silk_SMULBB( channel_state[ 0 ].fs_kHz, 1000 ) );
 
     /* Set up pointers to temp buffers */
-    ALLOC( samplesOut2_tmp,
+    ALLOC( g_stack, samplesOut2_tmp,
            decControl->nChannelsAPI == 2 ? *nSamplesOut : ALLOC_NONE, opus_int16 );
     if( decControl->nChannelsAPI == 2 ) {
         resample_out_ptr = samplesOut2_tmp;
@@ -325,7 +329,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
         resample_out_ptr = samplesOut;
     }
 
-    ALLOC( samplesOut1_tmp_storage2, delay_stack_alloc
+    ALLOC( g_stack, samplesOut1_tmp_storage2, delay_stack_alloc
            ? decControl->nChannelsInternal*(channel_state[ 0 ].frame_length + 2 )
            : ALLOC_NONE,
            opus_int16 );
@@ -337,7 +341,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
     for( n = 0; n < silk_min( decControl->nChannelsAPI, decControl->nChannelsInternal ); n++ ) {
 
         /* Resample decoded signal to API_sampleRate */
-        ret += silk_resampler( &channel_state[ n ].resampler_state, resample_out_ptr, &samplesOut1_tmp[ n ][ 1 ], nSamplesOutDec );
+                ret += silk_resampler( &channel_state[ n ].resampler_state, resample_out_ptr, &samplesOut1_tmp[ n ][ 1 ], nSamplesOutDec, g_stack );
 
         /* Interleave if stereo output and stereo stream */
         if( decControl->nChannelsAPI == 2 ) {
@@ -352,7 +356,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
         if ( stereo_to_mono ){
             /* Resample right channel for newly collapsed stereo just in case
                we weren't doing collapsing when switching to mono */
-            ret += silk_resampler( &channel_state[ 1 ].resampler_state, resample_out_ptr, &samplesOut1_tmp[ 0 ][ 1 ], nSamplesOutDec );
+                        ret += silk_resampler( &channel_state[ 1 ].resampler_state, resample_out_ptr, &samplesOut1_tmp[ 0 ][ 1 ], nSamplesOutDec, g_stack );
 
             for( i = 0; i < *nSamplesOut; i++ ) {
                 samplesOut[ 1 + 2 * i ] = resample_out_ptr[ i ];
@@ -380,7 +384,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
     } else {
        psDec->prev_decode_only_middle = decode_only_middle;
     }
-    RESTORE_STACK;
+
     return ret;
 }
 

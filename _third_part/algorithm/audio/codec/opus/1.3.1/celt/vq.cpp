@@ -25,10 +25,10 @@
    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#if (COMPILE_CELT_ENC)||(COMPILE_CELT_DEC)
 
 #include "mathops.h"
 #include "cwrs.h"
@@ -162,7 +162,7 @@ static unsigned extract_collapse_mask(int *iy, int N, int B)
    return collapse_mask;
 }
 
-opus_val16 op_pvq_search_c(celt_norm *X, int *iy, int K, int N, int arch)
+opus_val16 op_pvq_search_c(celt_norm *X, int *iy, int K, int N, int arch, char *g_stack)
 {
    VARDECL(celt_norm, y);
    VARDECL(int, signx);
@@ -171,11 +171,11 @@ opus_val16 op_pvq_search_c(celt_norm *X, int *iy, int K, int N, int arch)
    opus_val32 sum;
    opus_val32 xy;
    opus_val16 yy;
-   SAVE_STACK;
+
 
    (void)arch;
-   ALLOC(y, N, celt_norm);
-   ALLOC(signx, N, int);
+   ALLOC(g_stack, y, N, celt_norm);
+   ALLOC(g_stack, signx, N, int);
 
    /* Get rid of the sign */
    sum = 0;
@@ -323,29 +323,29 @@ opus_val16 op_pvq_search_c(celt_norm *X, int *iy, int K, int N, int arch)
          but has the same performance otherwise. */
       iy[j] = (iy[j]^-signx[j]) + signx[j];
    } while (++j<N);
-   RESTORE_STACK;
+
    return yy;
 }
 
 unsigned alg_quant(celt_norm *X, int N, int K, int spread, int B, ec_enc *enc,
-      opus_val16 gain, int resynth, int arch)
+      opus_val16 gain, int resynth, int arch, char *g_stack)
 {
    VARDECL(int, iy);
    opus_val16 yy;
    unsigned collapse_mask;
-   SAVE_STACK;
+
 
    celt_assert2(K>0, "alg_quant() needs at least one pulse");
    celt_assert2(N>1, "alg_quant() needs at least two dimensions");
 
    /* Covers vectorization by up to 4. */
-   ALLOC(iy, N+3, int);
+   ALLOC(g_stack, iy, N+3, int);
 
    exp_rotation(X, N, 1, B, K, spread);
 
-   yy = op_pvq_search(X, iy, K, N, arch);
+   yy = op_pvq_search(X, iy, K, N, arch, g_stack);
 
-   encode_pulses(iy, N, K, enc);
+   encode_pulses(iy, N, K, enc, g_stack);
 
    if (resynth)
    {
@@ -354,28 +354,28 @@ unsigned alg_quant(celt_norm *X, int N, int K, int spread, int B, ec_enc *enc,
    }
 
    collapse_mask = extract_collapse_mask(iy, N, B);
-   RESTORE_STACK;
+
    return collapse_mask;
 }
 
 /** Decode pulse vector and combine the result with the pitch vector to produce
     the final normalised signal in the current band. */
 unsigned alg_unquant(celt_norm *X, int N, int K, int spread, int B,
-      ec_dec *dec, opus_val16 gain)
+      ec_dec *dec, opus_val16 gain, char *g_stack)
 {
    opus_val32 Ryy;
    unsigned collapse_mask;
    VARDECL(int, iy);
-   SAVE_STACK;
+
 
    celt_assert2(K>0, "alg_unquant() needs at least one pulse");
    celt_assert2(N>1, "alg_unquant() needs at least two dimensions");
-   ALLOC(iy, N, int);
-   Ryy = decode_pulses(iy, N, K, dec);
+   ALLOC(g_stack, iy, N, int);
+   Ryy = decode_pulses(iy, N, K, dec, g_stack);
    normalise_residual(iy, X, N, Ryy, gain);
    exp_rotation(X, N, -1, B, K, spread);
    collapse_mask = extract_collapse_mask(iy, N, B);
-   RESTORE_STACK;
+
    return collapse_mask;
 }
 
@@ -440,3 +440,4 @@ int stereo_itheta(const celt_norm *X, const celt_norm *Y, int stereo, int N, int
 
    return itheta;
 }
+#endif

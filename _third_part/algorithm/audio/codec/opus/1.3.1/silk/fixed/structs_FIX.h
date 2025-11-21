@@ -58,6 +58,7 @@ typedef struct {
     silk_DWORD_ALIGN opus_int16 x_buf[ 2 * MAX_FRAME_LENGTH + LA_SHAPE_MAX ];/* Buffer for find pitch and noise shape analysis  */
     opus_int                    LTPCorr_Q15;                            /* Normalized correlation from pitch lag estimator      */
     opus_int32                    resNrgSmth;
+    OpusBasePort_t* basePort;
 } silk_encoder_state_FIX;
 
 /************************/
@@ -73,7 +74,12 @@ typedef struct {
 
     /* Noise shaping parameters */
     /* Testing */
-    silk_DWORD_ALIGN opus_int16 AR_Q13[ MAX_NB_SUBFR * MAX_SHAPE_LPC_ORDER ];
+#ifdef HIFI_OPT
+    silk_DWORD_ALIGN opus_int16 AR_Q13[ MAX_NB_SUBFR * MAX_SHAPE_LPC_ORDER ] __attribute__ ((aligned (8)));
+#else
+    silk_DWORD_ALIGN opus_int16 AR_Q13[MAX_NB_SUBFR * MAX_SHAPE_LPC_ORDER];
+
+#endif
     opus_int32                  LF_shp_Q14[        MAX_NB_SUBFR ];      /* Packs two int16 coefficients per int32 value         */
     opus_int                    Tilt_Q14[          MAX_NB_SUBFR ];
     opus_int                    HarmShapeGain_Q14[ MAX_NB_SUBFR ];
@@ -106,6 +112,7 @@ typedef struct {
     opus_int                    timeSinceSwitchAllowed_ms;
     opus_int                    allowBandwidthSwitch;
     opus_int                    prev_decode_only_middle;
+    OpusBasePort_t* basePort;
 } silk_encoder;
 
 

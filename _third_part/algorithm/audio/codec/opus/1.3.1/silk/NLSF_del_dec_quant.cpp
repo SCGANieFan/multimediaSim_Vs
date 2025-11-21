@@ -32,6 +32,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "main.h"
 
 /* Delayed-decision quantizer for NLSF residuals */
+#ifndef HIFI_OPT
 opus_int32 silk_NLSF_del_dec_quant(                             /* O    Returns RD value in Q25                     */
     opus_int8                   indices[],                      /* O    Quantization indices [ order ]              */
     const opus_int16            x_Q10[],                        /* I    Input [ order ]                             */
@@ -213,3 +214,5 @@ opus_int32 silk_NLSF_del_dec_quant(                             /* O    Returns 
     silk_assert( min_Q25 >= 0 );
     return min_Q25;
 }
+#else
+#endif

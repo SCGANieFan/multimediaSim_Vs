@@ -29,7 +29,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
+#if (COMPILE_CELT_ENC)||(COMPILE_CELT_DEC)
 #include "quant_bands.h"
 #include "laplace.h"
 #include <math.h>
@@ -41,7 +41,7 @@
 
 #ifdef FIXED_POINT
 /* Mean energy in each band quantized in Q4 */
-const signed char eMeans[25] = {
+const signed char eMeans_opus[25] = {
       103,100, 92, 85, 81,
        77, 72, 70, 78, 75,
        73, 71, 78, 74, 69,
@@ -50,7 +50,7 @@ const signed char eMeans[25] = {
 };
 #else
 /* Mean energy in each band quantized in Q4 and converted back to float */
-const opus_val16 eMeans[25] = {
+const opus_val16 eMeans_opus[25] = {
       6.437500f, 6.250000f, 5.750000f, 5.312500f, 5.062500f,
       4.812500f, 4.500000f, 4.375000f, 4.875000f, 4.687500f,
       4.562500f, 4.437500f, 4.875000f, 4.625000f, 4.312500f,
@@ -261,7 +261,7 @@ static int quant_coarse_energy_impl(const CELTMode *m, int start, int end,
 void quant_coarse_energy(const CELTMode *m, int start, int end, int effEnd,
       const opus_val16 *eBands, opus_val16 *oldEBands, opus_uint32 budget,
       opus_val16 *error, ec_enc *enc, int C, int LM, int nbAvailableBytes,
-      int force_intra, opus_val32 *delayedIntra, int two_pass, int loss_rate, int lfe)
+      int force_intra, opus_val32 *delayedIntra, int two_pass, int loss_rate, int lfe, char *g_stack)
 {
    int intra;
    opus_val16 max_decay;
@@ -272,7 +272,7 @@ void quant_coarse_energy(const CELTMode *m, int start, int end, int effEnd,
    int badness1=0;
    opus_int32 intra_bias;
    opus_val32 new_distortion;
-   SAVE_STACK;
+
 
    intra = force_intra || (!two_pass && *delayedIntra>2*C*(end-start) && nbAvailableBytes > (end-start)*C);
    intra_bias = (opus_int32)((budget**delayedIntra*loss_rate)/(C*512));
@@ -295,8 +295,8 @@ void quant_coarse_energy(const CELTMode *m, int start, int end, int effEnd,
       max_decay = QCONST16(3.f,DB_SHIFT);
    enc_start_state = *enc;
 
-   ALLOC(oldEBands_intra, C*m->nbEBands, opus_val16);
-   ALLOC(error_intra, C*m->nbEBands, opus_val16);
+   ALLOC(g_stack, oldEBands_intra, C*m->nbEBands, opus_val16);
+   ALLOC(g_stack, error_intra, C*m->nbEBands, opus_val16);
    OPUS_COPY(oldEBands_intra, oldEBands, C*m->nbEBands);
 
    if (two_pass || intra)
@@ -326,7 +326,7 @@ void quant_coarse_energy(const CELTMode *m, int start, int end, int effEnd,
       save_bytes = nintra_bytes-nstart_bytes;
       if (save_bytes == 0)
          save_bytes = ALLOC_NONE;
-      ALLOC(intra_bits, save_bytes, unsigned char);
+      ALLOC(g_stack, intra_bits, save_bytes, unsigned char);
       /* Copy bits from intra bit-stream */
       OPUS_COPY(intra_bits, intra_buf, nintra_bytes - nstart_bytes);
 
@@ -355,7 +355,7 @@ void quant_coarse_energy(const CELTMode *m, int start, int end, int effEnd,
       *delayedIntra = ADD32(MULT16_32_Q15(MULT16_16_Q15(pred_coef[LM], pred_coef[LM]),*delayedIntra),
             new_distortion);
 
-   RESTORE_STACK;
+
 }
 
 void quant_fine_energy(const CELTMode *m, int start, int end, opus_val16 *oldEBands, opus_val16 *error, int *fine_quant, ec_enc *enc, int C)
@@ -551,7 +551,7 @@ void amp2Log2(const CELTMode *m, int effEnd, int end,
       {
          bandLogE[i+c*m->nbEBands] =
                celt_log2(bandE[i+c*m->nbEBands])
-               - SHL16((opus_val16)eMeans[i],6);
+               - SHL16((opus_val16)eMeans_opus[i],6);
 #ifdef FIXED_POINT
          /* Compensate for bandE[] being Q12 but celt_log2() taking a Q14 input. */
          bandLogE[i+c*m->nbEBands] += QCONST16(2.f, DB_SHIFT);
@@ -561,3 +561,4 @@ void amp2Log2(const CELTMode *m, int effEnd, int end,
          bandLogE[c*m->nbEBands+i] = -QCONST16(14.f,DB_SHIFT);
    } while (++c < C);
 }
+#endif

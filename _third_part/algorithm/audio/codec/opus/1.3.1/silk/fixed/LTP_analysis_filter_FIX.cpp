@@ -30,7 +30,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include "main_FIX.h"
-
+#ifndef HIFI_OPT
 void silk_LTP_analysis_filter_FIX(
     opus_int16                      *LTP_res,                               /* O    LTP residual signal of length MAX_NB_SUBFR * ( pre_length + subfr_length )  */
     const opus_int16                *x,                                     /* I    Pointer to input signal with at least max( pitchL ) preceding samples       */
@@ -87,4 +87,5 @@ void silk_LTP_analysis_filter_FIX(
         x_ptr       += subfr_length;
     }
 }
-
+#else
+#endif

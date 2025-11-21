@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include "SigProc_FIX.h"
-
+#ifndef HIFI_OPT
 /* Second order ARMA filter, alternative implementation */
 void silk_biquad_alt_stride1(
     const opus_int16            *in,                /* I     input signal                                               */
@@ -75,7 +75,89 @@ void silk_biquad_alt_stride1(
         out[ k ] = (opus_int16)silk_SAT16( silk_RSHIFT( out32_Q14 + (1<<14) - 1, 14 ) );
     }
 }
+#else
+// ticks        ori          opt
+//            1766000       517900
+#define SHIFT 16383
+void silk_biquad_alt_stride1(
+    const opus_int16            *in,                /* I     input signal                                               */
+    const opus_int32            *B_Q28,             /* I     MA coefficients [3]                                        */
+    const opus_int32            *A_Q28,             /* I     AR coefficients [2]                                        */
+    opus_int32                  *S,                 /* I/O   State vector [2]                                           */
+    opus_int16                  *out,               /* O     output signal                                              */
+    const opus_int32            len                 /* I     signal length (must be even)                               */
+)
+{
+    /* DIRECT FORM II TRANSPOSED (uses 2 element state vector) */
+    opus_int   k,temp32,B0;
+    opus_int32 A0_U_Q28, A0_L_Q28, A1_U_Q28, A1_L_Q28, out32_Q14;
+    opus_int16 A[4] __attribute__ ((aligned (8)));
+    opus_int32 SS[4] __attribute__ ((aligned (8)));
+    opus_int32 B12[2] __attribute__ ((aligned (8)));
+    opus_int32 *pSS0,*pSS1,*pSS2;
+    const opus_int16 *pIn;
+    ae_int32x2 temp_ae32x2,out_ae32x2,B12_ae32x2,SS_ae32x2;
+    ae_int16x4 A_ae16x4,inval_ae16x4;
+    ae_int16x4 *p_ae16x4;
+    ae_int32x2 *p_ae32x2,*pSS0_ae32x2,*pSS2_ae32x2;
 
+    /* Negate A_Q28 values and split in two parts */
+    A0_L_Q28 = ( -A_Q28[ 0 ] ) & 0x00003FFF;        /* lower part */
+    A0_U_Q28 = silk_RSHIFT( -A_Q28[ 0 ], 14 );      /* upper part */
+    A1_L_Q28 = ( -A_Q28[ 1 ] ) & 0x00003FFF;        /* lower part */
+    A1_U_Q28 = silk_RSHIFT( -A_Q28[ 1 ], 14 );      /* upper part */
+    A[0] = A0_L_Q28;A[1] = A1_L_Q28;
+    A[2] = A0_U_Q28;A[3] = A1_U_Q28;
+    p_ae16x4 = (ae_int16x4 *)&A[0];
+    AE_L16X4_IP (A_ae16x4,p_ae16x4,0);
+
+    SS[0] = S[0];SS[1] = S[1];
+    SS[2] = S[1];SS[3] = 0;
+    pSS0_ae32x2 = (ae_int32x2 *)&SS[0];
+    pSS2_ae32x2 = (ae_int32x2 *)&SS[2];
+    pSS0=&SS[0];
+    pSS1=&SS[1];
+    pSS2=&SS[2];
+
+    B0 = B_Q28[0];
+    B12[0] = B_Q28[1];
+    B12[1] = B_Q28[2];
+    p_ae32x2 = (ae_int32x2*)&B12[0];
+    AE_L32X2_IP (B12_ae32x2,p_ae32x2,0);
+
+    pIn = in;
+    for( k = 0; k < len; k++ ) {
+        inval_ae16x4 = *pIn;
+        temp32 = (*pSS0)+(opus_int32)(((opus_int64)B0*(*pIn++))>>16);
+        out32_Q14 = temp32<<2;
+
+        out_ae32x2 = out32_Q14;
+        AE_L32X2_IP(SS_ae32x2,pSS2_ae32x2,0);
+
+        temp_ae32x2 = AE_MULFP32X16X2S_H (out_ae32x2, A_ae16x4);
+        temp_ae32x2 = AE_SRAI32R(temp_ae32x2,15);
+        SS_ae32x2 = AE_ADD32 (SS_ae32x2, temp_ae32x2);
+        AE_S32X2_IP(SS_ae32x2,pSS0_ae32x2,0);
+
+        temp_ae32x2 = AE_MULFP32X16X2S_L (out_ae32x2, A_ae16x4);
+        temp_ae32x2 = AE_SRAI32(temp_ae32x2,1);
+        SS_ae32x2 = AE_ADD32 (SS_ae32x2, temp_ae32x2);
+        AE_S32X2_IP(SS_ae32x2,pSS0_ae32x2,0);
+
+        temp_ae32x2 = AE_MULFP32X16X2S_L (B12_ae32x2, inval_ae16x4);
+        temp_ae32x2 = AE_SRAI32(temp_ae32x2,1);
+        SS_ae32x2 = AE_ADD32 (SS_ae32x2, temp_ae32x2);
+        AE_S32X2_IP(SS_ae32x2,pSS0_ae32x2,0);
+
+        (*pSS2)=(*pSS1);
+
+        temp32 = (out32_Q14 + SHIFT)>>14;
+        out[ k ] = (opus_int16)silk_SAT16(temp32);
+    }
+    S[0] = SS[0];S[1]=SS[1];
+
+}
+#endif
 void silk_biquad_alt_stride2_c(
     const opus_int16            *in,                /* I     input signal                                               */
     const opus_int32            *B_Q28,             /* I     MA coefficients [3]                                        */

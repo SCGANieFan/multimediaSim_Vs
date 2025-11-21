@@ -32,6 +32,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "SigProc_FIX.h"
 
 /* Chirp (bandwidth expand) LP AR filter */
+#ifndef HIFI_OPT
 void silk_bwexpander_32(
     opus_int32                  *ar,                /* I/O  AR filter to be expanded (without leading 1)                */
     const opus_int              d,                  /* I    Length of ar                                                */
@@ -47,4 +48,19 @@ void silk_bwexpander_32(
     }
     ar[ d - 1 ] = silk_SMULWW( chirp_Q16, ar[ d - 1 ] );
 }
-
+#else
+void silk_bwexpander_32(
+    opus_int32                  *ar,                /* I/O  AR filter to be expanded (without leading 1)                */
+    const opus_int              d,                  /* I    Length of ar                                                */
+    opus_int32                  chirp_Q16           /* I    Chirp factor in Q16                                         */
+)
+{
+    int chirp_minus_one_Q16 = chirp_Q16 - 65536;
+    for(int i = 0; i < d; i++) {
+        ar[i] = (int)(int64_t)(AE_MUL32_LL(chirp_Q16, ar[i]) >> 16);
+        int tmp = chirp_Q16 * chirp_minus_one_Q16;
+        tmp = AE_MOVAD32_L(AE_SRAI32R(tmp, 16));
+        chirp_Q16 += tmp;
+    }
+}
+#endif

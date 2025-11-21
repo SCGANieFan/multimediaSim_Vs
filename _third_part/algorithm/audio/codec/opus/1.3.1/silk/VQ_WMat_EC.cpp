@@ -30,6 +30,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include "main.h"
+#ifndef HIFI_OPT
 
 /* Entropy constrained matrix-weighted VQ, hard-coded to 5-element vectors, for a single input data vector */
 void silk_VQ_WMat_EC_c(
@@ -129,3 +130,6 @@ void silk_VQ_WMat_EC_c(
         cb_row_Q7 += LTP_ORDER;
     }
 }
+
+#else
+#endif

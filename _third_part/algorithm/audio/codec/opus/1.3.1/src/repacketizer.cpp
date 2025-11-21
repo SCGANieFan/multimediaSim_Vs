@@ -28,7 +28,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
+#if OPUS_OPEN_ENC
 #include "opus.h"
 #include "opus_private.h"
 #include "os_support.h"
@@ -45,17 +45,18 @@ OpusRepacketizer *opus_repacketizer_init(OpusRepacketizer *rp)
    return rp;
 }
 
-OpusRepacketizer *opus_repacketizer_create(void)
+OpusRepacketizer *opus_repacketizer_create(OpusBasePort_t *basePort)
 {
    OpusRepacketizer *rp;
-   rp=(OpusRepacketizer *)opus_alloc(opus_repacketizer_get_size());
-   if(rp==NULL)return NULL;
+   rp=(OpusRepacketizer *)basePort->malloc_cb(opus_repacketizer_get_size());
+   if(rp==NULL){return NULL;}
+   rp->basePort = *basePort;
    return opus_repacketizer_init(rp);
 }
 
 void opus_repacketizer_destroy(OpusRepacketizer *rp)
 {
-   opus_free(rp);
+   rp->basePort.free_cb(rp);
 }
 
 static int opus_repacketizer_cat_impl(OpusRepacketizer *rp, const unsigned char *data, opus_int32 len, int self_delimited)
@@ -347,3 +348,4 @@ opus_int32 opus_multistream_packet_unpad(unsigned char *data, opus_int32 len, in
    return dst_len;
 }
 
+#endif

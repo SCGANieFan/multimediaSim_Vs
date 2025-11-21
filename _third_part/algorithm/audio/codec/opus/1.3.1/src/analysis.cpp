@@ -158,13 +158,13 @@ static opus_val32 silk_resampler_down2_hp(
     return (opus_val32)hp_ener;
 }
 
-static opus_val32 downmix_and_resample(downmix_func downmix, const void *_x, opus_val32 *y, opus_val32 S[3], int subframe, int offset, int c1, int c2, int C, int Fs)
+static opus_val32 downmix_and_resample(downmix_func downmix, const void *_x, opus_val32 *y, opus_val32 S[3], int subframe, int offset, int c1, int c2, int C, int Fs, char *g_stack)
 {
    VARDECL(opus_val32, tmp);
    opus_val32 scale;
    int j;
    opus_val32 ret = 0;
-   SAVE_STACK;
+
 
    if (subframe==0) return 0;
    if (Fs == 48000)
@@ -175,7 +175,7 @@ static opus_val32 downmix_and_resample(downmix_func downmix, const void *_x, opu
       subframe = subframe*2/3;
       offset = offset*2/3;
    }
-   ALLOC(tmp, subframe, opus_val32);
+   ALLOC(g_stack, tmp, subframe, opus_val32);
 
    downmix(_x, tmp, subframe, offset, c1, c2, C);
 #ifdef FIXED_POINT
@@ -196,7 +196,7 @@ static opus_val32 downmix_and_resample(downmix_func downmix, const void *_x, opu
       OPUS_COPY(y, tmp, subframe);
    } else if (Fs == 16000) {
       VARDECL(opus_val32, tmp3x);
-      ALLOC(tmp3x, 3*subframe, opus_val32);
+      ALLOC(g_stack, tmp3x, 3*subframe, opus_val32);
       /* Don't do this at home! This resampler is horrible and it's only (barely)
          usable for the purpose of the analysis because we don't care about all
          the aliasing between 8 kHz and 12 kHz. */
@@ -208,7 +208,7 @@ static opus_val32 downmix_and_resample(downmix_func downmix, const void *_x, opu
       }
       silk_resampler_down2_hp(S, y, tmp3x, 3*subframe);
    }
-   RESTORE_STACK;
+
    return ret;
 }
 
@@ -441,7 +441,7 @@ static int is_digital_silence32(const opus_val32* pcm, int frame_size, int chann
 #define is_digital_silence32(pcm, frame_size, channels, lsb_depth) is_digital_silence(pcm, frame_size, channels, lsb_depth)
 #endif
 
-static void tonality_analysis(TonalityAnalysisState *tonal, const CELTMode *celt_mode, const void *x, int len, int offset, int c1, int c2, int C, int lsb_depth, downmix_func downmix)
+static void tonality_analysis(TonalityAnalysisState *tonal, const CELTMode *celt_mode, const void *x, int len, int offset, int c1, int c2, int C, int lsb_depth, downmix_func downmix, char *g_stack)
 {
     int i, b;
     const kiss_fft_state *kfft;
@@ -486,7 +486,7 @@ static void tonality_analysis(TonalityAnalysisState *tonal, const CELTMode *celt
     float below_max_pitch;
     float above_max_pitch;
     int is_silence;
-    SAVE_STACK;
+
 
     if (!tonal->initialized)
     {
@@ -512,12 +512,12 @@ static void tonality_analysis(TonalityAnalysisState *tonal, const CELTMode *celt
     kfft = celt_mode->mdct.kfft[0];
     tonal->hp_ener_accum += (float)downmix_and_resample(downmix, x,
           &tonal->inmem[tonal->mem_fill], tonal->downmix_state,
-          IMIN(len, ANALYSIS_BUF_SIZE-tonal->mem_fill), offset, c1, c2, C, tonal->Fs);
+          IMIN(len, ANALYSIS_BUF_SIZE-tonal->mem_fill), offset, c1, c2, C, tonal->Fs, g_stack);
     if (tonal->mem_fill+len < ANALYSIS_BUF_SIZE)
     {
        tonal->mem_fill += len;
        /* Don't have enough to update the analysis */
-       RESTORE_STACK;
+
        return;
     }
     hp_ener = tonal->hp_ener_accum;
@@ -527,10 +527,10 @@ static void tonality_analysis(TonalityAnalysisState *tonal, const CELTMode *celt
 
     is_silence = is_digital_silence32(tonal->inmem, ANALYSIS_BUF_SIZE, 1, lsb_depth);
 
-    ALLOC(in, 480, kiss_fft_cpx);
-    ALLOC(out, 480, kiss_fft_cpx);
-    ALLOC(tonality, 240, float);
-    ALLOC(noisiness, 240, float);
+    ALLOC(g_stack, in, 480, kiss_fft_cpx);
+    ALLOC(g_stack, out, 480, kiss_fft_cpx);
+    ALLOC(g_stack, tonality, 240, float);
+    ALLOC(g_stack, noisiness, 240, float);
     for (i=0;i<N2;i++)
     {
        float w = analysis_window[i];
@@ -543,7 +543,7 @@ static void tonality_analysis(TonalityAnalysisState *tonal, const CELTMode *celt
     remaining = len - (ANALYSIS_BUF_SIZE-tonal->mem_fill);
     tonal->hp_ener_accum = (float)downmix_and_resample(downmix, x,
           &tonal->inmem[240], tonal->downmix_state, remaining,
-          offset+ANALYSIS_BUF_SIZE-tonal->mem_fill, c1, c2, C, tonal->Fs);
+          offset+ANALYSIS_BUF_SIZE-tonal->mem_fill, c1, c2, C, tonal->Fs, g_stack);
     tonal->mem_fill = 240 + remaining;
     if (is_silence)
     {
@@ -552,7 +552,7 @@ static void tonality_analysis(TonalityAnalysisState *tonal, const CELTMode *celt
        if (prev_pos < 0)
           prev_pos += DETECT_SIZE;
        OPUS_COPY(info, &tonal->info[prev_pos], 1);
-       RESTORE_STACK;
+
        return;
     }
     opus_fft(kfft, in, out, tonal->arch);
@@ -561,7 +561,7 @@ static void tonality_analysis(TonalityAnalysisState *tonal, const CELTMode *celt
     if (celt_isnan(out[0].r))
     {
        info->valid = 0;
-       RESTORE_STACK;
+
        return;
     }
 #endif
@@ -661,7 +661,7 @@ static void tonality_analysis(TonalityAnalysisState *tonal, const CELTMode *celt
        if (!(E<1e9f) || celt_isnan(E))
        {
           info->valid = 0;
-          RESTORE_STACK;
+
           return;
        }
 #endif
@@ -947,12 +947,12 @@ static void tonality_analysis(TonalityAnalysisState *tonal, const CELTMode *celt
     /*printf("%d %d\n", info->bandwidth, info->opus_bandwidth);*/
     info->noisiness = frame_noisiness;
     info->valid = 1;
-    RESTORE_STACK;
+
 }
 
 void run_analysis(TonalityAnalysisState *analysis, const CELTMode *celt_mode, const void *analysis_pcm,
                  int analysis_frame_size, int frame_size, int c1, int c2, int C, opus_int32 Fs,
-                 int lsb_depth, downmix_func downmix, AnalysisInfo *analysis_info)
+                 int lsb_depth, downmix_func downmix, AnalysisInfo *analysis_info, char *g_stack)
 {
    int offset;
    int pcm_len;
@@ -966,7 +966,7 @@ void run_analysis(TonalityAnalysisState *analysis, const CELTMode *celt_mode, co
       pcm_len = analysis_frame_size - analysis->analysis_offset;
       offset = analysis->analysis_offset;
       while (pcm_len>0) {
-         tonality_analysis(analysis, celt_mode, analysis_pcm, IMIN(Fs/50, pcm_len), offset, c1, c2, C, lsb_depth, downmix);
+         tonality_analysis(analysis, celt_mode, analysis_pcm, IMIN(Fs/50, pcm_len), offset, c1, c2, C, lsb_depth, downmix, g_stack);
          offset += Fs/50;
          pcm_len -= Fs/50;
       }

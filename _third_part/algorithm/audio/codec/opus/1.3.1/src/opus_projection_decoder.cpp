@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#if OPUS_OPEN_DEC
 #include "mathops.h"
 #include "os_support.h"
 #include "opus_private.h"
@@ -42,6 +43,7 @@ struct OpusProjectionDecoder
 {
   opus_int32 demixing_matrix_size_in_bytes;
   /* Encoder states go here */
+  OpusBasePort_t basePort;
 };
 
 #if !defined(DISABLE_FLOAT_API)
@@ -124,26 +126,24 @@ opus_int32 opus_projection_decoder_get_size(int channels, int streams,
 
 int opus_projection_decoder_init(OpusProjectionDecoder *st, opus_int32 Fs,
   int channels, int streams, int coupled_streams,
-  unsigned char *demixing_matrix, opus_int32 demixing_matrix_size)
+  unsigned char *demixing_matrix, opus_int32 demixing_matrix_size, int global_stack_size)
 {
   int nb_input_streams;
   opus_int32 expected_matrix_size;
   int i, ret;
   unsigned char mapping[255];
-  VARDECL(opus_int16, buf);
-  ALLOC_STACK;
+  opus_int16 *buf;  
 
   /* Verify supplied matrix size. */
   nb_input_streams = streams + coupled_streams;
   expected_matrix_size = nb_input_streams * channels * sizeof(opus_int16);
   if (expected_matrix_size != demixing_matrix_size)
   {
-    RESTORE_STACK;
     return OPUS_BAD_ARG;
   }
 
   /* Convert demixing matrix input into internal format. */
-  ALLOC(buf, nb_input_streams * channels, opus_int16);
+  buf = (opus_int16*)st->basePort.malloc_cb(nb_input_streams * channels * sizeof(opus_int16));
   for (i = 0; i < nb_input_streams * channels; i++)
   {
     int s = demixing_matrix[2*i + 1] << 8 | demixing_matrix[2*i];
@@ -156,7 +156,6 @@ int opus_projection_decoder_init(OpusProjectionDecoder *st, opus_int32 Fs,
     mapping_matrix_get_size(channels, nb_input_streams);
   if (!st->demixing_matrix_size_in_bytes)
   {
-    RESTORE_STACK;
     return OPUS_BAD_ARG;
   }
 
@@ -168,14 +167,14 @@ int opus_projection_decoder_init(OpusProjectionDecoder *st, opus_int32 Fs,
     mapping[i] = i;
 
   ret = opus_multistream_decoder_init(
-    get_multistream_decoder(st), Fs, channels, streams, coupled_streams, mapping);
-  RESTORE_STACK;
+      &st->basePort, get_multistream_decoder(st), Fs, channels, streams, coupled_streams, mapping, global_stack_size);
+  st->basePort.free_cb(buf);
   return ret;
 }
 
 OpusProjectionDecoder *opus_projection_decoder_create(
-  opus_int32 Fs, int channels, int streams, int coupled_streams,
-  unsigned char *demixing_matrix, opus_int32 demixing_matrix_size, int *error)
+  OpusBasePort_t *basePort, opus_int32 Fs, int channels, int streams, int coupled_streams,
+  unsigned char *demixing_matrix, opus_int32 demixing_matrix_size, int *error, int global_stack_size)
 {
   int size;
   int ret;
@@ -188,20 +187,20 @@ OpusProjectionDecoder *opus_projection_decoder_create(
       *error = OPUS_ALLOC_FAIL;
     return NULL;
   }
-  st = (OpusProjectionDecoder *)opus_alloc(size);
+  st = (OpusProjectionDecoder *)basePort->malloc_cb(size);
   if (!st)
   {
     if (error)
       *error = OPUS_ALLOC_FAIL;
     return NULL;
   }
-
+  st->basePort = *basePort;
   /* Initialize projection decoder with provided settings. */
   ret = opus_projection_decoder_init(st, Fs, channels, streams, coupled_streams,
-                                     demixing_matrix, demixing_matrix_size);
+                                     demixing_matrix, demixing_matrix_size, global_stack_size);
   if (ret != OPUS_OK)
   {
-    opus_free(st);
+    basePort->free_cb(st);
     st = NULL;
   }
   if (error)
@@ -253,6 +252,7 @@ int opus_projection_decoder_ctl(OpusProjectionDecoder *st, int request, ...)
 
 void opus_projection_decoder_destroy(OpusProjectionDecoder *st)
 {
-  opus_free(st);
+  st->basePort.free_cb(st);
 }
 
+#endif

@@ -35,62 +35,33 @@
 #  include "custom_support.h"
 #endif
 
+// #include "opus_memory.h"
+#include "opus_base_port_inner.h"
+
 #include "opus_types.h"
 #include "opus_defines.h"
-#include "opus_memory.h"
 
-#include <string.h>
+// #include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
-
-/** Opus wrapper for malloc(). To do your own dynamic allocation, all you need to do is replace this function and opus_free */
-#ifndef OVERRIDE_OPUS_ALLOC
-static OPUS_INLINE void *opus_alloc (size_t size)
-{
-#if 0
-   return malloc(size);
-#else
-   return opus_malloc_inner(size);
-
-#endif
-}
-#endif
-
-/** Same as celt_alloc(), except that the area is only needed inside a CELT call (might cause problem with wideband though) */
-#ifndef OVERRIDE_OPUS_ALLOC_SCRATCH
-static OPUS_INLINE void *opus_alloc_scratch (size_t size)
-{
-   /* Scratch space doesn't need to be cleared */
-   return opus_alloc(size);
-}
-#endif
-
-/** Opus wrapper for free(). To do your own dynamic allocation, all you need to do is replace this function and opus_alloc */
-#ifndef OVERRIDE_OPUS_FREE
-static OPUS_INLINE void opus_free (void *ptr)
-{
-#if 0
-   free(ptr);
-#else
-   opus_free_inner(ptr);
-#endif
-}
-#endif
+// #include <stdlib.h>
 
 /** Copy n elements from src to dst. The 0* term provides compile-time type checking  */
 #ifndef OVERRIDE_OPUS_COPY
-#define OPUS_COPY(dst, src, n) (memcpy((dst), (src), (n)*sizeof(*(dst)) + 0*((dst)-(src)) ))
+// #define OPUS_COPY(dst, src, n) (memcpy((dst), (src), (n)*sizeof(*(dst)) + 0*((dst)-(src)) ))
+#define OPUS_COPY(dst, src, n) (opus_memcpy_inner((dst), (src), (n)*sizeof(*(dst)) + 0*((dst)-(src)) ))
 #endif
 
 /** Copy n elements from src to dst, allowing overlapping regions. The 0* term
     provides compile-time type checking */
 #ifndef OVERRIDE_OPUS_MOVE
-#define OPUS_MOVE(dst, src, n) (memmove((dst), (src), (n)*sizeof(*(dst)) + 0*((dst)-(src)) ))
+// #define OPUS_MOVE(dst, src, n) (memmove((dst), (src), (n)*sizeof(*(dst)) + 0*((dst)-(src)) ))
+#define OPUS_MOVE(dst, src, n) (opus_memmove_inner((dst), (src), (n)*sizeof(*(dst)) + 0*((dst)-(src)) ))
 #endif
 
 /** Set n elements of dst to zero */
 #ifndef OVERRIDE_OPUS_CLEAR
-#define OPUS_CLEAR(dst, n) (memset((dst), 0, (n)*sizeof(*(dst))))
+// #define OPUS_CLEAR(dst, n) (memset((dst), 0, (n)*sizeof(*(dst))))
+#define OPUS_CLEAR(dst, n) (opus_memset_inner((dst), 0, (n)*sizeof(*(dst))))
 #endif
 
 /*#ifdef __GNUC__

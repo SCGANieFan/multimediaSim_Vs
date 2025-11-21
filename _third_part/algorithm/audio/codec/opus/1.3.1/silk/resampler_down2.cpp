@@ -33,6 +33,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "resampler_rom.h"
 
 /* Downsample by a factor 2 */
+#ifndef HIFI_OPT
 void silk_resampler_down2(
     opus_int32                  *S,                 /* I/O  State vector [ 2 ]                                          */
     opus_int16                  *out,               /* O    Output signal [ floor(len/2) ]                              */
@@ -71,4 +72,34 @@ void silk_resampler_down2(
         out[ k ] = (opus_int16)silk_SAT16( silk_RSHIFT_ROUND( out32, 11 ) );
     }
 }
-
+#else
+void silk_resampler_down2(
+    opus_int32                  *S,                 /* I/O  State vector [ 2 ]                                          */
+    opus_int16                  *out,               /* O    Output signal [ floor(len/2) ]                              */
+    const opus_int16            *in,                /* I    Input signal [ len ]                                        */
+    opus_int32                  inLen               /* I    Number of input samples                                     */
+)
+{
+    celt_assert(silk_resampler_down2_0 > 0);
+    celt_assert(silk_resampler_down2_1 < 0);
+    int len2 = inLen >> 1;
+    /* Internal variables and state are in Q10 format */
+    int tmp = S[0];
+    int tmp2 = S[1];
+    const short * src1 = in;
+    for(int k = 0; k < len2; k++) {
+        int in32 = *src1++ << 10;
+        int in32_2 = *src1++ << 10;
+        int Y = in32 - tmp;
+        int Y_2 = in32_2 - tmp2;
+        int X = Y + (int)(int64_t)(AE_MUL32X16_L0(Y, silk_resampler_down2_1) >> 16);
+        int X_2 = (int)(int64_t)(AE_MUL32X16_L0(Y_2, silk_resampler_down2_0) >> 16);
+        int out32 = tmp + tmp2 + X + X_2;
+        out[k] = (short)silk_SAT16(silk_RSHIFT_ROUND(out32, 11));
+        tmp = in32 + X;
+        tmp2 = in32_2 + X_2;
+    }
+    S[0] = tmp;
+    S[1] = tmp2;
+}
+#endif

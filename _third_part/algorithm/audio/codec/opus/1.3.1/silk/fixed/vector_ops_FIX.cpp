@@ -68,6 +68,7 @@ void silk_scale_vector32_Q26_lshift_18(
 /*        * inVec1 and inVec2 should be at least 2 byte aligned.                */
 /*        * len should be positive 16bit integer.                               */
 /*        * only when len>6, memory access can be reduced by half.              */
+#ifndef HIFI_OPT
 opus_int32 silk_inner_prod_aligned(
     const opus_int16 *const     inVec1,             /*    I input vector 1                                              */
     const opus_int16 *const     inVec2,             /*    I input vector 2                                              */
@@ -86,7 +87,51 @@ opus_int32 silk_inner_prod_aligned(
     return sum;
 #endif
 }
+#else
+opus_int32 silk_inner_prod_aligned(
+    const opus_int16 *const     inVec1,             /*    I input vector 1                                              */
+    const opus_int16 *const     inVec2,             /*    I input vector 2                                              */
+    const opus_int              len,                /*    I vector lengths                                              */
+    int                         arch                /*    I Run-time architecture                                       */
+)
+{
+    ae_int16x4 * src1 = (ae_int16x4*)inVec1;
+    ae_int16x4 * src2 = (ae_int16x4*)inVec2;
+    ae_int64 sum0 = 0;
+    ae_int64 sum1 = 0;
+    int N = len >> 3;
+    if ((unsigned)src1&7 || (unsigned)src2&7) {
+        ae_valign align = AE_LA64_PP(src1);
+        ae_valign align2 = AE_LA64_PP(src2);
+        ae_int16x4 s0, s1, s2, s3;
+        AE_LA16X4_IP(s0,align,src1);
+        AE_LA16X4_IP(s1,align,src1);
+        AE_LA16X4_IP(s2,align2,src2);
+        AE_LA16X4_IP(s3,align2,src2);
+        for (int k = 0; k < N; k++) {
+            AE_MULAAAAQ16(sum0, s0, s2);
+            AE_MULAAAAQ16(sum1, s1, s3);
+            AE_LA16X4_IP(s0,align,src1);
+            AE_LA16X4_IP(s1,align,src1);
+            AE_LA16X4_IP(s2,align2,src2);
+            AE_LA16X4_IP(s3,align2,src2);
+        }
+    } else {
+        for (int k = 0; k < N; k++) {
+            AE_MULAAAAQ16(sum0, *src1++,*src2++);
+            AE_MULAAAAQ16(sum1, *src1++,*src2++);
+        }
+    }
+    sum0+=sum1;
+    int sum = (int)(int64_t)sum0;
+    for (int j = N << 3; j < len; j++){
+        sum += inVec1[j] * inVec2[j];
+    }
+    return sum;
+}
+#endif
 
+#ifndef HIFI_OPT
 opus_int64 silk_inner_prod16_aligned_64_c(
     const opus_int16            *inVec1,            /*    I input vector 1                                              */
     const opus_int16            *inVec2,            /*    I input vector 2                                              */
@@ -100,3 +145,44 @@ opus_int64 silk_inner_prod16_aligned_64_c(
     }
     return sum;
 }
+#else
+ae_int64 silk_inner_prod16_aligned_64_c(
+    const opus_int16            *inVec1,            /*    I input vector 1                                              */
+    const opus_int16            *inVec2,            /*    I input vector 2                                              */
+    const opus_int              len                 /*    I vector lengths                                              */
+)
+{
+    ae_int16x4 * src1 = (ae_int16x4*)inVec1;
+    ae_int16x4 * src2 = (ae_int16x4*)inVec2;
+    ae_int64 sum0 = 0;
+    ae_int64 sum1 = 0;
+    int N = len >> 3;
+    if ((unsigned)src1&7 || (unsigned)src2&7) {
+        ae_valign align = AE_LA64_PP(src1);
+        ae_valign align2 = AE_LA64_PP(src2);
+        ae_int16x4 s0, s1, s2, s3;
+        AE_LA16X4_IP(s0,align,src1);
+        AE_LA16X4_IP(s1,align,src1);
+        AE_LA16X4_IP(s2,align2,src2);
+        AE_LA16X4_IP(s3,align2,src2);
+        for (int k = 0; k < N; k++) {
+            AE_MULAAAAQ16(sum0, s0, s2);
+            AE_MULAAAAQ16(sum1, s1, s3);
+            AE_LA16X4_IP(s0,align,src1);
+            AE_LA16X4_IP(s1,align,src1);
+            AE_LA16X4_IP(s2,align2,src2);
+            AE_LA16X4_IP(s3,align2,src2);
+        }
+    } else {
+        for (int k = 0; k < N; k++) {
+            AE_MULAAAAQ16(sum0, *src1++,*src2++);
+            AE_MULAAAAQ16(sum1, *src1++,*src2++);
+        }
+    }
+    sum0+=sum1;
+    for (int j = N << 3; j < len; j++){
+        AE_MULA16_00(sum0, inVec1[j], inVec2[j]);
+    }
+    return sum0;
+}
+#endif

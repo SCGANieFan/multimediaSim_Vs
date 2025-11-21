@@ -1,14 +1,12 @@
 #include"MTF.h"
 #define PATH "../../source/audio/opus/"
-
-
 #define FILE_NAME "mbz_48k2h.wav"
 #define FRAME_MS 20
 #define BIT_RATE 20000
 #define COMPLEXITY 0
 #define VBR 0
 
-void OpusTest()
+static void OpusMtfTest()
 {
 	MultiemdiaTestInit();
 
@@ -34,4 +32,16 @@ void OpusTest()
 	};
 
 	MultiemdiaApi(str, param);
+}
+
+static void OpusDemoTest()
+{
+	extern void OpusCodecTest(); OpusCodecTest();
+}
+
+
+void OpusTest()
+{
+	//OpusMtfTest();
+	OpusDemoTest();
 }

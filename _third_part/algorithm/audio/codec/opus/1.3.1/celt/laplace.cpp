@@ -25,11 +25,10 @@
    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
+#if (COMPILE_CELT_ENC)||(COMPILE_CELT_DEC)
 #include "laplace.h"
 #include "mathops.h"
 
@@ -132,3 +131,4 @@ int ec_laplace_decode(ec_dec *dec, unsigned fs, int decay)
    ec_dec_update(dec, fl, IMIN(fl+fs,32768), 32768);
    return val;
 }
+#endif

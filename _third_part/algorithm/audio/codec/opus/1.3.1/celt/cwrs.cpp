@@ -30,46 +30,12 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
+#if (COMPILE_CELT_ENC)||(COMPILE_CELT_DEC)
 #include "os_support.h"
 #include "cwrs.h"
 #include "mathops.h"
 #include "arch.h"
-
-#ifdef CUSTOM_MODES
-
-/*Guaranteed to return a conservatively large estimate of the binary logarithm
-   with frac bits of fractional precision.
-  Tested for all possible 32-bit inputs with frac=4, where the maximum
-   overestimation is 0.06254243 bits.*/
-int log2_frac(opus_uint32 val, int frac)
-{
-  int l;
-  l=EC_ILOG(val);
-  if(val&(val-1)){
-    /*This is (val>>l-16), but guaranteed to round up, even if adding a bias
-       before the shift would cause overflow (e.g., for 0xFFFFxxxx).
-       Doesn't work for val=0, but that case fails the test above.*/
-    if(l>16)val=((val-1)>>(l-16))+1;
-    else val<<=16-l;
-    l=(l-1)<<frac;
-    /*Note that we always need one iteration, since the rounding up above means
-       that we might need to adjust the integer part of the logarithm.*/
-    do{
-      int b;
-      b=(int)(val>>16);
-      l+=b<<frac;
-      val=(val+b)>>b;
-      val=(val*val+0x7FFF)>>15;
-    }
-    while(frac-->0);
-    /*If val is not exactly 0x8000, then we have to round up the remainder.*/
-    return l+(val>0x8000);
-  }
-  /*Exact powers of two require no rounding.*/
-  else return (l-1)<<frac;
-}
-#endif
+#include <stdlib.h>
 
 /*Although derived separately, the pulse vector coding scheme is equivalent to
    a Pyramid Vector Quantizer \cite{Fis86}.
@@ -207,11 +173,7 @@ int log2_frac(opus_uint32 val, int frac)
   Otherwise, we can limit things to the set of N which can be achieved by
    splitting a band from a standard Opus mode: 176, 144, 96, 88, 72, 64, 48,
    44, 36, 32, 24, 22, 18, 16, 8, 4, 2).*/
-#if defined(CUSTOM_MODES)
-static const opus_uint32 CELT_PVQ_U_DATA[1488]={
-#else
 static const opus_uint32 CELT_PVQ_U_DATA[1272]={
-#endif
   /*N=0, K=0...176:*/
   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -220,11 +182,6 @@ static const opus_uint32 CELT_PVQ_U_DATA[1272]={
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-#if defined(CUSTOM_MODES)
-  /*...208:*/
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0,
-#endif
   /*N=1, K=1...176:*/
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -233,11 +190,6 @@ static const opus_uint32 CELT_PVQ_U_DATA[1272]={
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-#if defined(CUSTOM_MODES)
-  /*...208:*/
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  1, 1, 1, 1, 1, 1,
-#endif
   /*N=2, K=2...176:*/
   3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41,
   43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 65, 67, 69, 71, 73, 75, 77, 79,
@@ -250,12 +202,6 @@ static const opus_uint32 CELT_PVQ_U_DATA[1272]={
   265, 267, 269, 271, 273, 275, 277, 279, 281, 283, 285, 287, 289, 291, 293,
   295, 297, 299, 301, 303, 305, 307, 309, 311, 313, 315, 317, 319, 321, 323,
   325, 327, 329, 331, 333, 335, 337, 339, 341, 343, 345, 347, 349, 351,
-#if defined(CUSTOM_MODES)
-  /*...208:*/
-  353, 355, 357, 359, 361, 363, 365, 367, 369, 371, 373, 375, 377, 379, 381,
-  383, 385, 387, 389, 391, 393, 395, 397, 399, 401, 403, 405, 407, 409, 411,
-  413, 415,
-#endif
   /*N=3, K=3...176:*/
   13, 25, 41, 61, 85, 113, 145, 181, 221, 265, 313, 365, 421, 481, 545, 613,
   685, 761, 841, 925, 1013, 1105, 1201, 1301, 1405, 1513, 1625, 1741, 1861,
@@ -272,12 +218,6 @@ static const opus_uint32 CELT_PVQ_U_DATA[1272]={
   43513, 44105, 44701, 45301, 45905, 46513, 47125, 47741, 48361, 48985, 49613,
   50245, 50881, 51521, 52165, 52813, 53465, 54121, 54781, 55445, 56113, 56785,
   57461, 58141, 58825, 59513, 60205, 60901, 61601,
-#if defined(CUSTOM_MODES)
-  /*...208:*/
-  62305, 63013, 63725, 64441, 65161, 65885, 66613, 67345, 68081, 68821, 69565,
-  70313, 71065, 71821, 72581, 73345, 74113, 74885, 75661, 76441, 77225, 78013,
-  78805, 79601, 80401, 81205, 82013, 82825, 83641, 84461, 85285, 86113,
-#endif
   /*N=4, K=4...176:*/
   63, 129, 231, 377, 575, 833, 1159, 1561, 2047, 2625, 3303, 4089, 4991, 6017,
   7175, 8473, 9919, 11521, 13287, 15225, 17343, 19649, 22151, 24857, 27775,
@@ -299,14 +239,6 @@ static const opus_uint32 CELT_PVQ_U_DATA[1272]={
   5309433, 5410559, 5512961, 5616647, 5721625, 5827903, 5935489, 6044391,
   6154617, 6266175, 6379073, 6493319, 6608921, 6725887, 6844225, 6963943,
   7085049, 7207551,
-#if defined(CUSTOM_MODES)
-  /*...208:*/
-  7331457, 7456775, 7583513, 7711679, 7841281, 7972327, 8104825, 8238783,
-  8374209, 8511111, 8649497, 8789375, 8930753, 9073639, 9218041, 9363967,
-  9511425, 9660423, 9810969, 9963071, 10116737, 10271975, 10428793, 10587199,
-  10747201, 10908807, 11072025, 11236863, 11403329, 11571431, 11741177,
-  11912575,
-#endif
   /*N=5, K=5...176:*/
   321, 681, 1289, 2241, 3649, 5641, 8361, 11969, 16641, 22569, 29961, 39041,
   50049, 63241, 78889, 97281, 118721, 143529, 172041, 204609, 241601, 283401,
@@ -331,14 +263,6 @@ static const opus_uint32 CELT_PVQ_U_DATA[1272]={
   420810249, 431530241, 442453761, 453583369, 464921641, 476471169, 488234561,
   500214441, 512413449, 524834241, 537479489, 550351881, 563454121, 576788929,
   590359041, 604167209, 618216201, 632508801,
-#if defined(CUSTOM_MODES)
-  /*...208:*/
-  647047809, 661836041, 676876329, 692171521, 707724481, 723538089, 739615241,
-  755958849, 772571841, 789457161, 806617769, 824056641, 841776769, 859781161,
-  878072841, 896654849, 915530241, 934702089, 954173481, 973947521, 994027329,
-  1014416041, 1035116809, 1056132801, 1077467201, 1099123209, 1121104041,
-  1143412929, 1166053121, 1189027881, 1212340489, 1235994241,
-#endif
   /*N=6, K=6...96:*/
   1683, 3653, 7183, 13073, 22363, 36365, 56695, 85305, 124515, 177045, 246047,
   335137, 448427, 590557, 766727, 982729, 1244979, 1560549, 1937199, 2383409,
@@ -353,12 +277,6 @@ static const opus_uint32 CELT_PVQ_U_DATA[1272]={
   1020274013, 1083597703, 1150027593, 1219676595, 1292660325, 1369097135,
   1449108145, 1532817275, 1620351277, 1711839767, 1807415257, 1907213187,
   2011371957, 2120032959,
-#if defined(CUSTOM_MODES)
-  /*...109:*/
-  2233340609U, 2351442379U, 2474488829U, 2602633639U, 2736033641U, 2874848851U,
-  3019242501U, 3169381071U, 3325434321U, 3487575323U, 3655980493U, 3830829623U,
-  4012305913U,
-#endif
   /*N=7, K=7...54*/
   8989, 19825, 40081, 75517, 134245, 227305, 369305, 579125, 880685, 1303777,
   1884961, 2668525, 3707509, 5064793, 6814249, 9041957, 11847485, 15345233,
@@ -367,28 +285,16 @@ static const opus_uint32 CELT_PVQ_U_DATA[1272]={
   292164445, 340600625, 395555537, 457713341, 527810725, 606639529, 695049433,
   793950709, 904317037, 1027188385, 1163673953, 1314955181, 1482288821,
   1667010073, 1870535785, 2094367717,
-#if defined(CUSTOM_MODES)
-  /*...60:*/
-  2340095869U, 2609401873U, 2904062449U, 3225952925U, 3577050821U, 3959439497U,
-#endif
   /*N=8, K=8...37*/
   48639, 108545, 224143, 433905, 795455, 1392065, 2340495, 3800305, 5984767,
   9173505, 13726991, 20103025, 28875327, 40754369, 56610575, 77500017,
   104692735, 139703809, 184327311, 240673265, 311207743, 398796225, 506750351,
   638878193, 799538175, 993696769, 1226990095, 1505789553, 1837271615,
   2229491905U,
-#if defined(CUSTOM_MODES)
-  /*...40:*/
-  2691463695U, 3233240945U, 3866006015U,
-#endif
   /*N=9, K=9...28:*/
   265729, 598417, 1256465, 2485825, 4673345, 8405905, 14546705, 24331777,
   39490049, 62390545, 96220561, 145198913, 214828609, 312193553, 446304145,
   628496897, 872893441, 1196924561, 1621925137, 2173806145U,
-#if defined(CUSTOM_MODES)
-  /*...29:*/
-  2883810113U,
-#endif
   /*N=10, K=10...24:*/
   1462563, 3317445, 7059735, 14218905, 27298155, 50250765, 89129247, 152951073,
   254831667, 413442773, 654862247, 1014889769, 1541911931, 2300409629U,
@@ -396,10 +302,6 @@ static const opus_uint32 CELT_PVQ_U_DATA[1272]={
   /*N=11, K=11...19:*/
   8097453, 18474633, 39753273, 81270333, 158819253, 298199265, 540279585,
   948062325, 1616336765,
-#if defined(CUSTOM_MODES)
-  /*...20:*/
-  2684641785U,
-#endif
   /*N=12, K=12...18:*/
   45046719, 103274625, 224298231, 464387817, 921406335, 1759885185,
   3248227095U,
@@ -409,15 +311,6 @@ static const opus_uint32 CELT_PVQ_U_DATA[1272]={
   1409933619
 };
 
-#if defined(CUSTOM_MODES)
-static const opus_uint32 *const CELT_PVQ_U_ROW[15]={
-  CELT_PVQ_U_DATA+   0,CELT_PVQ_U_DATA+ 208,CELT_PVQ_U_DATA+ 415,
-  CELT_PVQ_U_DATA+ 621,CELT_PVQ_U_DATA+ 826,CELT_PVQ_U_DATA+1030,
-  CELT_PVQ_U_DATA+1233,CELT_PVQ_U_DATA+1336,CELT_PVQ_U_DATA+1389,
-  CELT_PVQ_U_DATA+1421,CELT_PVQ_U_DATA+1441,CELT_PVQ_U_DATA+1455,
-  CELT_PVQ_U_DATA+1464,CELT_PVQ_U_DATA+1470,CELT_PVQ_U_DATA+1473
-};
-#else
 static const opus_uint32 *const CELT_PVQ_U_ROW[15]={
   CELT_PVQ_U_DATA+   0,CELT_PVQ_U_DATA+ 176,CELT_PVQ_U_DATA+ 351,
   CELT_PVQ_U_DATA+ 525,CELT_PVQ_U_DATA+ 698,CELT_PVQ_U_DATA+ 870,
@@ -425,17 +318,6 @@ static const opus_uint32 *const CELT_PVQ_U_ROW[15]={
   CELT_PVQ_U_DATA+1207,CELT_PVQ_U_DATA+1226,CELT_PVQ_U_DATA+1240,
   CELT_PVQ_U_DATA+1248,CELT_PVQ_U_DATA+1254,CELT_PVQ_U_DATA+1257
 };
-#endif
-
-#if defined(CUSTOM_MODES)
-void get_required_bits(opus_int16 *_bits,int _n,int _maxk,int _frac){
-  int k;
-  /*_maxk==0 => there's nothing to do.*/
-  celt_assert(_maxk>0);
-  _bits[0]=0;
-  for(k=1;k<=_maxk;k++)_bits[k]=log2_frac(CELT_PVQ_V(_n,k),_frac);
-}
-#endif
 
 static opus_uint32 icwrs(int _n,const int *_y){
   opus_uint32 i;
@@ -455,7 +337,7 @@ static opus_uint32 icwrs(int _n,const int *_y){
   return i;
 }
 
-void encode_pulses(const int *_y,int _n,int _k,ec_enc *_enc){
+void encode_pulses(const int *_y,int _n,int _k,ec_enc *_enc, char *g_stack){
   celt_assert(_k>0);
   ec_enc_uint(_enc,icwrs(_n,_y),CELT_PVQ_V(_n,_k));
 }
@@ -536,7 +418,7 @@ static opus_val32 cwrsi(int _n,int _k,opus_uint32 _i,int *_y){
   return yy;
 }
 
-opus_val32 decode_pulses(int *_y,int _n,int _k,ec_dec *_dec){
+opus_val32 decode_pulses(int *_y,int _n,int _k,ec_dec *_dec, char *g_stack){
   return cwrsi(_n,_k,ec_dec_uint(_dec,CELT_PVQ_V(_n,_k)),_y);
 }
 
@@ -666,50 +548,24 @@ static OPUS_INLINE opus_uint32 icwrs(int _n,int _k,opus_uint32 *_nc,const int *_
   return i;
 }
 
-#ifdef CUSTOM_MODES
-void get_required_bits(opus_int16 *_bits,int _n,int _maxk,int _frac){
-  int k;
-  /*_maxk==0 => there's nothing to do.*/
-  celt_assert(_maxk>0);
-  _bits[0]=0;
-  if (_n==1)
-  {
-    for (k=1;k<=_maxk;k++)
-      _bits[k] = 1<<_frac;
-  }
-  else {
-    VARDECL(opus_uint32,u);
-    SAVE_STACK;
-    ALLOC(u,_maxk+2U,opus_uint32);
-    ncwrs_urow(_n,_maxk,u);
-    for(k=1;k<=_maxk;k++)
-      _bits[k]=log2_frac(u[k]+u[k+1],_frac);
-    RESTORE_STACK;
-  }
-}
-#endif /* CUSTOM_MODES */
-
-void encode_pulses(const int *_y,int _n,int _k,ec_enc *_enc){
+void encode_pulses(const int *_y,int _n,int _k,ec_enc *_enc, char *g_stack){
   opus_uint32 i;
   VARDECL(opus_uint32,u);
   opus_uint32 nc;
-  SAVE_STACK;
   celt_assert(_k>0);
-  ALLOC(u,_k+2U,opus_uint32);
+  ALLOC(g_stack, u,_k+2U,opus_uint32);
   i=icwrs(_n,_k,&nc,_y,u);
   ec_enc_uint(_enc,i,nc);
-  RESTORE_STACK;
 }
 
-opus_val32 decode_pulses(int *_y,int _n,int _k,ec_dec *_dec){
+opus_val32 decode_pulses(int *_y,int _n,int _k,ec_dec *_dec, char *g_stack){
   VARDECL(opus_uint32,u);
   int ret;
-  SAVE_STACK;
   celt_assert(_k>0);
-  ALLOC(u,_k+2U,opus_uint32);
+  ALLOC(g_stack, u,_k+2U,opus_uint32);
   ret = cwrsi(_n,_k,ec_dec_uint(_dec,ncwrs_urow(_n,_k,u)),_y,u);
-  RESTORE_STACK;
   return ret;
 }
 
 #endif /* SMALL_FOOTPRINT */
+#endif

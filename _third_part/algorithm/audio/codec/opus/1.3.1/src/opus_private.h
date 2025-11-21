@@ -42,6 +42,7 @@ struct OpusRepacketizer {
    const unsigned char *frames[48];
    opus_int16 len[48];
    int framesize;
+   OpusBasePort_t basePort;
 };
 
 typedef struct ChannelLayout {
@@ -68,10 +69,14 @@ struct OpusMSEncoder {
    /* Encoder states go here */
    /* then opus_val32 window_mem[channels*120]; */
    /* then opus_val32 preemph_mem[channels]; */
+   char *global_stack_now;
+   OpusBasePort_t basePort;
 };
 
 struct OpusMSDecoder {
    ChannelLayout layout;
+   char *global_stack_now;
+   OpusBasePort_t basePort;
    /* Decoder states go here */
 };
 

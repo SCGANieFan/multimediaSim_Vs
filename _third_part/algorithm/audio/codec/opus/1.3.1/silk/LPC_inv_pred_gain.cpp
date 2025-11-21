@@ -39,6 +39,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 /* Compute inverse of LPC prediction gain, and                          */
 /* test if LPC coefficients are stable (all poles within unit circle)   */
+#ifndef HIFI_OPT
 static opus_int32 LPC_inverse_pred_gain_QA_c(               /* O   Returns inverse prediction gain in energy domain, Q30    */
     opus_int32           A_QA[ SILK_MAX_ORDER_LPC ],        /* I   Prediction coefficients                                  */
     const opus_int       order                              /* I   Prediction order                                         */
@@ -117,7 +118,8 @@ static opus_int32 LPC_inverse_pred_gain_QA_c(               /* O   Returns inver
 
     return invGain_Q30;
 }
-
+#else
+#endif
 /* For input in Q12 domain */
 opus_int32 silk_LPC_inverse_pred_gain_c(            /* O   Returns inverse prediction gain in energy domain, Q30        */
     const opus_int16            *A_Q12,             /* I   Prediction coefficients, Q12 [order]                         */

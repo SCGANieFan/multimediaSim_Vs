@@ -41,7 +41,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 static opus_int silk_setup_resamplers(
     silk_encoder_state_Fxx          *psEnc,             /* I/O                      */
-    opus_int                        fs_kHz              /* I                        */
+    opus_int                        fs_kHz,             /* I                        */
+    char *g_stack
 );
 
 static opus_int silk_setup_fs(
@@ -67,7 +68,8 @@ opus_int silk_control_encoder(
     silk_EncControlStruct           *encControl,                            /* I    Control structure                                                           */
     const opus_int                  allow_bw_switch,                        /* I    Flag to allow switching audio bandwidth                                     */
     const opus_int                  channelNb,                              /* I    Channel number                                                              */
-    const opus_int                  force_fs_kHz
+    const opus_int                  force_fs_kHz,
+    char *g_stack
 )
 {
     opus_int   fs_kHz, ret = 0;
@@ -87,7 +89,7 @@ opus_int silk_control_encoder(
     if( psEnc->sCmn.controlled_since_last_payload != 0 && psEnc->sCmn.prefillFlag == 0 ) {
         if( psEnc->sCmn.API_fs_Hz != psEnc->sCmn.prev_API_fs_Hz && psEnc->sCmn.fs_kHz > 0 ) {
             /* Change in API sampling rate in the middle of encoding a packet */
-            ret += silk_setup_resamplers( psEnc, psEnc->sCmn.fs_kHz );
+            ret += silk_setup_resamplers( psEnc, psEnc->sCmn.fs_kHz, g_stack);
         }
         return ret;
     }
@@ -104,7 +106,7 @@ opus_int silk_control_encoder(
     /********************************************/
     /* Prepare resampler and buffered data      */
     /********************************************/
-    ret += silk_setup_resamplers( psEnc, fs_kHz );
+    ret += silk_setup_resamplers( psEnc, fs_kHz, g_stack);
 
     /********************************************/
     /* Set internal sampling frequency          */
@@ -133,11 +135,12 @@ opus_int silk_control_encoder(
 
 static opus_int silk_setup_resamplers(
     silk_encoder_state_Fxx          *psEnc,             /* I/O                      */
-    opus_int                         fs_kHz              /* I                        */
+    opus_int                         fs_kHz,              /* I                        */
+    char *g_stack
 )
 {
     opus_int   ret = SILK_NO_ERROR;
-    SAVE_STACK;
+ 
 
     if( psEnc->sCmn.fs_kHz != fs_kHz || psEnc->sCmn.prev_API_fs_Hz != psEnc->sCmn.API_fs_Hz )
     {
@@ -162,27 +165,27 @@ static opus_int silk_setup_resamplers(
 
 #ifndef FIXED_POINT
             new_buf_samples = buf_length_ms * fs_kHz;
-            ALLOC( x_bufFIX, silk_max( old_buf_samples, new_buf_samples ),
+            ALLOC( g_stack, x_bufFIX, silk_max( old_buf_samples, new_buf_samples ),
                    opus_int16 );
             silk_float2short_array( x_bufFIX, psEnc->x_buf, old_buf_samples );
 #endif
 
             /* Initialize resampler for temporary resampling of x_buf data to API_fs_Hz */
-            ALLOC( temp_resampler_state, 1, silk_resampler_state_struct );
+            ALLOC( g_stack, temp_resampler_state, 1, silk_resampler_state_struct );
             ret += silk_resampler_init( temp_resampler_state, silk_SMULBB( psEnc->sCmn.fs_kHz, 1000 ), psEnc->sCmn.API_fs_Hz, 0 );
 
             /* Calculate number of samples to temporarily upsample */
             api_buf_samples = buf_length_ms * silk_DIV32_16( psEnc->sCmn.API_fs_Hz, 1000 );
 
             /* Temporary resampling of x_buf data to API_fs_Hz */
-            ALLOC( x_buf_API_fs_Hz, api_buf_samples, opus_int16 );
-            ret += silk_resampler( temp_resampler_state, x_buf_API_fs_Hz, x_bufFIX, old_buf_samples );
+            ALLOC( g_stack, x_buf_API_fs_Hz, api_buf_samples, opus_int16 );
+            ret += silk_resampler( temp_resampler_state, x_buf_API_fs_Hz, x_bufFIX, old_buf_samples, g_stack );
 
             /* Initialize the resampler for enc_API.c preparing resampling from API_fs_Hz to fs_kHz */
             ret += silk_resampler_init( &psEnc->sCmn.resampler_state, psEnc->sCmn.API_fs_Hz, silk_SMULBB( fs_kHz, 1000 ), 1 );
 
             /* Correct resampler state by resampling buffered data from API_fs_Hz to fs_kHz */
-            ret += silk_resampler( &psEnc->sCmn.resampler_state, x_bufFIX, x_buf_API_fs_Hz, api_buf_samples );
+            ret += silk_resampler( &psEnc->sCmn.resampler_state, x_bufFIX, x_buf_API_fs_Hz, api_buf_samples, g_stack );
 
 #ifndef FIXED_POINT
             silk_short2float_array( psEnc->x_buf, x_bufFIX, new_buf_samples);
@@ -192,7 +195,7 @@ static opus_int silk_setup_resamplers(
 
     psEnc->sCmn.prev_API_fs_Hz = psEnc->sCmn.API_fs_Hz;
 
-    RESTORE_STACK;
+
     return ret;
 }
 

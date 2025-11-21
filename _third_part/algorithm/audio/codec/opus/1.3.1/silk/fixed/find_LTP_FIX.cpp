@@ -31,7 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "main_FIX.h"
 #include "tuning_parameters.h"
-
+#ifndef HIFI_OPT
 void silk_find_LTP_FIX(
     opus_int32                      XXLTP_Q17[ MAX_NB_SUBFR * LTP_ORDER * LTP_ORDER ], /* O    Correlation matrix                                               */
     opus_int32                      xXLTP_Q17[ MAX_NB_SUBFR * LTP_ORDER ],  /* O    Correlation vector                                                          */
@@ -97,3 +97,59 @@ TOC(div)
         xXLTP_Q17_ptr += LTP_ORDER;
     }
 }
+#else
+#include <xtensa/tie/xt_misc.h>
+#include <xtensa/tie/xt_mul.h>
+void silk_find_LTP_FIX(
+    opus_int32                      XXLTP_Q17[ MAX_NB_SUBFR * LTP_ORDER * LTP_ORDER ], /* O    Correlation matrix                                               */
+    opus_int32                      xXLTP_Q17[ MAX_NB_SUBFR * LTP_ORDER ],  /* O    Correlation vector                                                          */
+    const opus_int16                r_ptr[],                                /* I    Residual signal after LPC                                                   */
+    const opus_int                  lag[ MAX_NB_SUBFR ],                    /* I    LTP lags                                                                    */
+    const opus_int                  subfr_length,                           /* I    Subframe length                                                             */
+    const opus_int                  nb_subfr,                               /* I    Number of subframes                                                         */
+    int                             arch                                    /* I    Run-time architecture                                                       */
+)
+{
+    int * xXLTP_Q17_ptr = xXLTP_Q17;
+    int * XXLTP_Q17_ptr = XXLTP_Q17;
+    for(int k = 0; k < nb_subfr; k++) {
+        const short * lag_ptr = r_ptr - (lag[k] + 2);
+        int xx = 0, nrg = 0, xx_shifts = 0, XX_shifts = 0;
+        silk_sum_sqr_shift(&xx, &xx_shifts, r_ptr, subfr_length + LTP_ORDER); /* xx in Q( -xx_shifts ) */
+        silk_corrMatrix_FIX(lag_ptr, subfr_length, LTP_ORDER, XXLTP_Q17_ptr, &nrg, &XX_shifts, arch); /* XXLTP_Q17_ptr and nrg in Q( -XX_shifts ) */
+        int extra_shifts = xx_shifts - XX_shifts;
+        int xX_shifts = 0;
+        if(extra_shifts > 0) {
+            /* Shift XX */
+            xX_shifts = xx_shifts;
+            for(int i = 0; i < 25; i++) {
+                XXLTP_Q17_ptr[i] = XXLTP_Q17_ptr[i] >> extra_shifts; /* Q( -xX_shifts ) */
+            }
+            nrg = nrg >> extra_shifts; /* Q( -xX_shifts ) */
+        } else if(extra_shifts < 0) {
+            /* Shift xx */
+            xX_shifts = XX_shifts;
+            xx = xx >> -extra_shifts; /* Q( -xX_shifts ) */
+        } else {
+            xX_shifts = xx_shifts;
+        }
+        silk_corrVector_FIX(lag_ptr, r_ptr, subfr_length, LTP_ORDER, xXLTP_Q17_ptr, xX_shifts, arch); /* xXLTP_Q17_ptr in Q( -xX_shifts ) */
+        /* At this point all correlations are in Q(-xX_shifts) */
+        int temp = silk_SMLAWB(1, nrg, 1966);
+        temp = XT_MAX(temp, xx);
+        for(int i = 0; i < 25; i++) {
+            int64_t tmp = XXLTP_Q17_ptr[i];
+            tmp = tmp << 17;
+            XXLTP_Q17_ptr[i] = (int)(tmp / temp);
+        }
+        for(int i = 0; i < LTP_ORDER; i++) {
+            int64_t tmp = xXLTP_Q17_ptr[i];
+            tmp = tmp << 17;
+            xXLTP_Q17_ptr[i] = (int)(tmp / temp);
+        }
+        r_ptr += subfr_length;
+        XXLTP_Q17_ptr += 25;
+        xXLTP_Q17_ptr += LTP_ORDER;
+    }
+}
+#endif
