@@ -1,14 +1,12 @@
 #include "MTF.OpusDec.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
-#include "MAF.h"
 
 static const mtf_int8* type_this = "opus_dec";
 
 void mtf_opus_dec_register()
 {
 	MTF_Objects::Registe<MTF_OpusDec>(type_this);
-	MAF_REGISTER(opus_dec);
 }
 MTF_OpusDec::MTF_OpusDec()
 {
@@ -17,6 +15,7 @@ MTF_OpusDec::MTF_OpusDec()
 
 MTF_OpusDec::~MTF_OpusDec()
 {
+#if 0
 	if (_iData.Data())
 	{
 		_iData.Used(_iData._size);
@@ -32,10 +31,12 @@ MTF_OpusDec::~MTF_OpusDec()
 		MAF_Deinit(_hd);
 		MTF_FREE(_hd);
 	}
+#endif
 }
 
 mtf_int32 MTF_OpusDec::Init()
 {	
+#if 0
 	//lib init
 	const mtf_int8* type = type_this;
 	MA_Ret ret;
@@ -70,21 +71,24 @@ mtf_int32 MTF_OpusDec::Init()
 	mtf_int32 size = _frameBytes;
 	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
 	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
-
+#endif
 	return 0;
 }
 
 mtf_int32 MTF_OpusDec::receive(MTF_Data& iData)
 {
+#if 0
 	_iData.Append(iData.Data(), iData._size);
 	if (iData._flags & MTF_DataFlag_ESO)
 		_iData._flags |= MTF_DataFlag_ESO;
 	iData.Used(iData._size);
+#endif
 	return 0;
 }
 
 mtf_int32 MTF_OpusDec::generate(MTF_Data*& oData)
 {
+#if 0
 	AA_Data AA_iData;
 	MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
 	AA_iData.buff = _iData.Data();
@@ -103,6 +107,7 @@ mtf_int32 MTF_OpusDec::generate(MTF_Data*& oData)
 		_oData._flags |= MTF_DataFlag_ESO;
 	}
 	oData = &_oData;
+#endif
 	return 0;
 }
 

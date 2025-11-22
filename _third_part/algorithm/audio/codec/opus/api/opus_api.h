@@ -13,9 +13,7 @@
  * trademark and other intellectual property rights.
  *
  ****************************************************************************/
-#ifndef __OPUS_API_H__
-#define __OPUS_API_H__
-#include <stddef.h>
+#pragma once
 
 #ifndef EXTERNC
 #ifdef __cplusplus
@@ -40,72 +38,59 @@ typedef struct {
 }OpusApi_BasePort_t;
 
 typedef enum {
-    OPUS_API_ENC_CHOOSE_NONE= 1,                        //now, just support NORMAL
+    OPUS_API_ENC_CHOOSE_NONE= 1,                        //default
     OPUS_API_ENC_CHOOSE_NORMAL,                         //now, just support NORMAL
-    OPUS_API_ENC_CHOOSE_INROM,
-    OPUS_API_ENC_CHOOSE_WALKIE_TALKIE,
-    OPUS_API_ENC_CHOOSE_MAX,
-}OpusApi_EncChoose_c;
+    OPUS_API_ENC_CHOOSE_MAX,                            //length of OpusApi_EncChoose_e
+}OpusApi_EncChoose_e;
+
+typedef struct {
+    OpusApi_BasePort_t basePort;
+}OpusApi_CreateEncParam_t;
+
 
 typedef enum {
-    OPUS_API_DEC_CHOOSE_NONE = 1,                       //now, just support NORMAL
+    OPUS_API_DEC_CHOOSE_NONE = 1,                       //default
     OPUS_API_DEC_CHOOSE_NORMAL,                         //now, just support NORMAL
-    OPUS_API_DEC_CHOOSE_WALKIE_TALKIE,
-    OPUS_API_DEC_CHOOSE_MAX,
-}OpusApi_DecChoose_c;
+    OPUS_API_DEC_CHOOSE_MAX,                            //length of OpusApi_DecChoose_e
+}OpusApi_DecChoose_e;
 
-typedef enum {
-    //OPUS_API_ENC_GET_NO_ONE = 0,
-    OPUS_API_ENC_GET_MAX,
-}OpusApi_EncGetChhoose_e;                               //reserve
+typedef struct {
+    OpusApi_BasePort_t basePort;
+}OpusApi_CreateDecParam_t;
 
-
-typedef enum {
-    OPUS_API_ENC_SET_MODE_AUTO = -1000,
-    OPUS_API_ENC_SET_MODE_SILK_ONLY = 1000,
-    OPUS_API_ENC_SET_MODE_HYBRID,
-    OPUS_API_ENC_SET_MODE_CELT_ONLY,
-}OpusApi_EncSetMode_e;
-
-typedef enum {
-    OPUS_API_ENC_SET_BIT_RATE = 0,                      //range (6k --> 510k)
-    OPUS_API_ENC_SET_FRAME_DURATION_0P1MS,              //0.1ms, for example, if frame is 20ms, this value should be 200. range (25,50,100,200,400,600)
-    OPUS_API_ENC_SET_USE_VBR,                           //if 1, use variable bitrate
-    OPUS_API_ENC_SET_COMPLEXITY,                        //recommend 0, range (0 --> 9)
-    OPUS_API_ENC_SET_MODE,                              //range (OpusApi_EncSetMode_e)
-    OPUS_API_ENC_SET_OUT_CH,                            //range (1, 2)
-    OPUS_API_ENC_SET_APPLICATION,
-}OpusApi_EncSetChhoose_e;
-
-typedef enum {
-    //OPUS_API_DEC_GET_NO_ONE= 0,
-    OPUS_API_DEC_GET_MAX,
-}OpusApi_DecGetChhoose_e;                               //reserve
-
-typedef enum {
-    //OPUS_API_DEC_SET_NO_ONE = 0,
-    OPUS_API_DEC_SET_MAX,
-}OpusApi_DecSetChhoose_e;                               //reserve
-
-//register
-EXTERNC void OpusEncoderNormalRegister();
-EXTERNC void OpusDecoderNormalRegister();
 
 //enc
-EXTERNC OpusApiRet_t opus_api_create_encoder(void** pHd, OpusApi_BasePort_t* basePort, int fs, int channels, bool isWithHead, OpusApi_EncChoose_c choose);
+EXTERNC void OpusEncoderNormalRegister();
+
+EXTERNC OpusApiRet_t opus_api_create_encoder(void** pHd, OpusApi_CreateEncParam_t *param);
+EXTERNC OpusApiRet_t opus_api_open_encoder(void* hd);
+EXTERNC OpusApiRet_t opus_api_encoder_set(void* hd, const char* choose, void* val);
+EXTERNC OpusApiRet_t opus_api_encoder_get(void* hd, const char* choose, void* val);
+/*
+pcmByte:            input, the address of a value which meaning the max byte of pcm buffer.
+                    output, the address of a value which meaning the used byte of pcm buffer.
+encodedFrameByte:   input, the address of a value which meaning the max byte of encodedFrame buffer.
+                    output, the address of a value which meaning the valid byte of encodedFrame buffer.
+*/
+EXTERNC OpusApiRet_t opus_api_encoder_run(void* hd, unsigned char* pcm, int *pcmByte, unsigned char* encodedFrame, int* encodedFrameByte);
+EXTERNC OpusApiRet_t opus_api_close_encoder(void* hd);
 EXTERNC OpusApiRet_t opus_api_destory_encoder(void* hd);
-EXTERNC OpusApiRet_t opus_api_encoder_set(void* hd, OpusApi_EncSetChhoose_e choose, void* val);
-EXTERNC OpusApiRet_t opus_api_encoder_get(void* hd, OpusApi_EncGetChhoose_e choose, void* val);
-EXTERNC OpusApiRet_t opus_api_encoder_run(void* hd, short* in, int inSample, unsigned char* out, int* outByte);
 
 //dec
-EXTERNC OpusApiRet_t opus_api_create_decoder(void** pHd, OpusApi_BasePort_t* basePort, int fs, int channels, OpusApi_DecChoose_c choose);
-EXTERNC OpusApiRet_t opus_api_destory_decoder(void* hd);
-EXTERNC OpusApiRet_t opus_api_decoder_set(void* hd, OpusApi_DecSetChhoose_e choose, void* val);
-EXTERNC OpusApiRet_t opus_api_decoder_get(void* hd, OpusApi_DecGetChhoose_e choose, void* val);
-EXTERNC OpusApiRet_t opus_api_decoder_run(void* hd, unsigned char* in, int inByte, short* out, int* outSample, bool isPlc);
+EXTERNC void OpusDecoderNormalRegister();
 
-#endif
+EXTERNC OpusApiRet_t opus_api_create_decoder(void** pHd, OpusApi_CreateDecParam_t *param);
+EXTERNC OpusApiRet_t opus_api_open_decoder(void* hd);
+EXTERNC OpusApiRet_t opus_api_decoder_set(void* hd, const char* choose, void* val);
+EXTERNC OpusApiRet_t opus_api_decoder_get(void* hd, const char* choose, void* val);
+/*
+decodecPcmByte:     input, the address of a value which meaning the max byte of decodecPcm buffer.
+                    output, the address of a value which meaning the valid byte of decodecPcm buffer.
+*/
+EXTERNC OpusApiRet_t opus_api_decoder_run(void* hd, unsigned char* encodedOneFrame, int encodedOneFrameByte, unsigned char* decodecPcm, int* decodecPcmByte, bool isDoPlc);
+EXTERNC OpusApiRet_t opus_api_close_decoder(void* hd);
+EXTERNC OpusApiRet_t opus_api_destory_decoder(void* hd);
+
 
 
 

@@ -1,13 +1,11 @@
 #include "MTF.OpusEnc.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
-#include "MAF.h"
 
 static const mtf_int8* type_this = "opus_enc";
 void mtf_opus_enc_register()
 {
 	MTF_Objects::Registe<MTF_OpusEnc>(type_this);
-	MAF_REGISTER(opus_enc);
 }
 MTF_OpusEnc::MTF_OpusEnc()
 {
@@ -16,6 +14,7 @@ MTF_OpusEnc::MTF_OpusEnc()
 
 MTF_OpusEnc::~MTF_OpusEnc()
 {
+#if 0
 	if (_iData.Data())
 	{
 		_iData.Used(_iData._size);
@@ -31,10 +30,12 @@ MTF_OpusEnc::~MTF_OpusEnc()
 		MAF_Deinit(_hd);
 		MTF_FREE(_hd);
 	}
+#endif
 }
 
 mtf_int32 MTF_OpusEnc::Init()
 {	
+#if 0
 	//lib init
 	const mtf_int8* type = type_this;
 	MA_Ret ret;
@@ -72,7 +73,7 @@ mtf_int32 MTF_OpusEnc::Init()
 	mtf_int32 size = _frameBytes;
 	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
 	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
-
+#endif
 	return 0;
 }
 
@@ -87,6 +88,7 @@ mtf_int32 MTF_OpusEnc::receive(MTF_Data& iData)
 
 mtf_int32 MTF_OpusEnc::generate(MTF_Data*& oData)
 {
+#if 0
 	if (_iData._flags & MTF_DataFlag_ESO){
 		_oData._flags |= MTF_DataFlag_ESO;
 		oData = &_oData;
@@ -110,6 +112,7 @@ mtf_int32 MTF_OpusEnc::generate(MTF_Data*& oData)
 		return -1;
 	}
 	oData = &_oData;
+#endif
 	return 0;
 }
 

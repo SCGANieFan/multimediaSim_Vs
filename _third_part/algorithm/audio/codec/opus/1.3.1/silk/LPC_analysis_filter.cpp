@@ -111,4 +111,76 @@ void silk_LPC_analysis_filter(
 #endif
 }
 #else
+void silk_LPC_analysis_filter(
+    opus_int16                  *out,               /* O    Output signal                                               */
+    const opus_int16            *in,                /* I    Input signal                                                */
+    const opus_int16            *B,                 /* I    MA prediction coefficients, Q12 [order]                     */
+    const opus_int32            len,                /* I    Signal length                                               */
+    const opus_int32            d,                  /* I    Filter order                                                */
+    int                         arch,               /* I    Run-time architecture                                       */
+    char *g_stack
+)
+{
+    celt_assert(d >= 6);
+    celt_assert((d & 1) == 0);
+    celt_assert(d <= len);
+    const short * in_ptr = &in[d - 1];
+    if(d == 16){
+        ae_int16x4 * coe = (ae_int16x4*)B;
+        ae_int16x4 c1 = *coe++;
+        ae_int16x4 c2 = *coe++;
+        ae_int16x4 c3 = *coe++;
+        ae_int16x4 c4 = *coe++;
+        for(int ix = d; ix < len; ix++) {
+            ae_int16x4* src = (ae_int16x4*)in_ptr;
+            ae_valign align = AE_LA64_PP(src);
+            ae_int16x4 s1, s2, s3, s4;
+            AE_LA16X4_RIP(s1, align, src);
+            AE_LA16X4_RIP(s2, align, src);
+            AE_LA16X4_RIP(s3, align, src);
+            AE_LA16X4_RIP(s4, align, src);
+            ae_int64 acc = AE_MULZAAAAQ16(s1, c1);
+            AE_MULAAAAQ16(acc, s2, c2);
+            AE_MULAAAAQ16(acc, s3, c3);
+            AE_MULAAAAQ16(acc, s4, c4);
+            int out32_Q12 = (int)(int64_t)acc;
+            int tmp = in_ptr[1] << 12;/* Subtract prediction */
+            out32_Q12 = tmp - out32_Q12;
+            int out32 = (out32_Q12 + (1 << 11)) >> 12;/* Scale to Q0 */
+            out[ix] = (opus_int16)silk_SAT16(out32);/* Saturate output */
+            in_ptr++;
+        }
+    } else if(d == 6){
+        ae_int16x4 * coe = (ae_int16x4*)B;
+        ae_int16x4 c1 = *coe++;
+        for(int ix = d; ix < len; ix++) {
+            ae_int16x4* src = (ae_int16x4*)in_ptr;
+            ae_valign align = AE_LA64_PP(src);
+            ae_int16x4 s1, s2;
+            AE_LA16X4_RIP(s1, align, src);
+            ae_int64 acc = AE_MULZAAAAQ16(s1, c1);
+            AE_MULA16_00(acc, in_ptr[-4], B[4]);
+            AE_MULA16_00(acc, in_ptr[-5], B[5]);
+            int out32_Q12 = (int)(int64_t)acc;
+            int tmp = in_ptr[1] << 12;/* Subtract prediction */
+            out32_Q12 = tmp - out32_Q12;
+            int out32 = (out32_Q12 + (1 << 11)) >> 12;/* Scale to Q0 */
+            out[ix] = (opus_int16)silk_SAT16(out32);/* Saturate output */
+            in_ptr++;
+        }
+    } else {
+        for(int ix = d; ix < len; ix++) {
+            int out32_Q12 = 0;
+            for(int j = 0; j < d; j++) {
+                out32_Q12 += in_ptr[-j] * B[j];
+            }
+            int tmp = in_ptr[1] << 12;/* Subtract prediction */
+            out32_Q12 = tmp - out32_Q12;
+            int out32 = (out32_Q12 + (1 << 11)) >> 12;/* Scale to Q0 */
+            out[ix] = (opus_int16)silk_SAT16(out32);/* Saturate output */
+            in_ptr++;
+        }
+    }
+    silk_memset(out, 0, d * sizeof(opus_int16));/* Set first d output samples to zero */
+}
 #endif

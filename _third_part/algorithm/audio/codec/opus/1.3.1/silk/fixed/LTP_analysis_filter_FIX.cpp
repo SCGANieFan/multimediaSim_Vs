@@ -88,4 +88,47 @@ void silk_LTP_analysis_filter_FIX(
     }
 }
 #else
+void silk_LTP_analysis_filter_FIX(
+    opus_int16                      *LTP_res,                               /* O    LTP residual signal of length MAX_NB_SUBFR * ( pre_length + subfr_length )  */
+    const opus_int16                *x,                                     /* I    Pointer to input signal with at least max( pitchL ) preceding samples       */
+    const opus_int16                LTPCoef_Q14[ LTP_ORDER * MAX_NB_SUBFR ],/* I    LTP_ORDER LTP coefficients for each MAX_NB_SUBFR subframe                   */
+    const opus_int                  pitchL[ MAX_NB_SUBFR ],                 /* I    Pitch lag, one for each subframe                                            */
+    const opus_int32                invGains_Q16[ MAX_NB_SUBFR ],           /* I    Inverse quantization gains, one for each subframe                           */
+    const opus_int                  subfr_length,                           /* I    Length of each subframe                                                     */
+    const opus_int                  nb_subfr,                               /* I    Number of subframes                                                         */
+    const opus_int                  pre_length                              /* I    Length of the preceding samples starting at &x[0] for each subframe         */
+)
+{
+    const short * x_ptr = x;
+    short * LTP_res_ptr = LTP_res;
+    const short * ltp = LTPCoef_Q14;
+    for(int k = 0; k < nb_subfr; k++) {
+        const short * x_lag_ptr = x_ptr - pitchL[k] - 2;
+        /* LTP analysis FIR filter */
+        int loops = subfr_length + pre_length;
+        ae_int16x4 * src1 = (ae_int16x4*)(ltp);
+        ae_valign align = AE_LA64_PP(src1);
+        ae_int16x4 s1;
+        AE_LA16X4_IP(s1, align, src1);
+        short s1_4 = ltp[4];
+        int gain = invGains_Q16[k];
+        for(int i = 0; i < loops; i++) {
+            ae_int16x4 * src2 = (ae_int16x4*)(x_lag_ptr+4);
+            ae_valign align2 = AE_LA64_PP(src2);
+            ae_int16x4 s2;
+            AE_LA16X4_RIP(s2, align2, src2);
+            ae_int64 sum = AE_MULZAAAAQ16(s1, s2);
+            AE_MULA16_00(sum, x_lag_ptr[0], s1_4);
+            int LTP_est = (int)(int64_t)sum;
+            LTP_est = silk_RSHIFT_ROUND(LTP_est, 14); /* round and -> Q0*/
+            short tmp = (short)silk_SAT16((int)x_ptr[i] - LTP_est);
+            LTP_res_ptr[i] = (short)(int64_t)(AE_MUL32X16_L0(gain, tmp) >> 16);
+            x_lag_ptr++;
+        }
+        ltp += 5;
+        /* Update pointers */
+        LTP_res_ptr += loops;
+        x_ptr += subfr_length;
+    }
+}
 #endif

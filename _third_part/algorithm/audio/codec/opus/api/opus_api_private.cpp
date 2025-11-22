@@ -2,6 +2,19 @@
 #include "opus_api_private.h"
 #include "opus_api.h"
 
+void* OpusApiBase_c::operator new(size_t size, void* buf) {
+    return buf;
+}
+void OpusApiBase_c::operator delete(void* buf, size_t size) {
+    return;
+}
+void OpusApiBase_c::operator delete(void* buf, void* place) {
+    return;
+}
+void OpusApiBase_c::operator delete(void* buf) {
+    return;
+}
+
 struct OpusCreater_t {
     int id;
     void* (*creater)(OpusApi_BasePort_t* bp);
@@ -28,17 +41,13 @@ void* OpusCodecCreaterDoCreate(uint32_t id, OpusApi_BasePort_t* bp) {
     return cl->creater(bp);
 }
 
-
-
 void OpusEncoderNoneRegister() {
-    OpusCodecCreaterRegister<OpusEnc_c>(OPUS_ENCODE_TO_ID(OpusApi_EncChoose_c::OPUS_API_ENC_CHOOSE_NONE));
+    OpusCodecCreaterRegister<OpusEnc_c>(OPUS_ENCODE_TO_ID(OpusApi_EncChoose_e::OPUS_API_ENC_CHOOSE_NONE));
 }
 
 void OpusDecoderNoneRegister() {
-    OpusCodecCreaterRegister<OpusDec_c>(OPUS_DECODE_TO_ID(OpusApi_DecChoose_c::OPUS_API_DEC_CHOOSE_NONE));
+    OpusCodecCreaterRegister<OpusDec_c>(OPUS_DECODE_TO_ID(OpusApi_DecChoose_e::OPUS_API_DEC_CHOOSE_NONE));
 }
-
-
 
 
 

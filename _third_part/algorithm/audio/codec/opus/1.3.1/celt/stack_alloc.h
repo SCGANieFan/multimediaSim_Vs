@@ -130,17 +130,24 @@ extern char *global_stack_top;
 #define VARDECL(type, var) type *var
 #if WIN32
 extern char* global_stack_max;
+extern char* global_stack_ori;
+extern char* global_stack_log;
+
 #define ALLOC(_global_stack, var, size, type) \
+global_stack_log = _global_stack;\
 var = PUSH(_global_stack, size, type);\
 if(global_stack_max<_global_stack){\
    global_stack_max = _global_stack;\
-   LOG_STACK("gmax:%p",global_stack_max);\
+   LOG_STACK("stack max:%u,size:%u,(%p,%u)",global_stack_max-global_stack_ori,(size)*(sizeof(type)),global_stack_log,sizeof(type));\
 }
 #define ALLOC_ALIGN(_global_stack, var, size, type, ag) ALLOC(_global_stack, var, size, type)
+#define OPUS_STACK_INFO_INIT(stack_ori) global_stack_ori = stack_ori;global_stack_max = stack_ori
+
 #else
 #define ALLOC_ALIGN(_global_stack, var, size, type, ag) var = PUSH_ALIGN(_global_stack, size, type, ag)
 // #define ALLOC(_global_stack, var, size, type) var = PUSH(_global_stack, size, type)
 #define ALLOC(_global_stack, var, size, type) ALLOC_ALIGN(_global_stack, var, size, type, 8)
+#define OPUS_STACK_INFO_INIT(stack_ori) 
 #endif
 #define ALLOC_NONE 0
 

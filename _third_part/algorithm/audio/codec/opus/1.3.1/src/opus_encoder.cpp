@@ -205,6 +205,7 @@ int opus_encoder_init(OpusBasePort_t* basePort, OpusEncoder* st, opus_int32 Fs, 
     }
     st->global_stack_now = st->global_stack_ori;
     LOG_STACK("global_stack_ori:%p",st->global_stack_ori);
+    OPUS_STACK_INFO_INIT(st->global_stack_ori);
     /* Create SILK encoder */
     ret = silk_Get_Encoder_Size( &silkEncSizeBytes );
     if (ret)

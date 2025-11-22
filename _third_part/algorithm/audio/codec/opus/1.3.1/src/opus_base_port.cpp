@@ -5,6 +5,8 @@
 #include<stdio.h>
 #define LOG(fmt,...) printf("[%s](%d)" fmt "\n",__func__, __LINE__, ##__VA_ARGS__)
 char* global_stack_max = 0;
+char* global_stack_ori = 0;
+char* global_stack_log = 0;
 #else
 #define LOG(fmt,...)
 #endif

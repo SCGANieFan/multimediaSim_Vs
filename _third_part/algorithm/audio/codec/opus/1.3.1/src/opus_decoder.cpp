@@ -137,6 +137,7 @@ int opus_decoder_init(OpusBasePort_t *basePort, OpusDecoder *st, opus_int32 Fs, 
     }
     st->global_stack_now = st->global_stack_ori;
     LOG_STACK("global_stack_ori:%p",st->global_stack_ori);
+    OPUS_STACK_INFO_INIT(st->global_stack_ori);
    /* Initialize SILK decoder */
    ret = silk_Get_Decoder_Size(&silkDecSizeBytes);
    if (ret)

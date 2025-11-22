@@ -119,6 +119,80 @@ static opus_int32 LPC_inverse_pred_gain_QA_c(               /* O   Returns inver
     return invGain_Q30;
 }
 #else
+/*Can be optimized*/
+#include <xtensa/tie/xt_misc.h>
+#include <xtensa/tie/xt_mul.h>
+static opus_int32 LPC_inverse_pred_gain_QA_c(               /* O   Returns inverse prediction gain in energy domain, Q30    */
+    opus_int32           A_QA[ SILK_MAX_ORDER_LPC ],        /* I   Prediction coefficients                                  */
+    const opus_int       order                              /* I   Prediction order                                         */
+)
+{
+    opus_int   k, n;
+    opus_int32 invGain_Q30, rc_Q31, rc_mult1_Q30, rc_mult2, tmp1, tmp2;
+    invGain_Q30 = SILK_FIX_CONST( 1, 30 );
+    for( k = order - 1; k > 0; k-- ) {
+        /* Check for stability */
+        if( ( A_QA[ k ] > A_LIMIT ) || ( A_QA[ k ] < -A_LIMIT ) ) {
+            return 0;
+        }
+        /* Set RC equal to negated AR coef */
+        rc_Q31 = -silk_LSHIFT( A_QA[ k ], 31 - QA );
+        /* rc_mult1_Q30 range: [ 1 : 2^30 ] */
+        int tmp = XT_MULSH(rc_Q31, rc_Q31);
+        rc_mult1_Q30 = silk_SUB32( SILK_FIX_CONST( 1, 30 ), tmp);
+        silk_assert( rc_mult1_Q30 > ( 1 << 15 ) );                   /* reduce A_LIMIT if fails */
+        silk_assert( rc_mult1_Q30 <= ( 1 << 30 ) );
+        /* Update inverse gain */
+        /* invGain_Q30 range: [ 0 : 2^30 ] */
+        tmp = XT_MULSH(invGain_Q30, rc_mult1_Q30);
+        invGain_Q30 = tmp << 2;
+        silk_assert( invGain_Q30 >= 0           );
+        silk_assert( invGain_Q30 <= ( 1 << 30 ) );
+        if( invGain_Q30 < SILK_FIX_CONST( 1.0f / MAX_PREDICTION_POWER_GAIN, 30 ) ) {
+            return 0;
+        }
+        /* rc_mult2 range: [ 2^30 : silk_int32_MAX ] */
+        tmp = XT_ABS(rc_mult1_Q30);
+        int mult2Q = 31 - XT_NSA(tmp);
+        rc_mult2 = silk_INVERSE32_varQ( rc_mult1_Q30, mult2Q + 30 );
+        /* Update AR coefficient */
+        for( n = 0; n < (k + 1) >> 1; n++ ) {
+            tmp1 = A_QA[n];
+            tmp2 = A_QA[k - n - 1];
+            int64_t tmp64 = silk_RSHIFT_ROUND64( silk_SMULL( silk_SUB_SAT32(tmp1,
+                  MUL32_FRAC_Q(tmp2, rc_Q31, 31 ) ), rc_mult2 ), mult2Q);
+            if( tmp64 > silk_int32_MAX || tmp64 < silk_int32_MIN ) {
+               return 0;
+            }
+            A_QA[ n ] = ( opus_int32 )tmp64;
+            tmp64 = silk_RSHIFT_ROUND64( silk_SMULL( silk_SUB_SAT32(tmp2,
+                  MUL32_FRAC_Q( tmp1, rc_Q31, 31 ) ), rc_mult2), mult2Q);
+            if( tmp64 > silk_int32_MAX || tmp64 < silk_int32_MIN ) {
+               return 0;
+            }
+            A_QA[k - n - 1] = (int)tmp64;
+        }
+    }
+    /* Check for stability */
+    if( ( A_QA[ k ] > A_LIMIT ) || ( A_QA[ k ] < -A_LIMIT ) ) {
+        return 0;
+    }
+    /* Set RC equal to negated AR coef */
+    rc_Q31 = -silk_LSHIFT( A_QA[ 0 ], 31 - QA );
+    /* Range: [ 1 : 2^30 ] */
+    int tmp = XT_MULSH(rc_Q31, rc_Q31);
+    rc_mult1_Q30 = silk_SUB32( SILK_FIX_CONST( 1, 30 ), tmp);
+    /* Update inverse gain */
+    /* Range: [ 0 : 2^30 ] */
+    tmp = XT_MULSH(invGain_Q30, rc_mult1_Q30);
+    invGain_Q30 = silk_LSHIFT(tmp, 2 );
+    silk_assert( invGain_Q30 >= 0           );
+    silk_assert( invGain_Q30 <= ( 1 << 30 ) );
+    if( invGain_Q30 < SILK_FIX_CONST( 1.0f / MAX_PREDICTION_POWER_GAIN, 30 ) ) {
+        return 0;
+    }
+    return invGain_Q30;
+}
 #endif
 /* For input in Q12 domain */
 opus_int32 silk_LPC_inverse_pred_gain_c(            /* O   Returns inverse prediction gain in energy domain, Q30        */

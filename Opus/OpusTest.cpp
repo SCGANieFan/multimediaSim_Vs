@@ -34,9 +34,18 @@ static void OpusMtfTest()
 	MultiemdiaApi(str, param);
 }
 
+#ifndef EXTERNC
+#ifdef __cplusplus
+#define EXTERNC extern "C" 
+#else
+#define EXTERNC
+#endif
+#endif
+
+EXTERNC void OpusCodecTest();
 static void OpusDemoTest()
 {
-	extern void OpusCodecTest(); OpusCodecTest();
+	OpusCodecTest();
 }
 
 

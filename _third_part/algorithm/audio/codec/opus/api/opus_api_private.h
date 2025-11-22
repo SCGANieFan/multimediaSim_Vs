@@ -1,137 +1,201 @@
 #pragma once
 #include <stdint.h>
+#include <cstddef>
 #include "opus_api.h"
 
 #ifdef WIN32
 #define OPUS_OPEN_ENC 1
 #define OPUS_OPEN_DEC 1
-#define OPUS_DEBUG 1
-#else
-#define OPUS_DEBUG 1
 #endif
 
-#if OPUS_DEBUG
-#define LOG(func,fmt,...) if(func) func("[%s](%d)" fmt,__func__, __LINE__, ##__VA_ARGS__)
+#if WIN32
+#define LOG(func,fmt,...) if(func) func("<%s>[%s](%d)" fmt, Strrchr_m(__FILE__,'\\') + 1,__func__, __LINE__, ##__VA_ARGS__)
 #else
-#define LOG(func,fmt,...) 
+#define LOG(func,fmt,...) if(func) func("<%s>[%s](%d)" fmt, Strrchr_m(__FILE__,'/') + 1,__func__, __LINE__, ##__VA_ARGS__)
 #endif
 
-#define OPUS_ENCODE_TO_ID(x) (((uint32_t)(OpusApi_EncChoose_c)(x))<<16)
-#define OPUS_DECODE_TO_ID(x) ((uint32_t)(OpusApi_DecChoose_c)(x))
+#define OPUS_ENCODE_TO_ID(x) (((uint32_t)(OpusApi_EncChoose_e)(x))<<16)
+#define OPUS_DECODE_TO_ID(x) ((uint32_t)(OpusApi_DecChoose_e)(x))
 
 class OpusApiBase_c {
 public:
     OpusApiBase_c() {}
     virtual ~OpusApiBase_c() {}
 public:
-    void* operator new(size_t size, void* buf) {
-        return buf;
+    static void* operator new(size_t size, void* buf);
+    static void operator delete(void* buf, size_t size);
+    static void operator delete(void* buf, void* place);
+    static void operator delete(void* buf);
+public:
+    static constexpr uint64_t Str2Key(const char* str) {
+        uint64_t key = 0;
+        for (uint8_t n = 0; n < 8; n++) {
+            if (str[n] == '\0') {
+                break;
+            }
+            key = (key << 8) | str[n];
+        }
+        return key;
     }
-    void operator delete(void* buf, size_t size) {
-        return;
-    }
-    void operator delete(void* buf) {
-        return;
+    static constexpr char* Strrchr_m(const char* str, char c) {
+        int32_t strLen = 0;
+        while (str[strLen++] != '\0');
+        strLen -= 1;
+        char* outStr = (char*)str;
+        if (c == '\0') {
+            return outStr + strLen + 1;
+        }
+        for (int32_t n = strLen; n > 0; n--) {
+            if (outStr[n] == c) {
+                return (outStr + n);
+            }
+        }
+        return outStr;
     }
 };
 
-//enc
-class OpusEnc_c :public OpusApiBase_c
+//codec
+class OpusData_c
 {
 public:
-    OpusEnc_c() {}
-    virtual ~OpusEnc_c() {}
+    OpusData_c() {}
+    ~OpusData_c() {}
 public:
-    virtual OpusApiRet_t Init(OpusApi_BasePort_t* basePort, int fs, int channels, bool isWithHead) {
+    void* _buf = 0;
+    uint32_t _len = 0;
+    uint32_t _max = 0;
+    uint32_t _offset = 0;
+    uint32_t _flag = 0;
+};
+
+class OpusCodec_c :public OpusApiBase_c
+{
+public:
+    OpusCodec_c() {}
+    virtual ~OpusCodec_c() {}
+public:
+    virtual OpusApiRet_t Open() {
         return OPUS_API_RET_NOT_SUPPORT;
     }
-    virtual OpusApiRet_t Deinit() {
+    virtual OpusApiRet_t Close() {
         return OPUS_API_RET_NOT_SUPPORT;
     }
-    virtual OpusApiRet_t Set(OpusApi_EncSetChhoose_e choose, void* val) {
+    virtual OpusApiRet_t Set(const char* choose, void* val) {
         return OPUS_API_RET_NOT_SUPPORT;
     }
-    virtual OpusApiRet_t Get(OpusApi_EncGetChhoose_e choose, void* val) {
+    virtual OpusApiRet_t Get(const char* choose, void* val) {
         return OPUS_API_RET_NOT_SUPPORT;
     }
-    virtual OpusApiRet_t Run(short* in, int inSample, unsigned char* out, int* outByte) {
+    virtual OpusApiRet_t Run(OpusData_c& iData, OpusData_c& oData) {
         return OPUS_API_RET_NOT_SUPPORT;
     }
 };
+using OpusEnc_c = OpusCodec_c;
+using OpusDec_c = OpusCodec_c;
 
-
-class OpusApiEnc_c :public OpusApiBase_c
+//api
+class OpusApi_c :public OpusApiBase_c
 {
 public:
-    OpusApiEnc_c() {
-        _enc = 0;
+    OpusApi_c() {
         _basePort.malloc_cb = 0;
         _basePort.realloc_cb = 0;
         _basePort.free_cb = 0;
         _basePort.print_cb = 0;
     }
-    virtual ~OpusApiEnc_c() {}
-public:
-    static OpusApiRet_t Create(void** pHd, OpusApi_BasePort_t* basePort, int fs, int channels, bool isWithHead, OpusApi_EncChoose_c choose);
-    static OpusApiRet_t Destory(void* hd);
-    static OpusApiRet_t Set(void* hd, OpusApi_EncSetChhoose_e choose, void* val);
-    static OpusApiRet_t Get(void* hd, OpusApi_EncGetChhoose_e choose, void* val);
-    static OpusApiRet_t Run(void* hd, short* in, int inSample, unsigned char* out, int* outByte);
-public:
-    class OpusEnc_c* _enc = 0;
-    OpusApi_BasePort_t _basePort;
-};
-
-//dec
-class OpusDec_c :public OpusApiBase_c
-{
-public:
-    OpusDec_c() {}
-    virtual ~OpusDec_c() {}
-public:
-    virtual OpusApiRet_t Init(OpusApi_BasePort_t* basePort, int fs, int channels) {
-        return OPUS_API_RET_NOT_SUPPORT;
+    virtual ~OpusApi_c() {
     }
-    virtual OpusApiRet_t Deinit() {
-        return OPUS_API_RET_NOT_SUPPORT;
+protected:
+    template<class T>
+    static OpusApiRet_t Create(void** pHd, OpusApi_BasePort_t* bp) {
+        if (!bp || !bp->print_cb) { return OPUS_API_RET_FAIL; }
+        LOG(bp->print_cb, "%s, %p", VERSION, pHd);
+        if (!pHd) { return OPUS_API_RET_FAIL; }
+        *pHd = 0;
+        OpusApi_c* api = (OpusApi_c*)bp->malloc_cb(sizeof(T));
+        if (!api) {
+            LOG(bp->print_cb, "malloc fail, %d", sizeof(T));
+            return OPUS_API_RET_FAIL;
+        }
+        new(api) T();
+        api->_basePort = *bp;
+        *pHd = api;
+        return OPUS_API_RET_SUCCESS;
     }
-    virtual OpusApiRet_t Set(OpusApi_DecSetChhoose_e choose, void* val) {
-        return OPUS_API_RET_NOT_SUPPORT;
+    static OpusApiRet_t Destory(void* hd) {
+        if (!hd) { return OPUS_API_RET_FAIL; }
+        OpusApi_c* api = (OpusApi_c*)hd;
+        OpusApi_BasePort_t basePort = api->_basePort;
+        LOG(basePort.print_cb, "%p", hd);
+        api->~OpusApi_c();
+        basePort.free_cb(api);
+        return OPUS_API_RET_SUCCESS;
     }
-    virtual OpusApiRet_t Get(OpusApi_DecGetChhoose_e choose, void* val) {
-        return OPUS_API_RET_NOT_SUPPORT;
-    }
-    virtual OpusApiRet_t Run(unsigned char* in, int inByte, short* out, int* outSample, bool isPlc) {
-        return OPUS_API_RET_NOT_SUPPORT;
-    }
-};
-
-
-class OpusApiDec_c :public OpusApiBase_c
-{
 public:
-    OpusApiDec_c() {
-        _basePort.malloc_cb = 0;
-        _basePort.realloc_cb = 0;
-        _basePort.free_cb = 0;
-        _basePort.print_cb = 0;
-        _dec = 0;
-    }
-    virtual ~OpusApiDec_c() {}
-public:
-    static OpusApiRet_t Create(void** pHd, OpusApi_BasePort_t* basePort, int fs, int channels, OpusApi_DecChoose_c choose);
-    static OpusApiRet_t Destory(void* hd);
-    static OpusApiRet_t Set(void* hd, OpusApi_DecSetChhoose_e choose, void* val);
-    static OpusApiRet_t Get(void* hd, OpusApi_DecGetChhoose_e choose, void* val);
-    static OpusApiRet_t Run(void* hd, unsigned char* in, int inByte, short* out, int* outSample, bool isPlc);
+    virtual OpusApiRet_t Open() { return OPUS_API_RET_NOT_SUPPORT; }
+    virtual OpusApiRet_t Set(const char* choose, void* val) { return OPUS_API_RET_NOT_SUPPORT; }
+    virtual OpusApiRet_t Get(const char* choose, void* val) { return OPUS_API_RET_NOT_SUPPORT; }
+    virtual OpusApiRet_t Close() { return OPUS_API_RET_NOT_SUPPORT; }
 public:
     OpusApi_BasePort_t _basePort;
-    OpusDec_c* _dec;
+    static constexpr const char* VERSION = "1.1.0.0";
+};
+
+class OpusApiEnc_c :public OpusApi_c
+{
+public:
+    OpusApiEnc_c();
+    virtual ~OpusApiEnc_c();
+public:
+    static OpusApiRet_t Create(void** pHd, OpusApi_CreateEncParam_t* param);
+    static OpusApiRet_t Destory(void* hd);
+public:
+    virtual OpusApiRet_t Open() final;
+    virtual OpusApiRet_t Set(const char* choose, void* val) final;
+    virtual OpusApiRet_t Get(const char* choose, void* val) final;
+    virtual OpusApiRet_t Close() final;
+public:
+    OpusApiRet_t Run(unsigned char* pcm, int *pcmByte, unsigned char* encodedFrame, int* encodedFrameByte);
+public:
+    OpusEnc_c* _enc = 0;
+    uint32_t _bitRate = 12000;
+    uint32_t _frame0p1Ms = 200;
+    uint32_t _fs = 0;
+    uint32_t application = 2049;
+    uint32_t encStackTable[5][2];
+    int32_t _encMode = -1000;
+    uint8_t _ch = 0;
+    uint8_t _complexity = 0;
+    uint8_t _encOutChannels = 0;
+    uint8_t _choose = OpusApi_EncChoose_e::OPUS_API_ENC_CHOOSE_NONE;
+    bool _useVbr = false;
+    bool _isWithHead = false;
 };
 
 
+class OpusApiDec_c :public OpusApi_c
+{
+public:
+    OpusApiDec_c();
+    virtual ~OpusApiDec_c();
+public:
+    static OpusApiRet_t Create(void** pHd, OpusApi_CreateDecParam_t* param);
+    static OpusApiRet_t Destory(void* hd);
+public:
+    virtual OpusApiRet_t Open() final;
+    virtual OpusApiRet_t Set(const char* choose, void* val) final;
+    virtual OpusApiRet_t Get(const char* choose, void* val) final;
+    virtual OpusApiRet_t Close() final;
+public:
+    OpusApiRet_t Run(unsigned char* encodedOneFrame, int encodedOneFrameByte, unsigned char* decodecPcm, int* decodecPcmByte, bool isPlc);
+public:
+    OpusDec_c* _dec = 0;
+    uint32_t _fs = 0;
+    uint8_t _ch = 0;
+    uint8_t _choose = OpusApi_DecChoose_e::OPUS_API_DEC_CHOOSE_NONE;
+};
 
-
+//register
 struct OpusCreater_t* OpusCodecCreaterFind(uint32_t id);
 void OpusCodecCreaterRegister(struct OpusCreater_t* opusCreater, uint32_t id, void* (*creater)(OpusApi_BasePort_t* bp));
 
@@ -151,6 +215,5 @@ void* OpusCodecCreaterDoCreate(uint32_t id, OpusApi_BasePort_t* bp);
 
 void OpusEncoderNoneRegister();
 void OpusDecoderNoneRegister();
-
 
 
