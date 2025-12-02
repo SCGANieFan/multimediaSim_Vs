@@ -2,19 +2,12 @@
 #include "MTF.String.h"
 #include "MTF.Objects.h"
 
-#include "OpusApi.h"
-using namespace OpusApi_ns;
 
 using namespace mtf_ns;
 static const char* type_this = "opus_enc";
 void mtf_opus_enc_register()
 {
 	MTF_Objects::Registe<MTF_OpusEnc>(type_this);
-	OpusApiMemory_t opusApiMemory;
-	opusApiMemory.malloc_cb = Malloc;
-	opusApiMemory.realloc_cb = Realloc;
-	opusApiMemory.free_cb = Free;
-	OpusApi::memory_register(&opusApiMemory);
 }
 MTF_OpusEnc::MTF_OpusEnc()
 {
@@ -23,6 +16,7 @@ MTF_OpusEnc::MTF_OpusEnc()
 
 MTF_OpusEnc::~MTF_OpusEnc()
 {
+#if 0
 	if (_iData.Data())
 	{
 		_iData.Used(_iData._size);
@@ -39,14 +33,23 @@ MTF_OpusEnc::~MTF_OpusEnc()
 			OpusApi::destory_encoder(_hd);
 		_hd = 0;
 	}
+#endif
 }
 
 mtf_i32 MTF_OpusEnc::Init()
 {	
-#if 1
-	MTF_PRINT("channels:%d", _ch);
-	MTF_PRINT("frameSamples:%d", _frameSamples);
-	MTF_PRINT("fsHz:%d", _rate);
+#if 0
+	//lib init
+	const mtf_int8* type = type_this;
+	MA_Ret ret;
+	ret = MAF_GetHandleSize(type, &_hdSize);
+	if (ret != MA_RET_SUCCESS)
+		MTF_PRINT("err");
+	if (_hdSize < 1)
+		MTF_PRINT("err");
+	_hd = MTF_MALLOC(_hdSize);
+	if (!_hd)
+		MTF_PRINT("err");
 
 	bool haveHead = false;
 	OpusApiRet_t ret = OpusApi::create_encoder(&_hd, _rate, _ch, haveHead);
@@ -67,12 +70,11 @@ mtf_i32 MTF_OpusEnc::Init()
 
 	MTF_PRINT("create encoder success");
 	return 0;
-#endif
 	//io data
-	mtf_i32 size = _frameBytes;
-	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
-	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
-
+	mtf_int32 size = _frameBytes;
+	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+#endif
 	return 0;
 }
 
@@ -87,6 +89,7 @@ mtf_i32 MTF_OpusEnc::receive(MTF_Data& iData)
 
 mtf_i32 MTF_OpusEnc::generate(MTF_Data*& oData)
 {
+#if 0
 	if (_iData._flags & MTF_DataFlag_ESO){
 		_oData._flags |= MTF_DataFlag_ESO;
 		oData = &_oData;
@@ -112,6 +115,7 @@ mtf_i32 MTF_OpusEnc::generate(MTF_Data*& oData)
 	_iData.Used(_frameBytes);
 	_oData._size += oSize;
 	oData = &_oData;
+#endif
 	return 0;
 }
 

@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#if OPUS_OPEN_DEC
 #include "opus_multistream.h"
 #include "opus.h"
 #include "opus_private.h"
@@ -64,12 +65,14 @@ opus_int32 opus_multistream_decoder_get_size(int nb_streams, int nb_coupled_stre
 }
 
 int opus_multistream_decoder_init(
+      OpusBasePort_t *basePort,
       OpusMSDecoder *st,
       opus_int32 Fs,
       int channels,
       int streams,
       int coupled_streams,
-      const unsigned char *mapping
+      const unsigned char *mapping,
+      int global_stack_size
 )
 {
    int coupled_size;
@@ -96,13 +99,13 @@ int opus_multistream_decoder_init(
 
    for (i=0;i<st->layout.nb_coupled_streams;i++)
    {
-      ret=opus_decoder_init((OpusDecoder*)ptr, Fs, 2);
+      ret=opus_decoder_init(basePort, (OpusDecoder*)ptr, Fs, 2, global_stack_size);
       if(ret!=OPUS_OK)return ret;
       ptr += align(coupled_size);
    }
    for (;i<st->layout.nb_streams;i++)
    {
-      ret=opus_decoder_init((OpusDecoder*)ptr, Fs, 1);
+      ret=opus_decoder_init(basePort, (OpusDecoder*)ptr, Fs, 1, global_stack_size);
       if(ret!=OPUS_OK)return ret;
       ptr += align(mono_size);
    }
@@ -111,12 +114,14 @@ int opus_multistream_decoder_init(
 
 
 OpusMSDecoder *opus_multistream_decoder_create(
+      OpusBasePort_t *basePort,
       opus_int32 Fs,
       int channels,
       int streams,
       int coupled_streams,
       const unsigned char *mapping,
-      int *error
+      int *error,
+      int global_stack_size
 )
 {
    int ret;
@@ -128,21 +133,29 @@ OpusMSDecoder *opus_multistream_decoder_create(
          *error = OPUS_BAD_ARG;
       return NULL;
    }
-   st = (OpusMSDecoder *)opus_alloc(opus_multistream_decoder_get_size(streams, coupled_streams));
+   st = (OpusMSDecoder *)basePort->malloc_cb(opus_multistream_decoder_get_size(streams, coupled_streams));
    if (st==NULL)
    {
       if (error)
          *error = OPUS_ALLOC_FAIL;
       return NULL;
    }
-   ret = opus_multistream_decoder_init(st, Fs, channels, streams, coupled_streams, mapping);
+   ret = opus_multistream_decoder_init(basePort, st, Fs, channels, streams, coupled_streams, mapping, global_stack_size);
    if (error)
       *error = ret;
    if (ret != OPUS_OK)
    {
-      opus_free(st);
+      basePort->free_cb(st);
       st = NULL;
    }
+   st->global_stack_now = (char*)basePort->malloc_cb(120*1000);
+   if (st==NULL)
+   {
+      if (error)
+         *error = OPUS_ALLOC_FAIL;
+      return NULL;
+   }
+   st->basePort = *basePort;
    return st;
 }
 
@@ -193,19 +206,17 @@ int opus_multistream_decode_native(
    int s, c;
    char *ptr;
    int do_plc=0;
-   VARDECL(opus_val16, buf);
-   ALLOC_STACK;
+   opus_val16 *buf;
 
    VALIDATE_MS_DECODER(st);
    if (frame_size <= 0)
    {
-      RESTORE_STACK;
       return OPUS_BAD_ARG;
    }
    /* Limit frame_size to avoid excessive stack allocations. */
-   MUST_SUCCEED(opus_multistream_decoder_ctl(st, OPUS_GET_SAMPLE_RATE(&Fs)));
+   opus_multistream_decoder_ctl(st, OPUS_GET_SAMPLE_RATE(&Fs));
    frame_size = IMIN(frame_size, Fs/25*3);
-   ALLOC(buf, 2*frame_size, opus_val16);
+   buf = (opus_val16*)st->basePort.malloc_cb(2*frame_size*sizeof(opus_val16));
    ptr = (char*)st + align(sizeof(OpusMSDecoder));
    coupled_size = opus_decoder_get_size(2);
    mono_size = opus_decoder_get_size(1);
@@ -214,12 +225,12 @@ int opus_multistream_decode_native(
       do_plc = 1;
    if (len < 0)
    {
-      RESTORE_STACK;
+      st->basePort.free_cb(buf);
       return OPUS_BAD_ARG;
    }
    if (!do_plc && len < 2*st->layout.nb_streams-1)
    {
-      RESTORE_STACK;
+      st->basePort.free_cb(buf);
       return OPUS_INVALID_PACKET;
    }
    if (!do_plc)
@@ -227,11 +238,11 @@ int opus_multistream_decode_native(
       int ret = opus_multistream_packet_validate(data, len, st->layout.nb_streams, Fs);
       if (ret < 0)
       {
-         RESTORE_STACK;
+         st->basePort.free_cb(buf);
          return ret;
       } else if (ret > frame_size)
       {
-         RESTORE_STACK;
+         st->basePort.free_cb(buf);
          return OPUS_BUFFER_TOO_SMALL;
       }
    }
@@ -246,7 +257,7 @@ int opus_multistream_decode_native(
 
       if (!do_plc && len<=0)
       {
-         RESTORE_STACK;
+         st->basePort.free_cb(buf);
          return OPUS_INTERNAL_ERROR;
       }
       packet_offset = 0;
@@ -255,7 +266,7 @@ int opus_multistream_decode_native(
       len -= packet_offset;
       if (ret <= 0)
       {
-         RESTORE_STACK;
+         st->basePort.free_cb(buf);
          return ret;
       }
       frame_size = ret;
@@ -299,7 +310,7 @@ int opus_multistream_decode_native(
             NULL, 0, frame_size, user_data);
       }
    }
-   RESTORE_STACK;
+   st->basePort.free_cb(buf);
    return frame_size;
 }
 
@@ -545,5 +556,6 @@ int opus_multistream_decoder_ctl(OpusMSDecoder *st, int request, ...)
 
 void opus_multistream_decoder_destroy(OpusMSDecoder *st)
 {
-    opus_free(st);
+   st->basePort.free_cb(st);
 }
+#endif

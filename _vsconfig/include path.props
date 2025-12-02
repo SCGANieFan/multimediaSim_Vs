@@ -7,6 +7,7 @@
     <ALGO_VIDEO_PATH>../_third_part/algorithm/video</ALGO_VIDEO_PATH>
     <MAF_PATH>../_third_part/MAF</MAF_PATH>
     <MTF_PATH>../_third_part/MTF</MTF_PATH>
+    <GADF_PATH>../_third_part/Gadf</GADF_PATH>
   </PropertyGroup>
   <PropertyGroup>
     <OutDir>$(SolutionDir)_lib\</OutDir>
@@ -38,6 +39,9 @@
     </BuildMacro>
     <BuildMacro Include="MTF_PATH">
       <Value>$(MTF_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="GADF_PATH">
+      <Value>$(GADF_PATH)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

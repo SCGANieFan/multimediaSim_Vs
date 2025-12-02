@@ -40,25 +40,28 @@ void silk_decode_core(
     silk_decoder_control        *psDecCtrl,                     /* I    Decoder control                             */
     opus_int16                  xq[],                           /* O    Decoded speech                              */
     const opus_int16            pulses[ MAX_FRAME_LENGTH ],     /* I    Pulse signal                                */
-    int                         arch                            /* I    Run-time architecture                       */
+    int                         arch,                           /* I    Run-time architecture                       */
+    char *g_stack
 )
 {
     opus_int   i, k, lag = 0, start_idx, sLTP_buf_idx, NLSF_interpolation_flag, signalType;
-    opus_int16 *A_Q12, *B_Q14, *pxq, A_Q12_tmp[ MAX_LPC_ORDER ];
+    opus_int16* A_Q12, * B_Q14, * pxq;
+    VARDECL( opus_int16, A_Q12_tmp);
+    ALLOC(g_stack, A_Q12_tmp, MAX_LPC_ORDER, opus_int16);
     VARDECL( opus_int16, sLTP );
     VARDECL( opus_int32, sLTP_Q15 );
     opus_int32 LTP_pred_Q13, LPC_pred_Q10, Gain_Q10, inv_gain_Q31, gain_adj_Q16, rand_seed, offset_Q10;
     opus_int32 *pred_lag_ptr, *pexc_Q14, *pres_Q14;
     VARDECL( opus_int32, res_Q14 );
     VARDECL( opus_int32, sLPC_Q14 );
-    SAVE_STACK;
+
 
     silk_assert( psDec->prev_gain_Q16 != 0 );
 
-    ALLOC( sLTP, psDec->ltp_mem_length, opus_int16 );
-    ALLOC( sLTP_Q15, psDec->ltp_mem_length + psDec->frame_length, opus_int32 );
-    ALLOC( res_Q14, psDec->subfr_length, opus_int32 );
-    ALLOC( sLPC_Q14, psDec->subfr_length + MAX_LPC_ORDER, opus_int32 );
+    ALLOC( g_stack, sLTP, psDec->ltp_mem_length, opus_int16 );
+    ALLOC( g_stack, sLTP_Q15, psDec->ltp_mem_length + psDec->frame_length, opus_int32 );
+    ALLOC( g_stack, res_Q14, psDec->subfr_length, opus_int32 );
+    ALLOC( g_stack, sLPC_Q14, psDec->subfr_length + MAX_LPC_ORDER, opus_int32 );
 
     offset_Q10 = silk_Quantization_Offsets_Q10[ psDec->indices.signalType >> 1 ][ psDec->indices.quantOffsetType ];
 
@@ -148,7 +151,7 @@ void silk_decode_core(
                 }
 
                 silk_LPC_analysis_filter( &sLTP[ start_idx ], &psDec->outBuf[ start_idx + k * psDec->subfr_length ],
-                    A_Q12, psDec->ltp_mem_length - start_idx, psDec->LPC_order, arch );
+                    A_Q12, psDec->ltp_mem_length - start_idx, psDec->LPC_order, arch, g_stack );
 
                 /* After rewhitening the LTP state is unscaled */
                 if( k == 0 ) {
@@ -233,5 +236,5 @@ void silk_decode_core(
 
     /* Save LPC state */
     silk_memcpy( psDec->sLPC_Q14_buf, sLPC_Q14, MAX_LPC_ORDER * sizeof( opus_int32 ) );
-    RESTORE_STACK;
+
 }

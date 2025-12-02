@@ -138,7 +138,7 @@ static void celt_fir5(opus_val16 *x,
 
 
 void pitch_downsample(celt_sig * OPUS_RESTRICT x[], opus_val16 * OPUS_RESTRICT x_lp,
-      int len, int C, int arch)
+      int len, int C, int arch, char *g_stack)
 {
    int i;
    opus_val32 ac[5];
@@ -173,7 +173,7 @@ void pitch_downsample(celt_sig * OPUS_RESTRICT x[], opus_val16 * OPUS_RESTRICT x
    }
 
    _celt_autocorr(x_lp, ac, NULL, 0,
-                  4, len>>1, arch);
+                  4, len>>1, arch, g_stack);
 
    /* Noise floor -40 dB */
 #ifdef FIXED_POINT
@@ -208,6 +208,7 @@ void pitch_downsample(celt_sig * OPUS_RESTRICT x[], opus_val16 * OPUS_RESTRICT x
 }
 
 /* Pure C implementation. */
+#ifndef HIFI_OPT
 #ifdef FIXED_POINT
 opus_val32
 #else
@@ -280,9 +281,68 @@ celt_pitch_xcorr_c(const opus_val16 *_x, const opus_val16 *_y,
 #endif
 #endif
 }
+#else
+int celt_pitch_xcorr_c(const opus_val16 *_x, const opus_val16 *_y,
+      opus_val32 *xcorr, int len, int max_pitch, int arch)
+{
+    celt_assert(max_pitch > 0);
+    celt_sig_assert((((unsigned char *)_x-(unsigned char *)NULL)&3)==0);
+    for (int i = 0; i < max_pitch; i++) {
+        ae_int16x4 * coef = (ae_int16x4*)_x;
+        ae_int16x4 * samp = (ae_int16x4*)(_y+i);
+        ae_int64 sum0 = 0;
+        ae_int64 sum1 = 0;
+        int N = len >> 3;
+        if((unsigned)coef & 7) {
+            ae_valign align = AE_LA64_PP(samp);
+            ae_valign align2 = AE_LA64_PP(coef);
+            ae_int16x4 s0, s1, c0, c1;
+            AE_LA16X4_IP(s0,align,samp);
+            AE_LA16X4_IP(s1,align,samp);
+            AE_LA16X4_IP(c0,align2,coef);
+            AE_LA16X4_IP(c1,align2,coef);
+            for (int k = 0; k < N; k++) {
+                AE_MULAAAAQ16(sum0, s0, c0);
+                AE_MULAAAAQ16(sum1, s1, c1);
+                AE_LA16X4_IP(c0,align2,coef);
+                AE_LA16X4_IP(c1,align2,coef);
+                AE_LA16X4_IP(s0, align, samp);
+                AE_LA16X4_IP(s1, align, samp);
+            }
+        } else if((unsigned)samp & 7){
+            ae_int16x4 c0 = *coef++;
+            ae_int16x4 c1 = *coef++;
+            ae_valign align = AE_LA64_PP(samp);
+            ae_int16x4 s0, s1;
+            AE_LA16X4_IP(s0,align,samp);
+            AE_LA16X4_IP(s1,align,samp);
+            for (int k = 0; k < N; k++) {
+                AE_MULAAAAQ16(sum0, s0, c0);
+                AE_MULAAAAQ16(sum1, s1, c1);
+                c0 = *coef++;
+                c1 = *coef++;
+                AE_LA16X4_IP(s0, align, samp);
+                AE_LA16X4_IP(s1, align, samp);
+            }
+        }else{
+            for (int k = 0; k < N; k++) {
+                AE_MULAAAAQ16(sum0, *samp++,*coef++);
+                AE_MULAAAAQ16(sum1, *samp++,*coef++);
+            }
+        }
+        sum0+=sum1;
+        int sum = (int)(int64_t)sum0;
+        for (int j = N << 3; j < len; j++){
+            sum += _x[j] * _y[i+j];
+        }
+        xcorr[i] = sum;
+    }
+    return 0;
+}
+#endif
 
 void pitch_search(const opus_val16 * OPUS_RESTRICT x_lp, opus_val16 * OPUS_RESTRICT y,
-                  int len, int max_pitch, int *pitch, int arch)
+                  int len, int max_pitch, int *pitch, int arch, char *g_stack)
 {
    int i, j;
    int lag;
@@ -297,15 +357,15 @@ void pitch_search(const opus_val16 * OPUS_RESTRICT x_lp, opus_val16 * OPUS_RESTR
 #endif
    int offset;
 
-   SAVE_STACK;
+
 
    celt_assert(len>0);
    celt_assert(max_pitch>0);
    lag = len+max_pitch;
 
-   ALLOC(x_lp4, len>>2, opus_val16);
-   ALLOC(y_lp4, lag>>2, opus_val16);
-   ALLOC(xcorr, max_pitch>>1, opus_val32);
+   ALLOC(g_stack, x_lp4, len>>2, opus_val16);
+   ALLOC(g_stack, y_lp4, lag>>2, opus_val16);
+   ALLOC(g_stack, xcorr, max_pitch>>1, opus_val32);
 
    /* Downsample by 2 again */
    for (j=0;j<len>>2;j++)
@@ -389,7 +449,7 @@ void pitch_search(const opus_val16 * OPUS_RESTRICT x_lp, opus_val16 * OPUS_RESTR
    }
    *pitch = 2*best_pitch[0]-offset;
 
-   RESTORE_STACK;
+
 }
 
 #ifdef FIXED_POINT
@@ -429,7 +489,7 @@ static opus_val16 compute_pitch_gain(opus_val32 xy, opus_val32 xx, opus_val32 yy
 
 static const int second_check[16] = {0, 0, 3, 2, 3, 2, 5, 2, 3, 2, 3, 2, 5, 2, 3, 2};
 opus_val16 remove_doubling(opus_val16 *x, int maxperiod, int minperiod,
-      int N, int *T0_, int prev_period, opus_val16 prev_gain, int arch)
+      int N, int *T0_, int prev_period, opus_val16 prev_gain, int arch, char *g_stack)
 {
    int k, i, T, T0;
    opus_val16 g, g0;
@@ -440,7 +500,7 @@ opus_val16 remove_doubling(opus_val16 *x, int maxperiod, int minperiod,
    int offset;
    int minperiod0;
    VARDECL(opus_val32, yy_lookup);
-   SAVE_STACK;
+
 
    minperiod0 = minperiod;
    maxperiod /= 2;
@@ -453,7 +513,7 @@ opus_val16 remove_doubling(opus_val16 *x, int maxperiod, int minperiod,
       *T0_=maxperiod-1;
 
    T = T0 = *T0_;
-   ALLOC(yy_lookup, maxperiod+1, opus_val32);
+   ALLOC(g_stack, yy_lookup, maxperiod+1, opus_val32);
    dual_inner_prod(x, x, x-T0, N, &xx, &xy, arch);
    yy_lookup[0] = xx;
    yy=xx;
@@ -532,6 +592,6 @@ opus_val16 remove_doubling(opus_val16 *x, int maxperiod, int minperiod,
 
    if (*T0_<minperiod0)
       *T0_=minperiod0;
-   RESTORE_STACK;
+
    return pg;
 }

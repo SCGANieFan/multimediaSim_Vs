@@ -46,7 +46,6 @@
     <ClInclude Include="..\_third_part\MTF\interface\io\MTF.IOSource.h" />
     <ClInclude Include="..\_third_part\MTF\MTF.h" />
     <ClInclude Include="..\_third_part\MTF\porting\MTF.Porting.h" />
-    <ClInclude Include="..\_third_part\MTF\porting\win32\MTF.Std.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\_third_part\MTF\base\MTF.AudioDemuxer.cpp" />

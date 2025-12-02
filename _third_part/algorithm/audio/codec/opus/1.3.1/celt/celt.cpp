@@ -30,7 +30,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
+#if (COMPILE_CELT_ENC)||(COMPILE_CELT_DEC)
 #define CELT_C
 
 #include "os_support.h"
@@ -80,9 +80,7 @@ int resampling_factor(opus_int32 rate)
       ret = 6;
       break;
    default:
-#ifndef CUSTOM_MODES
       celt_assert(0);
-#endif
       ret = 0;
       break;
    }
@@ -138,22 +136,6 @@ void comb_filter_const_c(opus_val32 *y, opus_val32 *x, int T, int N,
       t = SATURATE(t, SIG_SAT);
       y[i+4] = t;
    }
-#ifdef CUSTOM_MODES
-   for (;i<N;i++)
-   {
-      opus_val32 t;
-      x0=SHL32(x[i-T+2],1);
-      t = MAC16_32_Q16(x[i], g10, x2);
-      t = MAC16_32_Q16(t, g11, ADD32(x1,x3));
-      t = MAC16_32_Q16(t, g12, ADD32(x0,x4));
-      t = SATURATE(t, SIG_SAT);
-      y[i] = t;
-      x4=x3;
-      x3=x2;
-      x2=x1;
-      x1=x0;
-   }
-#endif
 }
 #else
 #ifndef NON_STATIC_COMB_FILTER_CONST_C
@@ -187,7 +169,7 @@ void comb_filter_const_c(opus_val32 *y, opus_val32 *x, int T, int N,
 #endif
 
 #ifndef OVERRIDE_comb_filter
-void comb_filter(opus_val32 *y, opus_val32 *x, int T0, int T1, int N,
+void comb_filter_opus(opus_val32 *y, opus_val32 *x, int T0, int T1, int N,
       opus_val16 g0, opus_val16 g1, int tapset0, int tapset1,
       const opus_val16 *window, int overlap, int arch)
 {
@@ -260,7 +242,7 @@ void comb_filter(opus_val32 *y, opus_val32 *x, int T0, int T1, int N,
    effective window), whereas negative values mean better time resolution
    (shorter effective window). The second index is computed as:
    4*isTransient + 2*tf_select + per_band_flag */
-const signed char tf_select_table[4][8] = {
+const signed char tf_select_table_opus[4][8] = {
     /*isTransient=0     isTransient=1 */
       {0, -1, 0, -1,    0,-1, 0,-1}, /* 2.5 ms */
       {0, -1, 0, -2,    1, 0, 1,-1}, /* 5 ms */
@@ -314,3 +296,4 @@ const char *opus_get_version_string(void)
 #endif
           ;
 }
+#endif

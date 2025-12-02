@@ -31,6 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "main.h"
 
+#ifndef HIFI_OPT
 #define OFFSET                  ( ( MIN_QGAIN_DB * 128 ) / 6 + 16 * 128 )
 #define SCALE_Q16               ( ( 65536 * ( N_LEVELS_QGAIN - 1 ) ) / ( ( ( MAX_QGAIN_DB - MIN_QGAIN_DB ) * 128 ) / 6 ) )
 #define INV_SCALE_Q16           ( ( 65536 * ( ( ( MAX_QGAIN_DB - MIN_QGAIN_DB ) * 128 ) / 6 ) ) / ( N_LEVELS_QGAIN - 1 ) )
@@ -89,7 +90,70 @@ void silk_gains_quant(
         gain_Q16[ k ] = silk_log2lin( silk_min_32( silk_SMULWB( INV_SCALE_Q16, *prev_ind ) + OFFSET, 3967 ) ); /* 3967 = 31 in Q7 */
     }
 }
-
+#else
+#define OFFSET                  2090
+#define SCALE_Q16               2251
+#define INV_SCALE_Q16           1907825
+#define N_LEVELS_QGAIN_SUB1 63
+// mips             ori:23961kcps       opt:23901kcps       diff:60kcps
+// this function    ori:382872 ticks    opt:261870ticks     diff:121002ticks
+void silk_gains_quant(
+    opus_int8                   ind[ MAX_NB_SUBFR ],            /* O    gain indices                                */
+    opus_int32                  gain_Q16[ MAX_NB_SUBFR ],       /* I/O  gains (quantized out)                       */
+    opus_int8                   *prev_ind,                      /* I/O  last index in previous frame                */
+    const opus_int              conditional,                    /* I    first gain is delta coded if 1              */
+    const opus_int              nb_subfr                        /* I    number of subframes                         */
+)
+{
+    opus_int k, double_step_size_threshold;
+    opus_int32 temp32;
+    opus_int8 ind_k, ind_prev;
+    ind_prev = *prev_ind;
+    for( k = 0; k < nb_subfr; k++ ) {
+        /* Convert to log scale, scale, floor() */
+        ind_k = ind[ k ];
+        temp32 = silk_lin2log( gain_Q16[ k ] );
+        temp32 = temp32 - OFFSET;
+        ind_k = silk_SMULWB( SCALE_Q16, temp32 );
+        /* Round towards previous quantized gain (hysteresis) */
+        if( ind_k < ind_prev ) {
+            ind_k++;
+        }
+        ind_k = ind_k > N_LEVELS_QGAIN_SUB1 ? N_LEVELS_QGAIN_SUB1 : (ind_k < 0 ? 0 : ind_k);
+        /* Compute delta indices and limit */
+        if( k == 0 && conditional == 0 ) {
+            /* Full index */
+            ind_k = silk_LIMIT_int( ind_k, ind_prev + MIN_DELTA_GAIN_QUANT, N_LEVELS_QGAIN_SUB1 );
+            ind_prev = ind_k;
+        } else {
+            /* Delta index */
+            ind_k = ind_k - ind_prev;
+            /* Double the quantization step size for large gain increases, so that the max gain level can be reached */
+            double_step_size_threshold = 2 * MAX_DELTA_GAIN_QUANT - N_LEVELS_QGAIN + ind_prev;
+            if( ind_k > double_step_size_threshold ) {
+                ind_k = double_step_size_threshold + silk_RSHIFT( ind_k - double_step_size_threshold + 1, 1 );
+            }
+            ind_k = ind_k > MAX_DELTA_GAIN_QUANT ? MAX_DELTA_GAIN_QUANT : (ind_k < MIN_DELTA_GAIN_QUANT ? MIN_DELTA_GAIN_QUANT : ind_k);
+            /* Accumulate deltas */
+            if( ind_k > double_step_size_threshold ) {
+                ind_prev += silk_LSHIFT( ind_k, 1 ) - double_step_size_threshold;
+                ind_prev = (ind_prev) < N_LEVELS_QGAIN_SUB1 ? (ind_prev) : N_LEVELS_QGAIN_SUB1;
+            } else {
+                ind_prev += ind_k;
+            }
+            /* Shift to make non-negative */
+            ind_k -= MIN_DELTA_GAIN_QUANT;
+        }
+        ind[ k ] = ind_k;
+        /* Scale and convert to linear scale */
+        temp32 = silk_SMULWB( INV_SCALE_Q16, ind_prev );
+        temp32 = temp32 + OFFSET;
+        temp32 = temp32 < 3967 ? temp32 : 3967;
+        gain_Q16[ k ] = silk_log2lin( temp32 ); /* 3967 = 31 in Q7 */
+    }
+    *prev_ind = ind_prev;
+}
+#endif
 /* Gains scalar dequantization, uniform on log scale */
 void silk_gains_dequant(
     opus_int32                  gain_Q16[ MAX_NB_SUBFR ],       /* O    quantized gains                             */

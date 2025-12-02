@@ -111,7 +111,8 @@ static OPUS_INLINE void silk_noise_shape_quantizer_del_dec(
     opus_int            nStatesDelayedDecision, /* I    Number of states in decision tree   */
     opus_int            *smpl_buf_idx,          /* I/O  Index to newest samples in buffers  */
     opus_int            decisionDelay,          /* I                                        */
-    int                 arch                    /* I                                        */
+    int                 arch,                   /* I                                        */
+    char *g_stack
 );
 
 void silk_NSQ_del_dec_c(
@@ -129,7 +130,8 @@ void silk_NSQ_del_dec_c(
     const opus_int32            Gains_Q16[ MAX_NB_SUBFR ],                  /* I    Quantization step sizes         */
     const opus_int              pitchL[ MAX_NB_SUBFR ],                     /* I    Pitch lags                      */
     const opus_int              Lambda_Q10,                                 /* I    Rate/distortion tradeoff        */
-    const opus_int              LTP_scale_Q14                               /* I    LTP state scaling               */
+    const opus_int              LTP_scale_Q14,                              /* I    LTP state scaling               */
+    char *g_stack
 )
 {
     opus_int            i, k, lag, start_idx, LSF_interpolation_flag, Winner_ind, subfr;
@@ -145,7 +147,7 @@ void silk_NSQ_del_dec_c(
     VARDECL( opus_int32, delayedGain_Q10 );
     VARDECL( NSQ_del_dec_struct, psDelDec );
     NSQ_del_dec_struct  *psDD;
-    SAVE_STACK;
+
 
     /* Set unvoiced lag to the previous one, overwrite later for voiced */
     lag = NSQ->lagPrev;
@@ -153,7 +155,7 @@ void silk_NSQ_del_dec_c(
     silk_assert( NSQ->prev_gain_Q16 != 0 );
 
     /* Initialize delayed decision states */
-    ALLOC( psDelDec, psEncC->nStatesDelayedDecision, NSQ_del_dec_struct );
+    ALLOC( g_stack, psDelDec, psEncC->nStatesDelayedDecision, NSQ_del_dec_struct );
     silk_memset( psDelDec, 0, psEncC->nStatesDelayedDecision * sizeof( NSQ_del_dec_struct ) );
     for( k = 0; k < psEncC->nStatesDelayedDecision; k++ ) {
         psDD                 = &psDelDec[ k ];
@@ -189,10 +191,10 @@ void silk_NSQ_del_dec_c(
         LSF_interpolation_flag = 1;
     }
 
-    ALLOC( sLTP_Q15, psEncC->ltp_mem_length + psEncC->frame_length, opus_int32 );
-    ALLOC( sLTP, psEncC->ltp_mem_length + psEncC->frame_length, opus_int16 );
-    ALLOC( x_sc_Q10, psEncC->subfr_length, opus_int32 );
-    ALLOC( delayedGain_Q10, DECISION_DELAY, opus_int32 );
+    ALLOC( g_stack, sLTP_Q15, psEncC->ltp_mem_length + psEncC->frame_length, opus_int32 );
+    ALLOC( g_stack, sLTP, psEncC->ltp_mem_length + psEncC->frame_length, opus_int16 );
+    ALLOC( g_stack, x_sc_Q10, psEncC->subfr_length, opus_int32 );
+    ALLOC( g_stack, delayedGain_Q10, DECISION_DELAY, opus_int32 );
     /* Set up pointers to start of sub frame */
     pxq                   = &NSQ->xq[ psEncC->ltp_mem_length ];
     NSQ->sLTP_shp_buf_idx = psEncC->ltp_mem_length;
@@ -253,7 +255,7 @@ void silk_NSQ_del_dec_c(
                 celt_assert( start_idx > 0 );
 
                 silk_LPC_analysis_filter( &sLTP[ start_idx ], &NSQ->xq[ start_idx + k * psEncC->subfr_length ],
-                    A_Q12, psEncC->ltp_mem_length - start_idx, psEncC->predictLPCOrder, psEncC->arch );
+                    A_Q12, psEncC->ltp_mem_length - start_idx, psEncC->predictLPCOrder, psEncC->arch, g_stack );
 
                 NSQ->sLTP_buf_idx = psEncC->ltp_mem_length;
                 NSQ->rewhite_flag = 1;
@@ -266,7 +268,7 @@ void silk_NSQ_del_dec_c(
         silk_noise_shape_quantizer_del_dec( NSQ, psDelDec, psIndices->signalType, x_sc_Q10, pulses, pxq, sLTP_Q15,
             delayedGain_Q10, A_Q12, B_Q14, AR_shp_Q13, lag, HarmShapeFIRPacked_Q14, Tilt_Q14[ k ], LF_shp_Q14[ k ],
             Gains_Q16[ k ], Lambda_Q10, offset_Q10, psEncC->subfr_length, subfr++, psEncC->shapingLPCOrder,
-            psEncC->predictLPCOrder, psEncC->warping_Q16, psEncC->nStatesDelayedDecision, &smpl_buf_idx, decisionDelay, psEncC->arch );
+            psEncC->predictLPCOrder, psEncC->warping_Q16, psEncC->nStatesDelayedDecision, &smpl_buf_idx, decisionDelay, psEncC->arch, g_stack );
 
         x16    += psEncC->subfr_length;
         pulses += psEncC->subfr_length;
@@ -308,7 +310,7 @@ void silk_NSQ_del_dec_c(
     /* Save quantized speech signal */
     silk_memmove( NSQ->xq,           &NSQ->xq[           psEncC->frame_length ], psEncC->ltp_mem_length * sizeof( opus_int16 ) );
     silk_memmove( NSQ->sLTP_shp_Q14, &NSQ->sLTP_shp_Q14[ psEncC->frame_length ], psEncC->ltp_mem_length * sizeof( opus_int32 ) );
-    RESTORE_STACK;
+
 }
 
 /******************************************/
@@ -342,7 +344,8 @@ static OPUS_INLINE void silk_noise_shape_quantizer_del_dec(
     opus_int            nStatesDelayedDecision, /* I    Number of states in decision tree   */
     opus_int            *smpl_buf_idx,          /* I/O  Index to newest samples in buffers  */
     opus_int            decisionDelay,          /* I                                        */
-    int                 arch                    /* I                                        */
+    int                 arch,                   /* I                                        */
+    char *g_stack
 )
 {
     opus_int     i, j, k, Winner_ind, RDmin_ind, RDmax_ind, last_smple_idx;
@@ -359,10 +362,10 @@ static OPUS_INLINE void silk_noise_shape_quantizer_del_dec(
     VARDECL( NSQ_sample_pair, psSampleState );
     NSQ_del_dec_struct *psDD;
     NSQ_sample_struct  *psSS;
-    SAVE_STACK;
+
 
     celt_assert( nStatesDelayedDecision > 0 );
-    ALLOC( psSampleState, nStatesDelayedDecision, NSQ_sample_pair );
+    ALLOC( g_stack, psSampleState, nStatesDelayedDecision, NSQ_sample_pair );
 
     shp_lag_ptr  = &NSQ->sLTP_shp_Q14[ NSQ->sLTP_shp_buf_idx - lag + HARM_SHAPE_FIR_TAPS / 2 ];
     pred_lag_ptr = &sLTP_Q15[ NSQ->sLTP_buf_idx - lag + LTP_ORDER / 2 ];
@@ -644,7 +647,7 @@ static OPUS_INLINE void silk_noise_shape_quantizer_del_dec(
         psDD = &psDelDec[ k ];
         silk_memcpy( psDD->sLPC_Q14, &psDD->sLPC_Q14[ length ], NSQ_LPC_BUF_LENGTH * sizeof( opus_int32 ) );
     }
-    RESTORE_STACK;
+
 }
 #endif /* OVERRIDE_silk_noise_shape_quantizer_del_dec */
 

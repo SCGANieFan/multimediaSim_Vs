@@ -35,6 +35,7 @@
 
 #include "opus_types.h"
 #include "opus_defines.h"
+#include "opus_base_port.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -206,10 +207,12 @@ OPUS_EXPORT OPUS_WARN_UNUSED_RESULT int opus_encoder_get_size(int channels);
  * and let the encoder optimize the encoding.
  */
 OPUS_EXPORT OPUS_WARN_UNUSED_RESULT OpusEncoder *opus_encoder_create(
+    OpusBasePort_t* basePort, 
     opus_int32 Fs,
     int channels,
     int application,
-    int *error
+    int *error,
+    int global_stack_size
 );
 
 /** Initializes a previously allocated encoder state
@@ -226,10 +229,12 @@ OPUS_EXPORT OPUS_WARN_UNUSED_RESULT OpusEncoder *opus_encoder_create(
   * @retval #OPUS_OK Success or @ref opus_errorcodes
   */
 OPUS_EXPORT int opus_encoder_init(
+    OpusBasePort_t* basePort,
     OpusEncoder *st,
     opus_int32 Fs,
     int channels,
-    int application
+    int application,
+    int global_stack_size
 ) OPUS_ARG_NONNULL(1);
 
 /** Encodes an Opus frame.
@@ -326,6 +331,7 @@ OPUS_EXPORT void opus_encoder_destroy(OpusEncoder *st);
   * @see opus_encoderctls
   */
 OPUS_EXPORT int opus_encoder_ctl(OpusEncoder *st, int request, ...) OPUS_ARG_NONNULL(1);
+
 /**@}*/
 
 /** @defgroup opus_decoder Opus Decoder
@@ -421,9 +427,11 @@ OPUS_EXPORT OPUS_WARN_UNUSED_RESULT int opus_decoder_get_size(int channels);
   * interleaved stereo pcm buffers, at the caller's request.
   */
 OPUS_EXPORT OPUS_WARN_UNUSED_RESULT OpusDecoder *opus_decoder_create(
+    OpusBasePort_t *basePort,
     opus_int32 Fs,
     int channels,
-    int *error
+    int *error,
+    int global_stack_size
 );
 
 /** Initializes a previously allocated decoder state.
@@ -438,9 +446,11 @@ OPUS_EXPORT OPUS_WARN_UNUSED_RESULT OpusDecoder *opus_decoder_create(
   * @retval #OPUS_OK Success or @ref opus_errorcodes
   */
 OPUS_EXPORT int opus_decoder_init(
+    OpusBasePort_t *basePort,
     OpusDecoder *st,
     opus_int32 Fs,
-    int channels
+    int channels,
+    int global_stack_size
 ) OPUS_ARG_NONNULL(1);
 
 /** Decode an Opus packet.
@@ -780,7 +790,7 @@ OPUS_EXPORT OpusRepacketizer *opus_repacketizer_init(OpusRepacketizer *rp) OPUS_
 /** Allocates memory and initializes the new repacketizer with
  * opus_repacketizer_init().
   */
-OPUS_EXPORT OPUS_WARN_UNUSED_RESULT OpusRepacketizer *opus_repacketizer_create(void);
+OPUS_EXPORT OPUS_WARN_UNUSED_RESULT OpusRepacketizer *opus_repacketizer_create(OpusBasePort_t *basePort);
 
 /** Frees an <code>OpusRepacketizer</code> allocated by
   * opus_repacketizer_create().
@@ -974,6 +984,7 @@ OPUS_EXPORT OPUS_WARN_UNUSED_RESULT opus_int32 opus_multistream_packet_unpad(uns
 
 /**@}*/
 
+extern void opus_rt_system_heap_init(void *begin_addr, opus_uint size);
 #ifdef __cplusplus
 }
 #endif

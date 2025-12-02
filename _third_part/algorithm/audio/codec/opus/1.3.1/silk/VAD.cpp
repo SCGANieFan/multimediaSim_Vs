@@ -81,7 +81,8 @@ static const opus_int32 tiltWeights[ VAD_N_BANDS ] = { 30000, 6000, -12000, -120
 /***************************************/
 opus_int silk_VAD_GetSA_Q8_c(                                   /* O    Return value, 0 if success                  */
     silk_encoder_state          *psEncC,                        /* I/O  Encoder state                               */
-    const opus_int16            pIn[]                           /* I    PCM input                                   */
+    const opus_int16            pIn[],                          /* I    PCM input                                   */
+    char *g_stack
 )
 {
     opus_int   SA_Q15, pSNR_dB_Q7, input_tilt;
@@ -97,7 +98,7 @@ opus_int silk_VAD_GetSA_Q8_c(                                   /* O    Return v
     opus_int   X_offset[ VAD_N_BANDS ];
     opus_int   ret = 0;
     silk_VAD_state *psSilk_VAD = &psEncC->sVAD;
-    SAVE_STACK;
+
 
     /* Safety checks */
     silk_assert( VAD_N_BANDS == 4 );
@@ -124,7 +125,7 @@ opus_int silk_VAD_GetSA_Q8_c(                                   /* O    Return v
     X_offset[ 1 ] = decimated_framelength + decimated_framelength2;
     X_offset[ 2 ] = X_offset[ 1 ] + decimated_framelength;
     X_offset[ 3 ] = X_offset[ 2 ] + decimated_framelength2;
-    ALLOC( X, X_offset[ 3 ] + decimated_framelength1, opus_int16 );
+    ALLOC( g_stack, X, X_offset[ 3 ] + decimated_framelength1, opus_int16 );
 
     /* 0-8 kHz to 0-4 kHz and 4-8 kHz */
     silk_ana_filt_bank_1( pIn, &psSilk_VAD->AnaState[  0 ],
@@ -290,7 +291,7 @@ opus_int silk_VAD_GetSA_Q8_c(                                   /* O    Return v
         psEncC->input_quality_bands_Q15[ b ] = silk_sigm_Q15( silk_RSHIFT( SNR_Q7 - 16 * 128, 4 ) );
     }
 
-    RESTORE_STACK;
+
     return( ret );
 }
 

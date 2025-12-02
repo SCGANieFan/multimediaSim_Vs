@@ -2,15 +2,13 @@
 using namespace MTFApi_ns;
 
 #define PATH "../../source/audio/opus/"
-
-
 #define FILE_NAME "mbz_48k2h.wav"
 #define FRAME_MS 20
 #define BIT_RATE 20000
 #define COMPLEXITY 0
 #define VBR 0
 
-void OpusTest()
+static void OpusMtfTest()
 {
 	MTFApi::Init();
 	MTF_REGISTER(wav_demuxer);
@@ -34,4 +32,25 @@ void OpusTest()
 	"|wav_muxer,url=$1|"
 	};
 	MTFApi::Api(str, param);
+}
+
+#ifndef EXTERNC
+#ifdef __cplusplus
+#define EXTERNC extern "C" 
+#else
+#define EXTERNC
+#endif
+#endif
+
+EXTERNC void OpusCodecTest();
+static void OpusDemoTest()
+{
+	OpusCodecTest();
+}
+
+
+void OpusTest()
+{
+	//OpusMtfTest();
+	OpusDemoTest();
 }

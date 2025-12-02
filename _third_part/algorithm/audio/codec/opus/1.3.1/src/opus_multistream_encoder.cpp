@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#if OPUS_OPEN_ENC
 #include "opus_multistream.h"
 #include "opus.h"
 #include "opus_private.h"
@@ -222,7 +223,7 @@ opus_val16 logSum(opus_val16 a, opus_val16 b)
 #endif
 
 void surround_analysis(const CELTMode *celt_mode, const void *pcm, opus_val16 *bandLogE, opus_val32 *mem, opus_val32 *preemph_mem,
-      int len, int overlap, int channels, int rate, opus_copy_channel_in_func copy_channel_in, int arch
+      int len, int overlap, int channels, int rate, opus_copy_channel_in_func copy_channel_in, int arch, char *g_stack
 )
 {
    int c;
@@ -238,7 +239,7 @@ void surround_analysis(const CELTMode *celt_mode, const void *pcm, opus_val16 *b
    VARDECL(opus_val32, in);
    VARDECL(opus_val16, x);
    VARDECL(opus_val32, freq);
-   SAVE_STACK;
+
 
    upsample = resampling_factor(rate);
    frame_size = len*upsample;
@@ -249,9 +250,9 @@ void surround_analysis(const CELTMode *celt_mode, const void *pcm, opus_val16 *b
       if (celt_mode->shortMdctSize<<LM==frame_size)
          break;
 
-   ALLOC(in, frame_size+overlap, opus_val32);
-   ALLOC(x, len, opus_val16);
-   ALLOC(freq, freq_size, opus_val32);
+   ALLOC(g_stack, in, frame_size+overlap, opus_val32);
+   ALLOC(g_stack, x, len, opus_val16);
+   ALLOC(g_stack, freq, freq_size, opus_val32);
 
    channel_pos(channels, pos);
 
@@ -285,7 +286,7 @@ void surround_analysis(const CELTMode *celt_mode, const void *pcm, opus_val16 *b
       {
          opus_val32 tmpE[21];
          clt_mdct_forward(&celt_mode->mdct, in+960*frame, freq, celt_mode->window,
-               overlap, celt_mode->maxLM-LM, 1, arch);
+               overlap, celt_mode->maxLM-LM, 1, arch, g_stack);
          if (upsample != 1)
          {
             int bound = freq_size/upsample;
@@ -370,7 +371,7 @@ void surround_analysis(const CELTMode *celt_mode, const void *pcm, opus_val16 *b
       printf("\n");
 #endif
    }
-   RESTORE_STACK;
+
 }
 
 opus_int32 opus_multistream_encoder_get_size(int nb_streams, int nb_coupled_streams)
@@ -427,6 +428,7 @@ opus_int32 opus_multistream_surround_encoder_get_size(int channels, int mapping_
 }
 
 static int opus_multistream_encoder_init_impl(
+      OpusBasePort_t *basePort,
       OpusMSEncoder *st,
       opus_int32 Fs,
       int channels,
@@ -434,7 +436,8 @@ static int opus_multistream_encoder_init_impl(
       int coupled_streams,
       const unsigned char *mapping,
       int application,
-      MappingType mapping_type
+      MappingType mapping_type,
+      int global_stack_size
 )
 {
    int coupled_size;
@@ -471,7 +474,7 @@ static int opus_multistream_encoder_init_impl(
 
    for (i=0;i<st->layout.nb_coupled_streams;i++)
    {
-      ret = opus_encoder_init((OpusEncoder*)ptr, Fs, 2, application);
+      ret = opus_encoder_init(basePort, (OpusEncoder*)ptr, Fs, 2, application, global_stack_size);
       if(ret!=OPUS_OK)return ret;
       if (i==st->lfe_stream)
          opus_encoder_ctl((OpusEncoder*)ptr, OPUS_SET_LFE(1));
@@ -479,7 +482,7 @@ static int opus_multistream_encoder_init_impl(
    }
    for (;i<st->layout.nb_streams;i++)
    {
-      ret = opus_encoder_init((OpusEncoder*)ptr, Fs, 1, application);
+      ret = opus_encoder_init(basePort, (OpusEncoder*)ptr, Fs, 1, application, global_stack_size);
       if (i==st->lfe_stream)
          opus_encoder_ctl((OpusEncoder*)ptr, OPUS_SET_LFE(1));
       if(ret!=OPUS_OK)return ret;
@@ -495,21 +498,24 @@ static int opus_multistream_encoder_init_impl(
 }
 
 int opus_multistream_encoder_init(
+      OpusBasePort_t *basePort,
       OpusMSEncoder *st,
       opus_int32 Fs,
       int channels,
       int streams,
       int coupled_streams,
       const unsigned char *mapping,
-      int application
+      int application,
+      int global_stack_size
 )
 {
-   return opus_multistream_encoder_init_impl(st, Fs, channels, streams,
+   return opus_multistream_encoder_init_impl(basePort, st, Fs, channels, streams,
                                              coupled_streams, mapping,
-                                             application, MAPPING_TYPE_NONE);
+                                             application, MAPPING_TYPE_NONE, global_stack_size);
 }
 
 int opus_multistream_surround_encoder_init(
+      OpusBasePort_t *basePort,
       OpusMSEncoder *st,
       opus_int32 Fs,
       int channels,
@@ -517,7 +523,8 @@ int opus_multistream_surround_encoder_init(
       int *streams,
       int *coupled_streams,
       unsigned char *mapping,
-      int application
+      int application,
+      int global_stack_size
 )
 {
    MappingType mapping_type;
@@ -577,19 +584,21 @@ int opus_multistream_surround_encoder_init(
    {
       mapping_type = MAPPING_TYPE_NONE;
    }
-   return opus_multistream_encoder_init_impl(st, Fs, channels, *streams,
+   return opus_multistream_encoder_init_impl(basePort, st, Fs, channels, *streams,
                                              *coupled_streams, mapping,
-                                             application, mapping_type);
+                                             application, mapping_type,global_stack_size);
 }
 
 OpusMSEncoder *opus_multistream_encoder_create(
+      OpusBasePort_t *basePort,
       opus_int32 Fs,
       int channels,
       int streams,
       int coupled_streams,
       const unsigned char *mapping,
       int application,
-      int *error
+      int *error,
+      int global_stack_size
 )
 {
    int ret;
@@ -601,25 +610,34 @@ OpusMSEncoder *opus_multistream_encoder_create(
          *error = OPUS_BAD_ARG;
       return NULL;
    }
-   st = (OpusMSEncoder *)opus_alloc(opus_multistream_encoder_get_size(streams, coupled_streams));
+   st = (OpusMSEncoder *)basePort->malloc_cb(opus_multistream_encoder_get_size(streams, coupled_streams));
    if (st==NULL)
    {
       if (error)
          *error = OPUS_ALLOC_FAIL;
       return NULL;
    }
-   ret = opus_multistream_encoder_init(st, Fs, channels, streams, coupled_streams, mapping, application);
+   ret = opus_multistream_encoder_init(basePort, st, Fs, channels, streams, coupled_streams, mapping, application, global_stack_size);
    if (ret != OPUS_OK)
    {
-      opus_free(st);
+      basePort->free_cb(st);
       st = NULL;
    }
    if (error)
       *error = ret;
+   st->global_stack_now = (char*)basePort->malloc_cb(120*1000);
+   if (st==NULL)
+   {
+      if (error)
+         *error = OPUS_ALLOC_FAIL;
+      return NULL;
+   }
+   st->basePort = *basePort;
    return st;
 }
 
 OpusMSEncoder *opus_multistream_surround_encoder_create(
+      OpusBasePort_t *basePort,
       opus_int32 Fs,
       int channels,
       int mapping_family,
@@ -627,7 +645,8 @@ OpusMSEncoder *opus_multistream_surround_encoder_create(
       int *coupled_streams,
       unsigned char *mapping,
       int application,
-      int *error
+      int *error,
+      int global_stack_size
 )
 {
    int ret;
@@ -646,17 +665,17 @@ OpusMSEncoder *opus_multistream_surround_encoder_create(
          *error = OPUS_UNIMPLEMENTED;
       return NULL;
    }
-   st = (OpusMSEncoder *)opus_alloc(size);
+   st = (OpusMSEncoder *)basePort->malloc_cb(size);
    if (st==NULL)
    {
       if (error)
          *error = OPUS_ALLOC_FAIL;
       return NULL;
    }
-   ret = opus_multistream_surround_encoder_init(st, Fs, channels, mapping_family, streams, coupled_streams, mapping, application);
+   ret = opus_multistream_surround_encoder_init(basePort, st, Fs, channels, mapping_family, streams, coupled_streams, mapping, application, global_stack_size);
    if (ret != OPUS_OK)
    {
-      opus_free(st);
+      basePort->free_cb(st);
       st = NULL;
    }
    if (error)
@@ -818,8 +837,8 @@ int opus_multistream_encode_native
    int s;
    char *ptr;
    int tot_size;
-   VARDECL(opus_val16, buf);
-   VARDECL(opus_val16, bandSMR);
+   opus_val16 *buf;
+   opus_val16 *bandSMR;
    unsigned char tmp_data[MS_FRAME_TMP];
    OpusRepacketizer rp;
    opus_int32 vbr;
@@ -831,7 +850,6 @@ int opus_multistream_encode_native
    int frame_size;
    opus_int32 rate_sum;
    opus_int32 smallest_packet;
-   ALLOC_STACK;
 
    if (st->mapping_type == MAPPING_TYPE_SURROUND)
    {
@@ -847,7 +865,6 @@ int opus_multistream_encode_native
    frame_size = frame_size_select(analysis_frame_size, st->variable_duration, Fs);
    if (frame_size <= 0)
    {
-      RESTORE_STACK;
       return OPUS_BAD_ARG;
    }
 
@@ -858,17 +875,15 @@ int opus_multistream_encode_native
      smallest_packet += st->layout.nb_streams;
    if (max_data_bytes < smallest_packet)
    {
-      RESTORE_STACK;
       return OPUS_BUFFER_TOO_SMALL;
    }
-   ALLOC(buf, 2*frame_size, opus_val16);
+   buf = (opus_val16*)st->basePort.malloc_cb(2*frame_size*sizeof(opus_val16));
    coupled_size = opus_encoder_get_size(2);
    mono_size = opus_encoder_get_size(1);
-
-   ALLOC(bandSMR, 21*st->layout.nb_channels, opus_val16);
+   bandSMR = (opus_val16*)st->basePort.malloc_cb(21*st->layout.nb_channels*sizeof(opus_val16));
    if (st->mapping_type == MAPPING_TYPE_SURROUND)
    {
-      surround_analysis(celt_mode, pcm, bandSMR, mem, preemph_mem, frame_size, 120, st->layout.nb_channels, Fs, copy_channel_in, st->arch);
+      surround_analysis(celt_mode, pcm, bandSMR, mem, preemph_mem, frame_size, 120, st->layout.nb_channels, Fs, copy_channel_in, st->arch, st->global_stack_now);
    }
 
    /* Compute bitrate allocation between streams (this could be a lot better) */
@@ -987,7 +1002,8 @@ int opus_multistream_encode_native
             pcm, analysis_frame_size, c1, c2, st->layout.nb_channels, downmix, float_api);
       if (len<0)
       {
-         RESTORE_STACK;
+         st->basePort.free_cb(buf);
+         st->basePort.free_cb(bandSMR);
          return len;
       }
       /* We need to use the repacketizer to add the self-delimiting lengths
@@ -998,7 +1014,8 @@ int opus_multistream_encode_native
          with the encoder. */
       if (ret != OPUS_OK)
       {
-         RESTORE_STACK;
+         st->basePort.free_cb(buf);
+         st->basePort.free_cb(bandSMR);
          return OPUS_INTERNAL_ERROR;
       }
       len = opus_repacketizer_out_range_impl(&rp, 0, opus_repacketizer_get_nb_frames(&rp),
@@ -1007,7 +1024,8 @@ int opus_multistream_encode_native
       tot_size += len;
    }
    /*printf("\n");*/
-   RESTORE_STACK;
+   st->basePort.free_cb(buf);
+   st->basePort.free_cb(bandSMR);
    return tot_size;
 }
 
@@ -1324,5 +1342,6 @@ int opus_multistream_encoder_ctl(OpusMSEncoder *st, int request, ...)
 
 void opus_multistream_encoder_destroy(OpusMSEncoder *st)
 {
-    opus_free(st);
+    st->basePort.free_cb(st);
 }
+#endif

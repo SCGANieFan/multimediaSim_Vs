@@ -117,10 +117,19 @@ static OPUS_INLINE opus_int32 silk_CLZ16(opus_int16 in16)
 #endif
 
 #ifndef OVERRIDE_silk_CLZ32
+#ifdef HIFI_OPT
+#include <xtensa/tie/xt_misc.h>
+#include <xtensa/tie/xt_mul.h>
+static OPUS_INLINE opus_int32 silk_CLZ32(opus_int32 in32)
+{
+    return XT_NSA(in32)+1;
+}
+#else
 static OPUS_INLINE opus_int32 silk_CLZ32(opus_int32 in32)
 {
     return in32 ? 32 - EC_ILOG(in32) : 32;
 }
+#endif
 #endif
 
 /* Row based */

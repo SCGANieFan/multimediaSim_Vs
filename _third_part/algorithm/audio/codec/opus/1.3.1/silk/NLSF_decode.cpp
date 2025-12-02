@@ -32,6 +32,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "main.h"
 
 /* Predictive dequantizer for NLSF residuals */
+#ifndef HIFI_OPT
 static OPUS_INLINE void silk_NLSF_residual_dequant(          /* O    Returns RD value in Q30                     */
           opus_int16         x_Q10[],                        /* O    Output [ order ]                            */
     const opus_int8          indices[],                      /* I    Quantization indices [ order ]              */
@@ -55,7 +56,30 @@ static OPUS_INLINE void silk_NLSF_residual_dequant(          /* O    Returns RD 
         x_Q10[ i ] = out_Q10;
     }
 }
-
+#else
+static OPUS_INLINE void silk_NLSF_residual_dequant(          /* O    Returns RD value in Q30                     */
+          opus_int16         x_Q10[],                        /* O    Output [ order ]                            */
+    const opus_int8          indices[],                      /* I    Quantization indices [ order ]              */
+    const opus_uint8         pred_coef_Q8[],                 /* I    Backward predictor coefs [ order ]          */
+    const opus_int           quant_step_size_Q16,            /* I    Quantization step size                      */
+    const opus_int16         order                           /* I    Number of input values                      */
+)
+{
+    int out_Q10 = 0;
+    for(int i = order-1; i >= 0; i--) {
+        short tmp = pred_coef_Q8[i];
+        int pred_Q10 = (int)(int64_t)(AE_MUL32X16_L0(out_Q10, tmp) >> 8);
+        out_Q10  = indices[i] << 10;
+        if(out_Q10 > 0) {
+            out_Q10 = out_Q10 - SILK_FIX_CONST(NLSF_QUANT_LEVEL_ADJ, 10);
+        } else if(out_Q10 < 0) {
+            out_Q10 = out_Q10 + SILK_FIX_CONST(NLSF_QUANT_LEVEL_ADJ, 10);
+        }
+        out_Q10 = pred_Q10 + (int)(int64_t)(AE_MUL32_LL(out_Q10, quant_step_size_Q16) >> 16);
+        x_Q10[i] = out_Q10;
+    }
+}
+#endif
 
 /***********************/
 /* NLSF vector decoder */

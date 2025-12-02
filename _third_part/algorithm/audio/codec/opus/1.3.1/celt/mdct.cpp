@@ -44,7 +44,7 @@
 #include "config.h"
 #endif
 #endif
-
+#if (COMPILE_CELT_ENC)||(COMPILE_CELT_DEC)
 #include "mdct.h"
 #include "kiss_fft.h"
 #include "_kiss_fft_guts.h"
@@ -57,67 +57,10 @@
 #include "mips/mdct_mipsr1.h"
 #endif
 
-
-#ifdef CUSTOM_MODES
-
-int clt_mdct_init(mdct_lookup *l,int N, int maxshift, int arch)
-{
-   int i;
-   kiss_twiddle_scalar *trig;
-   int shift;
-   int N2=N>>1;
-   l->n = N;
-   l->maxshift = maxshift;
-   for (i=0;i<=maxshift;i++)
-   {
-      if (i==0)
-         l->kfft[i] = opus_fft_alloc(N>>2>>i, 0, 0, arch);
-      else
-         l->kfft[i] = opus_fft_alloc_twiddles(N>>2>>i, 0, 0, l->kfft[0], arch);
-#ifndef ENABLE_TI_DSPLIB55
-      if (l->kfft[i]==NULL)
-         return 0;
-#endif
-   }
-   l->trig = trig = (kiss_twiddle_scalar*)opus_alloc((N-(N2>>maxshift))*sizeof(kiss_twiddle_scalar));
-   if (l->trig==NULL)
-     return 0;
-   for (shift=0;shift<=maxshift;shift++)
-   {
-      /* We have enough points that sine isn't necessary */
-#if defined(FIXED_POINT)
-#if 1
-      for (i=0;i<N2;i++)
-         trig[i] = TRIG_UPSCALE*celt_cos_norm(DIV32(ADD32(SHL32(EXTEND32(i),17),N2+16384),N));
-#else
-      for (i=0;i<N2;i++)
-         trig[i] = (kiss_twiddle_scalar)MAX32(-32767,MIN32(32767,floor(.5+32768*cos(2*M_PI*(i+.125)/N))));
-#endif
-#else
-      for (i=0;i<N2;i++)
-         trig[i] = (kiss_twiddle_scalar)cos(2*PI*(i+.125)/N);
-#endif
-      trig += N2;
-      N2 >>= 1;
-      N >>= 1;
-   }
-   return 1;
-}
-
-void clt_mdct_clear(mdct_lookup *l, int arch)
-{
-   int i;
-   for (i=0;i<=l->maxshift;i++)
-      opus_fft_free(l->kfft[i], arch);
-   opus_free((kiss_twiddle_scalar*)l->trig);
-}
-
-#endif /* CUSTOM_MODES */
-
 /* Forward MDCT trashes the input array */
 #ifndef OVERRIDE_clt_mdct_forward
 void clt_mdct_forward_c(const mdct_lookup *l, kiss_fft_scalar *in, kiss_fft_scalar * OPUS_RESTRICT out,
-      const opus_val16 *window, int overlap, int shift, int stride, int arch)
+      const opus_val16 *window, int overlap, int shift, int stride, int arch, char *g_stack)
 {
    int i;
    int N, N2, N4;
@@ -131,7 +74,7 @@ void clt_mdct_forward_c(const mdct_lookup *l, kiss_fft_scalar *in, kiss_fft_scal
       MULT16_32_Q15() on ARM. */
    int scale_shift = st->scale_shift-1;
 #endif
-   SAVE_STACK;
+
    (void)arch;
    scale = st->scale;
 
@@ -145,8 +88,8 @@ void clt_mdct_forward_c(const mdct_lookup *l, kiss_fft_scalar *in, kiss_fft_scal
    N2 = N>>1;
    N4 = N>>2;
 
-   ALLOC(f, N2, kiss_fft_scalar);
-   ALLOC(f2, N4, kiss_fft_cpx);
+   ALLOC(g_stack, f, N2, kiss_fft_scalar);
+   ALLOC(g_stack, f2, N4, kiss_fft_cpx);
 
    /* Consider the input to be composed of four blocks: [a, b, c, d] */
    /* Window, shuffle, fold */
@@ -234,7 +177,7 @@ void clt_mdct_forward_c(const mdct_lookup *l, kiss_fft_scalar *in, kiss_fft_scal
          yp2 -= 2*stride;
       }
    }
-   RESTORE_STACK;
+
 }
 #endif /* OVERRIDE_clt_mdct_forward */
 
@@ -341,3 +284,4 @@ void clt_mdct_backward_c(const mdct_lookup *l, kiss_fft_scalar *in, kiss_fft_sca
    }
 }
 #endif /* OVERRIDE_clt_mdct_backward */
+#endif

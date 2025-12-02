@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "debug.h"
 #include "entenc.h"
 #include "entdec.h"
-
+#include "opus_base_port.h"
 #if defined(OPUS_X86_MAY_HAVE_SSE4_1)
 #include "x86/main_sse.h"
 #endif
@@ -58,7 +58,8 @@ void silk_stereo_LR_to_MS(
     opus_int                    prev_speech_act_Q8,             /* I    Speech activity level in previous frame     */
     opus_int                    toMono,                         /* I    Last frame before a stereo->mono transition */
     opus_int                    fs_kHz,                         /* I    Sample rate (kHz)                           */
-    opus_int                    frame_length                    /* I    Number of samples                           */
+    opus_int                    frame_length,                   /* I    Number of samples                           */
+    char *g_stack
 );
 
 /* Convert adaptive Mid/Side representation to Left/Right stereo signal */
@@ -158,7 +159,8 @@ void silk_encode_pulses(
     const opus_int              signalType,                     /* I    Signal type                                 */
     const opus_int              quantOffsetType,                /* I    quantOffsetType                             */
     opus_int8                   pulses[],                       /* I    quantization indices                        */
-    const opus_int              frame_length                    /* I    Frame length                                */
+    const opus_int              frame_length,                   /* I    Frame length                                */
+    char *g_stack
 );
 
 /* Shell encoder, operates on one shell code frame of 16 pulses */
@@ -261,14 +263,15 @@ void silk_NSQ_c(
     const opus_int32            Gains_Q16[ MAX_NB_SUBFR ],                  /* I    Quantization step sizes         */
     const opus_int              pitchL[ MAX_NB_SUBFR ],                     /* I    Pitch lags                      */
     const opus_int              Lambda_Q10,                                 /* I    Rate/distortion tradeoff        */
-    const opus_int              LTP_scale_Q14                               /* I    LTP state scaling               */
+    const opus_int              LTP_scale_Q14,                              /* I    LTP state scaling               */
+    char *g_stack
 );
 
 #if !defined(OVERRIDE_silk_NSQ)
 #define silk_NSQ(psEncC, NSQ, psIndices, x16, pulses, PredCoef_Q12, LTPCoef_Q14, AR_Q13, \
-                   HarmShapeGain_Q14, Tilt_Q14, LF_shp_Q14, Gains_Q16, pitchL, Lambda_Q10, LTP_scale_Q14, arch) \
+                   HarmShapeGain_Q14, Tilt_Q14, LF_shp_Q14, Gains_Q16, pitchL, Lambda_Q10, LTP_scale_Q14, arch, g_stack) \
     ((void)(arch),silk_NSQ_c(psEncC, NSQ, psIndices, x16, pulses, PredCoef_Q12, LTPCoef_Q14, AR_Q13, \
-                   HarmShapeGain_Q14, Tilt_Q14, LF_shp_Q14, Gains_Q16, pitchL, Lambda_Q10, LTP_scale_Q14))
+                   HarmShapeGain_Q14, Tilt_Q14, LF_shp_Q14, Gains_Q16, pitchL, Lambda_Q10, LTP_scale_Q14, g_stack))
 #endif
 
 /* Noise shaping using delayed decision */
@@ -287,14 +290,15 @@ void silk_NSQ_del_dec_c(
     const opus_int32            Gains_Q16[ MAX_NB_SUBFR ],                  /* I    Quantization step sizes         */
     const opus_int              pitchL[ MAX_NB_SUBFR ],                     /* I    Pitch lags                      */
     const opus_int              Lambda_Q10,                                 /* I    Rate/distortion tradeoff        */
-    const opus_int              LTP_scale_Q14                               /* I    LTP state scaling               */
+    const opus_int              LTP_scale_Q14,                              /* I    LTP state scaling               */
+    char *g_stack
 );
 
 #if !defined(OVERRIDE_silk_NSQ_del_dec)
 #define silk_NSQ_del_dec(psEncC, NSQ, psIndices, x16, pulses, PredCoef_Q12, LTPCoef_Q14, AR_Q13, \
-                           HarmShapeGain_Q14, Tilt_Q14, LF_shp_Q14, Gains_Q16, pitchL, Lambda_Q10, LTP_scale_Q14, arch) \
+                           HarmShapeGain_Q14, Tilt_Q14, LF_shp_Q14, Gains_Q16, pitchL, Lambda_Q10, LTP_scale_Q14, arch, g_stack) \
     ((void)(arch),silk_NSQ_del_dec_c(psEncC, NSQ, psIndices, x16, pulses, PredCoef_Q12, LTPCoef_Q14, AR_Q13, \
-                           HarmShapeGain_Q14, Tilt_Q14, LF_shp_Q14, Gains_Q16, pitchL, Lambda_Q10, LTP_scale_Q14))
+                           HarmShapeGain_Q14, Tilt_Q14, LF_shp_Q14, Gains_Q16, pitchL, Lambda_Q10, LTP_scale_Q14, g_stack))
 #endif
 
 /************/
@@ -308,11 +312,12 @@ opus_int silk_VAD_Init(                                         /* O    Return v
 /* Get speech activity level in Q8 */
 opus_int silk_VAD_GetSA_Q8_c(                                   /* O    Return value, 0 if success                  */
     silk_encoder_state          *psEncC,                        /* I/O  Encoder state                               */
-    const opus_int16            pIn[]                           /* I    PCM input                                   */
+    const opus_int16            pIn[],                          /* I    PCM input                                   */
+    char *g_stack
 );
 
 #if !defined(OVERRIDE_silk_VAD_GetSA_Q8)
-#define silk_VAD_GetSA_Q8(psEnC, pIn, arch) ((void)(arch),silk_VAD_GetSA_Q8_c(psEnC, pIn))
+#define silk_VAD_GetSA_Q8(psEnC, pIn, arch, g_stack) ((void)(arch),silk_VAD_GetSA_Q8_c(psEnC, pIn, g_stack))
 #endif
 
 /* Low-pass filter with variable cutoff frequency based on  */
@@ -332,7 +337,8 @@ void silk_process_NLSFs(
     silk_encoder_state          *psEncC,                            /* I/O  Encoder state                               */
     opus_int16                  PredCoef_Q12[ 2 ][ MAX_LPC_ORDER ], /* O    Prediction coefficients                     */
     opus_int16                  pNLSF_Q15[         MAX_LPC_ORDER ], /* I/O  Normalized LSFs (quant out) (0 - (2^15-1))  */
-    const opus_int16            prev_NLSFq_Q15[    MAX_LPC_ORDER ]  /* I    Previous Normalized LSFs (0 - (2^15-1))     */
+    const opus_int16            prev_NLSFq_Q15[    MAX_LPC_ORDER ], /* I    Previous Normalized LSFs (0 - (2^15-1))     */
+    char *g_stack
 );
 
 opus_int32 silk_NLSF_encode(                                    /* O    Returns RD value in Q25                     */
@@ -342,7 +348,8 @@ opus_int32 silk_NLSF_encode(                                    /* O    Returns 
     const opus_int16            *pW_QW,                         /* I    NLSF weight vector [ LPC_ORDER ]            */
     const opus_int              NLSF_mu_Q20,                    /* I    Rate weight for the RD optimization         */
     const opus_int              nSurvivors,                     /* I    Max survivors after first stage             */
-    const opus_int              signalType                      /* I    Signal type: 0/1/2                          */
+    const opus_int              signalType,                     /* I    Signal type: 0/1/2                          */
+    char *g_stack
 );
 
 /* Compute quantization errors for an LPC_order element input vector for a VQ codebook */
@@ -390,6 +397,7 @@ void silk_NLSF_decode(
 /* Decoder Functions                                */
 /****************************************************/
 opus_int silk_init_decoder(
+    OpusBasePort_t *basePort,
     silk_decoder_state          *psDec                          /* I/O  Decoder state pointer                       */
 );
 
@@ -410,7 +418,8 @@ opus_int silk_decode_frame(
     opus_int32                  *pN,                            /* O    Pointer to size of output frame             */
     opus_int                    lostFlag,                       /* I    0: no loss, 1 loss, 2 decode fec            */
     opus_int                    condCoding,                     /* I    The type of conditional coding to use       */
-    int                         arch                            /* I    Run-time architecture                       */
+    int                         arch,                           /* I    Run-time architecture                       */
+    char *g_stack
 );
 
 /* Decode indices from bitstream */
@@ -435,7 +444,8 @@ void silk_decode_core(
     silk_decoder_control        *psDecCtrl,                     /* I    Decoder control                             */
     opus_int16                  xq[],                           /* O    Decoded speech                              */
     const opus_int16            pulses[ MAX_FRAME_LENGTH ],     /* I    Pulse signal                                */
-    int                         arch                            /* I    Run-time architecture                       */
+    int                         arch,                           /* I    Run-time architecture                       */
+    char *g_stack
 );
 
 /* Decode quantization indices of excitation (Shell coding) */
@@ -461,7 +471,8 @@ void silk_CNG(
     silk_decoder_state          *psDec,                         /* I/O  Decoder state                               */
     silk_decoder_control        *psDecCtrl,                     /* I/O  Decoder control                             */
     opus_int16                  frame[],                        /* I/O  Signal                                      */
-    opus_int                    length                          /* I    Length of residual                          */
+    opus_int                    length,                         /* I    Length of residual                          */
+    char *g_stack
 );
 
 /* Encoding of various parameters */

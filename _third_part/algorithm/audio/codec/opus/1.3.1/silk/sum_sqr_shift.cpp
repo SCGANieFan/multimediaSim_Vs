@@ -33,6 +33,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 /* Compute number of bits to right shift the sum of squares of a vector */
 /* of int16s to make it fit in an int32                                 */
+#ifndef HIFI_OPT
 void silk_sum_sqr_shift(
     opus_int32                  *energy,            /* O   Energy of x, after shifting to the right                     */
     opus_int                    *shift,             /* O   Number of bits right shift applied to energy                 */
@@ -80,4 +81,40 @@ void silk_sum_sqr_shift(
     *shift  = shft;
     *energy = nrg;
 }
-
+#else
+#include <xtensa/tie/xt_misc.h>
+#include <xtensa/tie/xt_mul.h>
+void silk_sum_sqr_shift(
+    opus_int32                  *energy,            /* O   Energy of x, after shifting to the right                     */
+    opus_int                    *shift,             /* O   Number of bits right shift applied to energy                 */
+    const opus_int16            *x,                 /* I   Input vector                                                 */
+    opus_int                    len                 /* I   Length of input vector                                       */
+)
+{
+    int64_t nrg_tmp = 0;
+    int shft = 30 - XT_NSA(len);
+    ae_int64 sum = 0;
+    ae_int16x4 * src = (ae_int16x4*)x;
+    ae_int16x4 s1;
+    ae_valign align = AE_LA64_PP(src);
+    int loops = len >> 2;
+    for(int i = 0; i < loops; i++) {
+        AE_LA16X4_IP(s1, align, src);
+        AE_MULAAAAQ16(sum, s1, s1);
+    }
+    nrg_tmp = (int64_t)sum;
+    loops = loops << 2;
+    for(int i = loops; i < len; i++) {
+        short tmp1 = x[i];
+        nrg_tmp += tmp1 * tmp1;
+    }
+    int nrg = len + (nrg_tmp >> shft);
+    silk_assert( nrg >= 0 );
+    shft = XT_MAX(0, shft + 2 - XT_NSA(nrg));
+    nrg = nrg_tmp >> shft;
+    silk_assert( nrg >= 0 );
+    /* Output arguments */
+    *shift  = shft;
+    *energy = nrg;
+}
+#endif

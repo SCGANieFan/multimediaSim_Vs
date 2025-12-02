@@ -163,4 +163,6 @@
 
 #endif
 
+typedef struct OpusEncoder OpusEncoder;
+typedef struct OpusDecoder OpusDecoder;
 #endif  /* OPUS_TYPES_H */

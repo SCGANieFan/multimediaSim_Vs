@@ -1,8 +1,17 @@
 #pragma once
 #include"MTF.Type.h"
-#include"MTF.Std.h"
 
 // std
+#ifdef WIN32
+#include <stdarg.h>
+typedef va_list VaListPorting_t;
+#define VaStartPorting(ap,x) va_start(ap,x)
+#define VaArgPorting(ap,t) va_arg(ap, t)
+#define VaEndPorting(ap) va_end(ap)
+#define VaCopyPorting(destination, source) va_copy(destination, source)
+#else
+
+#endif
 mtf_i32 VsprintfPorting(char* const buffer, char const* const format, VaListPorting_t argList);
 mtf_i32 VsprintfPorting(char* const buffer, char const* const format, ...);
 mtf_i32 VsnprintfPorting(char* const buffer, mtf_i32 const bufferCount, char const* const format, char* argList);

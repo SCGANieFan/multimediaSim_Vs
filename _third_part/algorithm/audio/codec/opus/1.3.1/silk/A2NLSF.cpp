@@ -60,6 +60,7 @@ static OPUS_INLINE void silk_A2NLSF_trans_poly(
 }
 /* Helper function for A2NLSF(..) */
 /* Polynomial evaluation          */
+#ifndef HIFI_OPT
 static OPUS_INLINE opus_int32 silk_A2NLSF_eval_poly( /* return the polynomial evaluation, in Q16     */
     opus_int32          *p,                     /* I    Polynomial, Q16                         */
     const opus_int32    x,                      /* I    Evaluation point, Q12                   */
@@ -91,6 +92,32 @@ static OPUS_INLINE opus_int32 silk_A2NLSF_eval_poly( /* return the polynomial ev
     }
     return y32;
 }
+#else
+static OPUS_INLINE opus_int32 silk_A2NLSF_eval_poly( /* return the polynomial evaluation, in Q16     */
+    opus_int32          *p,                     /* I    Polynomial, Q16                         */
+    const opus_int32    x,                      /* I    Evaluation point, Q12                   */
+    const opus_int      dd                      /* I    Order                                   */
+)
+{
+    int y32 = p[dd]; /* Q16 */
+    int x_Q16 = x << 4;
+    if (8 == dd) {
+        y32 = p[7] + (int)(int64_t)(AE_MUL32_LL(y32, x_Q16) >> 16);
+        y32 = p[6] + (int)(int64_t)(AE_MUL32_LL(y32, x_Q16) >> 16);
+        y32 = p[5] + (int)(int64_t)(AE_MUL32_LL(y32, x_Q16) >> 16);
+        y32 = p[4] + (int)(int64_t)(AE_MUL32_LL(y32, x_Q16) >> 16);
+        y32 = p[3] + (int)(int64_t)(AE_MUL32_LL(y32, x_Q16) >> 16);
+        y32 = p[2] + (int)(int64_t)(AE_MUL32_LL(y32, x_Q16) >> 16);
+        y32 = p[1] + (int)(int64_t)(AE_MUL32_LL(y32, x_Q16) >> 16);
+        y32 = p[0] + (int)(int64_t)(AE_MUL32_LL(y32, x_Q16) >> 16);
+    } else {
+        for(int n = dd - 1; n >= 0; n--) {
+            y32 = p[n] + (int)(int64_t)(AE_MUL32_LL(y32, x_Q16) >> 16); /* Q16 */
+        }
+    }
+    return y32;
+}
+#endif
 
 static OPUS_INLINE void silk_A2NLSF_init(
      const opus_int32    *a_Q16,

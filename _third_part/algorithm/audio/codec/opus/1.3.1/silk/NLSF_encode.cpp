@@ -42,7 +42,8 @@ opus_int32 silk_NLSF_encode(                                    /* O    Returns 
     const opus_int16            *pW_Q2,                         /* I    NLSF weight vector [ LPC_ORDER ]            */
     const opus_int              NLSF_mu_Q20,                    /* I    Rate weight for the RD optimization         */
     const opus_int              nSurvivors,                     /* I    Max survivors after first stage             */
-    const opus_int              signalType                      /* I    Signal type: 0/1/2                          */
+    const opus_int              signalType,                     /* I    Signal type: 0/1/2                          */
+    char *g_stack
 )
 {
     opus_int         i, s, ind1, bestIndex, prob_Q8, bits_q7;
@@ -58,7 +59,7 @@ opus_int32 silk_NLSF_encode(                                    /* O    Returns 
     opus_int16       ec_ix[        MAX_LPC_ORDER ];
     const opus_uint8 *pCB_element, *iCDF_ptr;
     const opus_int16 *pCB_Wght_Q9;
-    SAVE_STACK;
+
 
     celt_assert( signalType >= 0 && signalType <= 2 );
     silk_assert( NLSF_mu_Q20 <= 32767 && NLSF_mu_Q20 >= 0 );
@@ -67,15 +68,15 @@ opus_int32 silk_NLSF_encode(                                    /* O    Returns 
     silk_NLSF_stabilize( pNLSF_Q15, psNLSF_CB->deltaMin_Q15, psNLSF_CB->order );
 
     /* First stage: VQ */
-    ALLOC( err_Q24, psNLSF_CB->nVectors, opus_int32 );
+    ALLOC( g_stack, err_Q24, psNLSF_CB->nVectors, opus_int32 );
     silk_NLSF_VQ( err_Q24, pNLSF_Q15, psNLSF_CB->CB1_NLSF_Q8, psNLSF_CB->CB1_Wght_Q9, psNLSF_CB->nVectors, psNLSF_CB->order );
 
     /* Sort the quantization errors */
-    ALLOC( tempIndices1, nSurvivors, opus_int );
+    ALLOC( g_stack, tempIndices1, nSurvivors, opus_int );
     silk_insertion_sort_increasing( err_Q24, tempIndices1, psNLSF_CB->nVectors, nSurvivors );
 
-    ALLOC( RD_Q25, nSurvivors, opus_int32 );
-    ALLOC( tempIndices2, nSurvivors * MAX_LPC_ORDER, opus_int8 );
+    ALLOC( g_stack, RD_Q25, nSurvivors, opus_int32 );
+    ALLOC( g_stack, tempIndices2, nSurvivors * MAX_LPC_ORDER, opus_int8 );
 
     /* Loop over survivors */
     for( s = 0; s < nSurvivors; s++ ) {
@@ -119,6 +120,6 @@ opus_int32 silk_NLSF_encode(                                    /* O    Returns 
     silk_NLSF_decode( pNLSF_Q15, NLSFIndices, psNLSF_CB );
 
     ret = RD_Q25[ 0 ];
-    RESTORE_STACK;
+
     return ret;
 }

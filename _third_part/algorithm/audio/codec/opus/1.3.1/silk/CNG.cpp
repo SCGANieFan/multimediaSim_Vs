@@ -80,14 +80,15 @@ void silk_CNG(
     silk_decoder_state          *psDec,                         /* I/O  Decoder state                               */
     silk_decoder_control        *psDecCtrl,                     /* I/O  Decoder control                             */
     opus_int16                  frame[],                        /* I/O  Signal                                      */
-    opus_int                    length                          /* I    Length of residual                          */
+    opus_int                    length,                         /* I    Length of residual                          */
+    char *g_stack
 )
 {
     opus_int   i, subfr;
     opus_int32 LPC_pred_Q10, max_Gain_Q16, gain_Q16, gain_Q10;
     opus_int16 A_Q12[ MAX_LPC_ORDER ];
     silk_CNG_struct *psCNG = &psDec->sCNG;
-    SAVE_STACK;
+
 
     if( psDec->fs_kHz != psCNG->fs_kHz ) {
         /* Reset state */
@@ -124,7 +125,7 @@ void silk_CNG(
     /* Add CNG when packet is lost or during DTX */
     if( psDec->lossCnt ) {
         VARDECL( opus_int32, CNG_sig_Q14 );
-        ALLOC( CNG_sig_Q14, length + MAX_LPC_ORDER, opus_int32 );
+        ALLOC( g_stack, CNG_sig_Q14, length + MAX_LPC_ORDER, opus_int32 );
 
         /* Generate CNG excitation */
         gain_Q16 = silk_SMULWW( psDec->sPLC.randScale_Q14, psDec->sPLC.prevGain_Q16[1] );
@@ -180,5 +181,5 @@ void silk_CNG(
     } else {
         silk_memset( psCNG->CNG_synth_state, 0, psDec->LPC_order *  sizeof( opus_int32 ) );
     }
-    RESTORE_STACK;
+
 }

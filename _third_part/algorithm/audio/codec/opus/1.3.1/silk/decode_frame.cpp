@@ -43,15 +43,16 @@ opus_int silk_decode_frame(
     opus_int32                  *pN,                            /* O    Pointer to size of output frame             */
     opus_int                    lostFlag,                       /* I    0: no loss, 1 loss, 2 decode fec            */
     opus_int                    condCoding,                     /* I    The type of conditional coding to use       */
-    int                         arch                            /* I    Run-time architecture                       */
+    int                         arch,                           /* I    Run-time architecture                       */
+    char *g_stack
 )
 {
     VARDECL( silk_decoder_control, psDecCtrl );
     opus_int         L, mv_len, ret = 0;
-    SAVE_STACK;
+
 
     L = psDec->frame_length;
-    ALLOC( psDecCtrl, 1, silk_decoder_control );
+    ALLOC( g_stack, psDecCtrl, 1, silk_decoder_control );
     psDecCtrl->LTP_scale_Q14 = 0;
 
     /* Safety checks */
@@ -61,7 +62,7 @@ opus_int silk_decode_frame(
         ( lostFlag == FLAG_DECODE_LBRR && psDec->LBRR_flags[ psDec->nFramesDecoded ] == 1 ) )
     {
         VARDECL( opus_int16, pulses );
-        ALLOC( pulses, (L + SHELL_CODEC_FRAME_LENGTH - 1) &
+        ALLOC( g_stack, pulses, (L + SHELL_CODEC_FRAME_LENGTH - 1) &
                        ~(SHELL_CODEC_FRAME_LENGTH - 1), opus_int16 );
         /*********************************************/
         /* Decode quantization indices of side info  */
@@ -82,12 +83,12 @@ opus_int silk_decode_frame(
         /********************************************************/
         /* Run inverse NSQ                                      */
         /********************************************************/
-        silk_decode_core( psDec, psDecCtrl, pOut, pulses, arch );
+        silk_decode_core( psDec, psDecCtrl, pOut, pulses, arch, g_stack );
 
         /********************************************************/
         /* Update PLC state                                     */
         /********************************************************/
-        silk_PLC( psDec, psDecCtrl, pOut, 0, arch );
+        silk_PLC( psDec, psDecCtrl, pOut, 0, arch, g_stack );
 
         psDec->lossCnt = 0;
         psDec->prevSignalType = psDec->indices.signalType;
@@ -98,7 +99,7 @@ opus_int silk_decode_frame(
     } else {
         /* Handle packet loss by extrapolation */
         psDec->indices.signalType = psDec->prevSignalType;
-        silk_PLC( psDec, psDecCtrl, pOut, 1, arch );
+        silk_PLC( psDec, psDecCtrl, pOut, 1, arch, g_stack );
     }
 
     /*************************/
@@ -112,7 +113,7 @@ opus_int silk_decode_frame(
     /************************************************/
     /* Comfort noise generation / estimation        */
     /************************************************/
-    silk_CNG( psDec, psDecCtrl, pOut, L );
+    silk_CNG( psDec, psDecCtrl, pOut, L, g_stack );
 
     /****************************************************************/
     /* Ensure smooth connection of extrapolated and good frames     */
@@ -125,6 +126,6 @@ opus_int silk_decode_frame(
     /* Set output frame length */
     *pN = L;
 
-    RESTORE_STACK;
+
     return ret;
 }

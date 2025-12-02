@@ -34,7 +34,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
+#if (COMPILE_CELT_ENC)||(COMPILE_CELT_DEC)
 #include "mathops.h"
 
 /*Compute floor(sqrt(_val)) with exact arithmetic.
@@ -206,4 +206,5 @@ opus_val32 celt_rcp(opus_val32 x)
    return VSHR32(EXTEND32(r),i-16);
 }
 
+#endif
 #endif

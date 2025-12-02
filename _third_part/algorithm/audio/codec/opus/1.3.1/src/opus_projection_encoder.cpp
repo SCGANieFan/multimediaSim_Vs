@@ -29,6 +29,7 @@
 #include "config.h"
 #endif
 
+#if OPUS_OPEN_ENC
 #include "mathops.h"
 #include "os_support.h"
 #include "opus_private.h"
@@ -43,6 +44,7 @@ struct OpusProjectionEncoder
   opus_int32 mixing_matrix_size_in_bytes;
   opus_int32 demixing_matrix_size_in_bytes;
   /* Encoder states go here */
+  OpusBasePort_t basePort;
 };
 
 #if !defined(DISABLE_FLOAT_API)
@@ -202,7 +204,7 @@ opus_int32 opus_projection_ambisonics_encoder_get_size(int channels,
 int opus_projection_ambisonics_encoder_init(OpusProjectionEncoder *st, opus_int32 Fs,
                                             int channels, int mapping_family,
                                             int *streams, int *coupled_streams,
-                                            int application)
+                                            int application, int global_stack_size)
 {
   MappingMatrix *mixing_matrix;
   MappingMatrix *demixing_matrix;
@@ -300,14 +302,14 @@ int opus_projection_ambisonics_encoder_init(OpusProjectionEncoder *st, opus_int3
 
   /* Initialize multistream encoder with provided settings. */
   ms_encoder = get_multistream_encoder(st);
-  ret = opus_multistream_encoder_init(ms_encoder, Fs, channels, *streams,
-                                      *coupled_streams, mapping, application);
+  ret = opus_multistream_encoder_init(&st->basePort, ms_encoder, Fs, channels, *streams,
+                                      *coupled_streams, mapping, application, global_stack_size);
   return ret;
 }
 
 OpusProjectionEncoder *opus_projection_ambisonics_encoder_create(
-    opus_int32 Fs, int channels, int mapping_family, int *streams,
-    int *coupled_streams, int application, int *error)
+    OpusBasePort_t *basePort, opus_int32 Fs, int channels, int mapping_family, int *streams,
+    int *coupled_streams, int application, int *error, int global_stack_size)
 {
   int size;
   int ret;
@@ -320,20 +322,20 @@ OpusProjectionEncoder *opus_projection_ambisonics_encoder_create(
       *error = OPUS_ALLOC_FAIL;
     return NULL;
   }
-  st = (OpusProjectionEncoder *)opus_alloc(size);
+  st = (OpusProjectionEncoder *)basePort->malloc_cb(size);
   if (!st)
   {
     if (error)
       *error = OPUS_ALLOC_FAIL;
     return NULL;
   }
-
+  st->basePort = *basePort;
   /* Initialize projection encoder with provided settings. */
   ret = opus_projection_ambisonics_encoder_init(st, Fs, channels,
-     mapping_family, streams, coupled_streams, application);
+     mapping_family, streams, coupled_streams, application, global_stack_size);
   if (ret != OPUS_OK)
   {
-    opus_free(st);
+    basePort->free_cb(st);
     st = NULL;
   }
   if (error)
@@ -374,7 +376,7 @@ int opus_projection_encode_float(OpusProjectionEncoder *st, const float *pcm,
 
 void opus_projection_encoder_destroy(OpusProjectionEncoder *st)
 {
-  opus_free(st);
+  st->basePort.free_cb(st);
 }
 
 int opus_projection_encoder_ctl(OpusProjectionEncoder *st, int request, ...)
@@ -466,3 +468,4 @@ bad_arg:
   return OPUS_BAD_ARG;
 }
 
+#endif

@@ -36,7 +36,8 @@ void silk_process_NLSFs(
     silk_encoder_state          *psEncC,                            /* I/O  Encoder state                               */
     opus_int16                  PredCoef_Q12[ 2 ][ MAX_LPC_ORDER ], /* O    Prediction coefficients                     */
     opus_int16                  pNLSF_Q15[         MAX_LPC_ORDER ], /* I/O  Normalized LSFs (quant out) (0 - (2^15-1))  */
-    const opus_int16            prev_NLSFq_Q15[    MAX_LPC_ORDER ]  /* I    Previous Normalized LSFs (0 - (2^15-1))     */
+    const opus_int16            prev_NLSFq_Q15[    MAX_LPC_ORDER ], /* I    Previous Normalized LSFs (0 - (2^15-1))     */
+    char *g_stack
 )
 {
     opus_int     i, doInterpolate;
@@ -86,7 +87,7 @@ void silk_process_NLSFs(
     }
 
     silk_NLSF_encode( psEncC->indices.NLSFIndices, pNLSF_Q15, psEncC->psNLSF_CB, pNLSFW_QW,
-        NLSF_mu_Q20, psEncC->NLSF_MSVQ_Survivors, psEncC->indices.signalType );
+        NLSF_mu_Q20, psEncC->NLSF_MSVQ_Survivors, psEncC->indices.signalType, g_stack );
 
     /* Convert quantized NLSFs back to LPC coefficients */
     silk_NLSF2A( PredCoef_Q12[ 1 ], pNLSF_Q15, psEncC->predictLPCOrder, psEncC->arch );

@@ -37,7 +37,10 @@ extern "C"
 
 #define SILK_MAX_ORDER_LPC            24            /* max order of the LPC analysis in schur() and k2a() */
 
-#include <string.h>                                 /* for memset(), memcpy(), memmove() */
+// #include <string.h>                                 /* for memset(), memcpy(), memmove() */
+#include "opus_base_port_inner.h"
+#include "opus_base_port.h"
+
 #include "typedef.h"
 #include "resampler_structs.h"
 #include "macros.h"
@@ -73,7 +76,8 @@ opus_int silk_resampler(
     silk_resampler_state_struct *S,                 /* I/O  Resampler state                                             */
     opus_int16                  out[],              /* O    Output signal                                               */
     const opus_int16            in[],               /* I    Input signal                                                */
-    opus_int32                  inLen               /* I    Number of input samples                                     */
+    opus_int32                  inLen,              /* I    Number of input samples                                     */
+    char *g_stack
 );
 
 /*!
@@ -93,7 +97,8 @@ void silk_resampler_down2_3(
     opus_int32                  *S,                 /* I/O  State vector [ 6 ]                                          */
     opus_int16                  *out,               /* O    Output signal [ floor(2*inLen/3) ]                          */
     const opus_int16            *in,                /* I    Input signal [ inLen ]                                      */
-    opus_int32                  inLen               /* I    Number of input samples                                     */
+    opus_int32                  inLen,              /* I    Number of input samples                                     */
+    char *g_stack
 );
 
 /*!
@@ -126,7 +131,8 @@ void silk_LPC_analysis_filter(
     const opus_int16            *B,                 /* I    MA prediction coefficients, Q12 [order]                     */
     const opus_int32            len,                /* I    Signal length                                               */
     const opus_int32            d,                  /* I    Filter order                                                */
-    int                         arch                /* I    Run-time architecture                                       */
+    int                         arch,               /* I    Run-time architecture                                       */
+    char *g_stack
 );
 
 /* Chirp (bandwidth expand) LP AR filter */
@@ -248,7 +254,8 @@ void silk_autocorr(
     const opus_int16            *inputData,         /* I    Input data to correlate                                     */
     const opus_int              inputDataSize,      /* I    Length of input                                             */
     const opus_int              correlationCount,   /* I    Number of correlation taps to compute                       */
-    int                         arch                /* I    Run-time architecture                                       */
+    int                         arch,               /* I    Run-time architecture                                       */
+    char *g_stack
 );
 
 void silk_decode_pitch(
@@ -271,7 +278,8 @@ opus_int silk_pitch_analysis_core(                  /* O    Voicing estimate: 0 
     const opus_int              Fs_kHz,             /* I    Sample frequency (kHz)                                      */
     const opus_int              complexity,         /* I    Complexity setting, 0-2, where 2 is highest                 */
     const opus_int              nb_subfr,           /* I    number of 5 ms subframes                                    */
-    int                         arch                /* I    Run-time architecture                                       */
+    int                         arch,               /* I    Run-time architecture                                       */
+    char *g_stack
 );
 
 /* Compute Normalized Line Spectral Frequencies (NLSFs) from whitening filter coefficients      */
@@ -380,13 +388,19 @@ opus_int32 silk_inner_prod_aligned_scale(
     const opus_int              scale,              /*    I number of bits to shift                                     */
     const opus_int              len                 /*    I vector lengths                                              */
 );
-
+#ifndef HIFI_OPT
 opus_int64 silk_inner_prod16_aligned_64_c(
     const opus_int16            *inVec1,            /*    I input vector 1                                              */
     const opus_int16            *inVec2,            /*    I input vector 2                                              */
     const opus_int              len                 /*    I vector lengths                                              */
 );
-
+#else
+ae_int64 silk_inner_prod16_aligned_64_c(
+    const opus_int16            *inVec1,            /*    I input vector 1                                              */
+    const opus_int16            *inVec2,            /*    I input vector 2                                              */
+    const opus_int              len                 /*    I vector lengths                                              */
+);
+#endif
 /********************************************************************/
 /*                                MACROS                            */
 /********************************************************************/
@@ -417,10 +431,17 @@ static OPUS_INLINE opus_int32 silk_ROR32( opus_int32 a32, opus_int rot )
 #endif
 
 /* Useful Macros that can be adjusted to other platforms */
+#if 1
+#if 0
 #define silk_memcpy(dest, src, size)        memcpy((dest), (src), (size))
 #define silk_memset(dest, src, size)        memset((dest), (src), (size))
 #define silk_memmove(dest, src, size)       memmove((dest), (src), (size))
-
+#else
+#define silk_memcpy(dest, src, size)        opus_memcpy_inner((dest), (src), (size))
+#define silk_memset(dest, src, size)        opus_memset_inner((dest), (src), (size))
+#define silk_memmove(dest, src, size)       opus_memmove_inner((dest), (src), (size))
+#endif
+#endif
 /* Fixed point macros */
 
 /* (a32 * b32) output have to be 32bit int */
@@ -607,7 +628,11 @@ static OPUS_INLINE opus_int64 silk_max_64(opus_int64 a, opus_int64 b)
           ARMv3M+      3 instruction cycles. use SMULL and ignore LSB registers.(except xM)*/
 /*#define silk_SMMUL(a32, b32)                (opus_int32)silk_RSHIFT(silk_SMLAL(silk_SMULWB((a32), (b32)), (a32), silk_RSHIFT_ROUND((b32), 16)), 16)*/
 /* the following seems faster on x86 */
+#ifndef HIFI_OPT
 #define silk_SMMUL(a32, b32)                (opus_int32)silk_RSHIFT64(silk_SMULL((a32), (b32)), 32)
+#else
+#define silk_SMMUL(a32, b32)                (XT_MULSH(a32, b32))
+#endif
 
 #if !defined(OPUS_X86_MAY_HAVE_SSE4_1)
 #define silk_burg_modified(res_nrg, res_nrg_Q, A_Q16, x, minInvGain_Q30, subfr_length, nb_subfr, D, arch) \

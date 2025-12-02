@@ -94,13 +94,13 @@ void celt_fir_c(
          opus_val16 *y,
          int N,
          int ord,
-         int arch)
+         int arch,
+         char *g_stack)
 {
    int i,j;
    VARDECL(opus_val16, rnum);
-   SAVE_STACK;
    celt_assert(x != y);
-   ALLOC(rnum, ord, opus_val16);
+   ALLOC(g_stack, rnum, ord, opus_val16);
    for(i=0;i<ord;i++)
       rnum[i] = num[ord-i-1];
    for (i=0;i<N-3;i+=4)
@@ -123,7 +123,6 @@ void celt_fir_c(
          sum = MAC16_16(sum,rnum[j],x[i+j-ord]);
       y[i] = ROUND16(sum, SIG_SHIFT);
    }
-   RESTORE_STACK;
 }
 
 void celt_iir(const opus_val32 *_x,
@@ -132,7 +131,8 @@ void celt_iir(const opus_val32 *_x,
          int N,
          int ord,
          opus_val16 *mem,
-         int arch)
+         int arch,
+         char *g_stack)
 {
 #ifdef SMALL_FOOTPRINT
    int i,j;
@@ -155,11 +155,10 @@ void celt_iir(const opus_val32 *_x,
    int i,j;
    VARDECL(opus_val16, rden);
    VARDECL(opus_val16, y);
-   SAVE_STACK;
 
    celt_assert((ord&3)==0);
-   ALLOC(rden, ord, opus_val16);
-   ALLOC(y, N+ord, opus_val16);
+   ALLOC(g_stack, rden, ord, opus_val16);
+   ALLOC(g_stack, y, N+ord, opus_val16);
    for(i=0;i<ord;i++)
       rden[i] = den[ord-i-1];
    for(i=0;i<ord;i++)
@@ -203,10 +202,10 @@ void celt_iir(const opus_val32 *_x,
    }
    for(i=0;i<ord;i++)
       mem[i] = _y[N-i-1];
-   RESTORE_STACK;
 #endif
 }
 
+#ifndef HIFI_OPT
 int _celt_autocorr(
                    const opus_val16 *x,   /*  in: [0...n-1] samples x   */
                    opus_val32       *ac,  /* out: [0...lag-1] ac values */
@@ -214,7 +213,8 @@ int _celt_autocorr(
                    int          overlap,
                    int          lag,
                    int          n,
-                   int          arch
+                   int          arch,
+                   char *g_stack
                   )
 {
    opus_val32 d;
@@ -223,8 +223,7 @@ int _celt_autocorr(
    int shift;
    const opus_val16 *xptr;
    VARDECL(opus_val16, xx);
-   SAVE_STACK;
-   ALLOC(xx, n, opus_val16);
+   ALLOC(g_stack, xx, n, opus_val16);
    celt_assert(n>0);
    celt_assert(overlap>=0);
    if (overlap == 0)
@@ -291,6 +290,117 @@ int _celt_autocorr(
    }
 #endif
 
-   RESTORE_STACK;
    return shift;
 }
+#else
+int _celt_autocorr(
+                   const opus_val16 *x,   /*  in: [0...n-1] samples x   */
+                   opus_val32       *ac,  /* out: [0...lag-1] ac values */
+                   const opus_val16       *window,
+                   int          overlap,
+                   int          lag,
+                   int          n,
+                   int          arch,
+                   char *g_stack
+                  )
+{
+    celt_assert(n > 0);
+    celt_assert(overlap >= 0);
+    int i, k;
+    const short *xptr;
+    short *xx;
+    ALLOC(g_stack, xx, n, opus_val16);//must 8 byte align
+    if (overlap == 0) {
+        xptr = x;
+    } else {
+        for (int i = 0; i < n; i++)
+            xx[i] = x[i];
+        for (int i = 0; i < overlap; i++) {
+            xx[i] = x[i] * window[i] >> 15;
+            xx[n - i - 1] = x[n - i - 1] * window[i] >> 15;
+        }
+        xptr = xx;
+    }
+    int shift = 0;
+    int ac0 = 1 + (n << 7);
+    {
+        ae_int16x4 * src = (ae_int16x4*)xptr;
+        ae_int64 sum0 = 0;
+        ae_int64 sum1 = 0;
+        int N = n >> 3;
+        for (int i = 0; i < N; i++) {
+            ae_int16x4 s1 = *src++;
+            ae_int16x4 s2 = *src++;
+            AE_MULAAAAQ16(sum0, s1, s1);
+            AE_MULAAAAQ16(sum1, s2, s2);
+        }
+        sum0+=sum1;
+        ac0 += (int)(int64_t)(sum0 >> 9);
+        for (int i = N << 3; i < n; i++){
+            ac0 += (xptr[i] * xptr[i] >> 9);
+        }
+    }
+    shift = celt_ilog2(ac0) - 30 + 10;
+    shift = shift >> 1;
+    if (shift > 0) {
+        ae_int16x4 * src = (ae_int16x4*)xptr;
+        ae_int16x4 * dest = (ae_int16x4*)xx;
+        int loops = n >> 2;
+        for(int i = 0; i < loops; i++) {
+            ae_int16x4 s1 = *src++;
+            ae_int16x4 s2 = AE_SRAA16RS(s1, shift);
+            AE_S16X4_IP(s2, dest, 8);
+        }
+        for (i = loops << 2; i < n; i++)
+            xx[i] = PSHR32(xptr[i], shift);
+        xptr = xx;
+    } else {
+        shift = 0;
+    }
+    int fastN = n - lag;
+    celt_pitch_xcorr(xptr, xptr, ac, fastN, lag + 1, arch);
+    for (k = 0; k <= lag; k++) {
+        ae_int16x4 * src1 = (ae_int16x4*)(xptr + fastN + k);
+        ae_int16x4 * src2 = (ae_int16x4*)(xptr + fastN);
+        ae_valign align1 = AE_LA64_PP(src1);
+        ae_valign align2 = AE_LA64_PP(src2);
+        ae_int16x4 s1, s2;
+        ae_int64 sum0 = 0;
+        int loops = n - k - fastN;
+        loops = loops >> 2;
+        AE_LA16X4_IP(s1, align1, src1);
+        AE_LA16X4_IP(s2, align2, src2);
+        for (int i = 0; i < loops; i++) {
+            AE_MULAAAAQ16(sum0, s1, s2);
+            AE_LA16X4_IP(s1, align1, src1);
+            AE_LA16X4_IP(s2, align2, src2);
+        }
+        int d = (int)(int64_t)sum0;
+        for (i = k + fastN + (loops << 2); i < n; i++) {
+            d = MAC16_16(d, xptr[i], xptr[i - k]);
+        }
+        ac[k] += d;
+    }
+    shift = 2 * shift;
+    if (shift <= 0) {
+        ac[0] += SHL32((opus_int32)1, -shift);
+    }
+    if (ac[0] < 268435456) {
+        int shift2 = 29 - EC_ILOG(ac[0]);
+        for (i = 0; i <= lag; i++) {
+            ac[i] = SHL32(ac[i], shift2);
+        }
+        shift -= shift2;
+    } else if (ac[0] >= 536870912) {
+        int shift2 = 1;
+        if (ac[0] >= 1073741824) {
+            shift2++;
+        }
+        for (i = 0; i <= lag; i++) {
+            ac[i] = SHR32(ac[i], shift2);
+        }
+        shift += shift2;
+    }
+    return shift;
+}
+#endif

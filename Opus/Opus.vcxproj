@@ -82,9 +82,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>HAVE_CONFIG_H;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_CONFIG_H;NDEBUG;_LIB;OPUS_OPEN_ENC=1;OPUS_OPEN_DEC=1;WIN32=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32;$(MTF_PATH)/interface/opus;$(ALGO_AUDIO_PATH)/codec/opus/;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/celt;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/include;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/silk;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/silk/fixed;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/interface/opus;$(MTF_PATH)/porting;$(GADF_PATH);$(GADF_PATH)/src;$(ALGO_AUDIO_PATH)/codec/opus/;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/celt;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/include;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/silk;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/silk/fixed;$(ALGO_AUDIO_PATH)/codec/opus/1.3.1/src;$(ALGO_AUDIO_PATH)/codec/opus/api;$(ALGO_AUDIO_PATH)/codec/opus/demo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -177,9 +177,11 @@
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\celt\_kiss_fft_guts.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\config.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_base_port.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_base_port_inner.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_config.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_custom.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_defines.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_memory.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_multistream.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_projection.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_types.h" />
@@ -211,7 +213,12 @@
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\mlp.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_private.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\tansig_table.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\OpusApi.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\dec_normal\opus_dec_normal.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\enc_normal\opus_enc_normal.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api_private.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\demo\gadf_opus.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_demo.h" />
     <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusDec.h" />
     <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusDemuxer.h" />
     <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusEnc.h" />
@@ -342,16 +349,30 @@
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\mlp.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\mlp_data.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_base_port.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_decoder.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_encoder.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_memory.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_multistream.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_multistream_decoder.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_multistream_encoder.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_projection_decoder.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_projection_encoder.cpp" />
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\repacketizer.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\OpusApi.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\dec_normal\opus_dec_normal.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\enc_normal\opus_enc_normal.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api_dec.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api_enc.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api_private.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\gadf_opus.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\gadf_register_info_opus_dec_16k1ch.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\gadf_register_info_opus_dec_16k2ch.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\gadf_register_info_opus_dec_48k1ch.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\gadf_register_info_opus_dec_48k2ch.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\gadf_register_info_opus_enc_16k1ch.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\gadf_register_info_opus_enc_16k2ch.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\gadf_register_info_opus_enc_48k1ch.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\gadf_register_info_opus_enc_48k2ch.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_demo.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusDec.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusDemuxer.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusEnc.cpp" />

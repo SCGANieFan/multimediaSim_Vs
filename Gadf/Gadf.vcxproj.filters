@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{d8791359-205e-4c01-964e-bdf67f1c6cb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="porting">
+      <UniqueIdentifier>{54d3abda-0b13-493c-8bfe-090980f973f6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\_third_part\Gadf\src\gadf_porting_api.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\Gadf\src\gadf_private.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\Gadf\porting\heap_api.cpp">
+      <Filter>porting</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\Gadf\gadf.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\_third_part\Gadf\src\gadf_porting_api.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\Gadf\src\gadf_private.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\Gadf\src\gadf_info.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\Gadf\porting\hal_trace.h">
+      <Filter>porting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\Gadf\porting\heap_api.h">
+      <Filter>porting</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\Gadf\gadf.h" />
+  </ItemGroup>
+</Project>

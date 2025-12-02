@@ -1,8 +1,6 @@
 #include "MTF.OpusDec.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
-#include "OpusApi.h"
-using namespace OpusApi_ns;
 
 
 using namespace mtf_ns;
@@ -14,15 +12,18 @@ void mtf_opus_dec_register()
 }
 MTF_OpusDec::MTF_OpusDec()
 {
+#if 0
 	OpusApiMemory_t opusApiMemory;
 	opusApiMemory.malloc_cb = Malloc;
 	opusApiMemory.realloc_cb = Realloc;
 	opusApiMemory.free_cb = Free;
 	OpusApi::memory_register(&opusApiMemory);
+#endif
 }
 
 MTF_OpusDec::~MTF_OpusDec()
 {
+#if 0
 	if (_iData.Data())
 	{
 		_iData.Used(_iData._size);
@@ -39,13 +40,23 @@ MTF_OpusDec::~MTF_OpusDec()
 			OpusApi::destory_decoder(_hd);
 		_hd = 0;
 	}
+#endif
 }
 
 mtf_i32 MTF_OpusDec::Init()
 {	
-	MTF_PRINT("channels:%d", _ch);
-	MTF_PRINT("frameSamples:%d", _frameSamples);
-	MTF_PRINT("fsHz:%d", _rate);
+#if 0
+	//lib init
+	const mtf_int8* type = type_this;
+	MA_Ret ret;
+	ret = MAF_GetHandleSize(type, &_hdSize);
+	if (ret != MA_RET_SUCCESS)
+		MTF_PRINT("err");
+	if (_hdSize < 1)
+		MTF_PRINT("err");
+	_hd = MTF_MALLOC(_hdSize);
+	if (!_hd)
+		MTF_PRINT("err");
 
 	OpusApiRet_t ret = OpusApi::create_decoder(&_hd, _rate, _ch);
 	if (ret != OPUS_API_RET_SUCCESS) {
@@ -55,34 +66,38 @@ mtf_i32 MTF_OpusDec::Init()
 	MTF_PRINT("create decoder success\n");
 
 	//io data
-	mtf_i32 size = _frameBytes;
-	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
-	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
-
+	mtf_int32 size = _frameBytes;
+	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
+#endif
 	return 0;
 }
 
 mtf_i32 MTF_OpusDec::receive(MTF_Data& iData)
 {
+#if 0
 	_iData.Append(iData.Data(), iData._size);
 	if (iData._flags & MTF_DataFlag_ESO)
 		_iData._flags |= MTF_DataFlag_ESO;
 	iData.Used(iData._size);
+#endif
 	return 0;
 }
 
 mtf_i32 MTF_OpusDec::generate(MTF_Data*& oData)
 {
-	//MAF_Run(_hd, &AA_iData, &AA_oData);
-	mtf_u8* iBuff = (mtf_u8*)_iData.Data();
-	mtf_i32 iSize = _iData._size;
-	mtf_i16* oBuff = (mtf_i16*)_oData.LeftData();
-	mtf_i32 oSample = _oData.LeftSize() / (2 * _ch);
-	mtf_bool isPlc = false;
-	OpusApiRet_t ret = OpusApi::decoder_run(_hd, iBuff, iSize, oBuff, &oSample, isPlc);
-	if (ret != OPUS_API_RET_SUCCESS) {
-		return -1;
-	}
+#if 0
+	AA_Data AA_iData;
+	MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
+	AA_iData.buff = _iData.Data();
+	AA_iData.max = AA_iData.size = _iData._size;
+
+	AA_Data AA_oData;
+	MTF_MEM_SET(&AA_oData, 0, sizeof(AA_Data));
+	AA_oData.buff = _oData.LeftData();
+	AA_oData.max = _oData.LeftSize();
+
+	MAF_Run(_hd, &AA_iData, &AA_oData);
 	_iData.Used(_iData._size);
 	_oData._size += oSample * 2 * _ch;
 
@@ -90,6 +105,7 @@ mtf_i32 MTF_OpusDec::generate(MTF_Data*& oData)
 		_oData._flags |= MTF_DataFlag_ESO;
 	}
 	oData = &_oData;
+#endif
 	return 0;
 }
 
