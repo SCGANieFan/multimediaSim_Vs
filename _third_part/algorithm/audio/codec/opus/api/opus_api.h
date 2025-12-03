@@ -14,6 +14,7 @@
  *
  ****************************************************************************/
 #pragma once
+#include <stddef.h>
 
 #ifndef EXTERNC
 #ifdef __cplusplus
