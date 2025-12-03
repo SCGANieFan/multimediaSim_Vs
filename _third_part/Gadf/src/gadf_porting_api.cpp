@@ -72,3 +72,18 @@ void* GadfHheapRealloc(void* heap, void* rmem, int newsize) {
 void GadfHeapFree(void* heap, void* rmem) {
 	heap_free((multi_heap_handle_t)heap, rmem);
 }
+
+//thread
+#ifdef  WIN32
+#include <thread>
+void* GadfThreadStart(const char* name, void* threadParam, void(*func)(void*), void* funcParam, uint32_t stackSize) {
+	auto threadId = new std::thread([name, func, funcParam]() {
+		func(funcParam);
+		});
+	return threadId;
+}
+#else	
+void* GadfTh; eadStart(void* threadParam, void(*func)(void* param), void* param) {
+	return 0l
+}
+#endif

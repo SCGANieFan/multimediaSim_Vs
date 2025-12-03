@@ -24,7 +24,6 @@
 #include "ogg_crctable.h"
 #include "ogg.h"
 /* A complete description of Ogg framing exists in docs/framing.html */
-namespace ogg_ns {
 int ogg_page_version(const ogg_page *og){
   return((int)(og->header[4]));
 }
@@ -124,18 +123,18 @@ static void _ogg_crc_init(){
 
 /* init the encode/decode logical stream state */
 
-int ogg_stream_init(ogg_stream_state *os,int serialno,OggMemoryManger_c *MM){
+int ogg_stream_init(ogg_stream_state *os,int serialno,ogg_memory_t *memory){
   if(os){
     memset(os,0,sizeof(*os));
-    os->MM = MM;
+    os->memory = *memory;
     os->body_storage=4*1024;
     os->lacing_storage=512;
     
-    os->body_data= (unsigned char*)os->MM->malloc(os->body_storage*sizeof(*os->body_data));
+    os->body_data= (unsigned char*)os->memory.malloc_cb(os->body_storage*sizeof(*os->body_data));
     if(!os->body_data){return -1;}
-    os->lacing_vals=(int*)os->MM->malloc(os->lacing_storage*sizeof(*os->lacing_vals));
+    os->lacing_vals=(int*)os->memory.malloc_cb(os->lacing_storage*sizeof(*os->lacing_vals));
     if(!os->body_data){return -1;}
-    os->granule_vals=(ogg_int64_t*)os->MM->malloc(os->lacing_storage*sizeof(*os->granule_vals));
+    os->granule_vals=(ogg_int64_t*)os->memory.malloc_cb(os->lacing_storage*sizeof(*os->granule_vals));
     if(!os->body_data || !os->lacing_vals || !os->granule_vals){
       ogg_stream_clear(os);
       return -1;
@@ -157,9 +156,9 @@ int ogg_stream_check(ogg_stream_state *os){
 /* _clear does not free os, only the non-flat storage within */
 int ogg_stream_clear(ogg_stream_state *os){
   if(os){
-    if(os->body_data)os->MM->free(os->body_data);
-    if(os->lacing_vals)os->MM->free(os->lacing_vals);
-    if(os->granule_vals)os->MM->free(os->granule_vals);
+    if(os->body_data)os->memory.free_cb(os->body_data);
+    if(os->lacing_vals)os->memory.free_cb(os->lacing_vals);
+    if(os->granule_vals)os->memory.free_cb(os->granule_vals);
 
     memset(os,0,sizeof(*os));
   }
@@ -168,9 +167,9 @@ int ogg_stream_clear(ogg_stream_state *os){
 
 int ogg_stream_destroy(ogg_stream_state *os){
   if(os){
-    OggMemoryManger_c *MM = os->MM;
+    ogg_memory_t memory = os->memory;
     ogg_stream_clear(os);
-    MM->free(os);
+    memory.free_cb(os);
   }
   return(0);
 }
@@ -188,7 +187,7 @@ static int _os_body_expand(ogg_stream_state *os,long needed){
     }
     body_storage=os->body_storage+needed;
     if(body_storage<LONG_MAX-1024)body_storage+=1024;
-    ret=os->MM->realloc(os->body_data,body_storage*sizeof(*os->body_data));
+    ret=os->memory.realloc_cb(os->body_data,body_storage*sizeof(*os->body_data));
     if(!ret){
       ogg_stream_clear(os);
       return -1;
@@ -209,13 +208,13 @@ static int _os_lacing_expand(ogg_stream_state *os,long needed){
     }
     lacing_storage=os->lacing_storage+needed;
     if(lacing_storage<LONG_MAX-32)lacing_storage+=32;
-    ret=os->MM->realloc(os->lacing_vals,lacing_storage*sizeof(*os->lacing_vals));
+    ret=os->memory.realloc_cb(os->lacing_vals,lacing_storage*sizeof(*os->lacing_vals));
     if(!ret){
       ogg_stream_clear(os);
       return -1;
     }
     os->lacing_vals=(int*)ret;
-    ret=os->MM->realloc(os->granule_vals,lacing_storage*
+    ret=os->memory.realloc_cb(os->granule_vals,lacing_storage*
                      sizeof(*os->granule_vals));
     if(!ret){
       ogg_stream_clear(os);
@@ -551,19 +550,19 @@ int ogg_stream_eos(ogg_stream_state *os){
    ogg_stream_state. */
 
 /* initialize the struct to a known state */
-int ogg_sync_init(ogg_sync_state *oy, OggMemoryManger_c *MM){
+int ogg_sync_init(ogg_sync_state *oy, ogg_memory_t *memory){
   if(oy){
     oy->storage = -1; /* used as a readiness flag */
     memset(oy,0,sizeof(*oy));
   }
-  oy->MM = MM;
+  oy->memory = *memory;
   return(0);
 }
 
 /* clear non-flat storage within */
 int ogg_sync_clear(ogg_sync_state *oy){
   if(oy){
-    if(oy->data)oy->MM->free(oy->data);
+    if(oy->data)oy->memory.free_cb(oy->data);
     memset(oy,0,sizeof(*oy));
   }
   return(0);
@@ -571,9 +570,9 @@ int ogg_sync_clear(ogg_sync_state *oy){
 
 int ogg_sync_destroy(ogg_sync_state *oy){
   if(oy){
-    OggMemoryManger_c *MM = oy->MM;
+    ogg_memory_t memory = oy->memory;
     ogg_sync_clear(oy);
-    MM->free(oy);
+    memory.free_cb(oy);
   }
   return(0);
 }
@@ -605,9 +604,9 @@ char *ogg_sync_buffer(ogg_sync_state *oy, long size){
     }
     newsize=size+oy->fill+4096; /* an extra page to be nice */
     if(oy->data)
-      ret=oy->MM->realloc(oy->data,newsize);
+      ret=oy->memory.realloc_cb(oy->data,newsize);
     else
-      ret=oy->MM->malloc(newsize);
+      ret=oy->memory.malloc_cb(newsize);
     if(!ret){
       ogg_sync_clear(oy);
       return NULL;
@@ -1005,5 +1004,4 @@ void ogg_packet_clear(ogg_packet *op) {
   _ogg_free(op->packet);
   memset(op, 0, sizeof(*op));
 #endif
-}
 }

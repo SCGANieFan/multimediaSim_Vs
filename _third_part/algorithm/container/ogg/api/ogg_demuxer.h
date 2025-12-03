@@ -1,10 +1,12 @@
 #pragma once
-#include "OggBase.h"
 #include "ogg.h"
-#include "OggMemoryManger_c.h"
-namespace ogg_ns {
-class OggDeMuxer_c
-{
+#include "gaapi_gaf.h"
+#include "ogg_api_private.h"
+
+using namespace gaapi_ns;
+namespace ogg_api_ns {
+class OggDeMuxer_c:public GaapiGaf_c{
+	using Base_c = GaapiGaf_c;
 public:
 	enum class Stage_e {
 		STAGE_ID_HEAD = 0,
@@ -14,18 +16,17 @@ public:
 		STAGE_EOS,
 	};
 public:
-	OggDeMuxer_c() {}
-	~OggDeMuxer_c() {}
+	OggDeMuxer_c();
+	virtual ~OggDeMuxer_c();
 public:
-	virtual OggRet_t Init(OggBasePorting_t *basePort);
-	virtual OggRet_t Receive(int32_t len);
-	virtual OggRet_t Generate(uint8_t* buf, int32_t *len);
-	virtual OggRet_t Set(OggDeMuxerApiSet_e choose, void* val);
-	virtual OggRet_t Get(OggDeMuxerApiGet_e choose, void* val);
-	virtual OggRet_t DeInit();
+	virtual OggRet_t Open()override;
+	virtual OggRet_t Set(const char* choose, void* val)override;
+	virtual OggRet_t Get(const char* choose, void* val)override;
+	//virtual OggRet_t Run(GaapiData_c& iData, GaapiData_c& oData)override;
+	virtual OggRet_t Receive(GaapiData_c& iData)override;
+	virtual OggRet_t Generate(GaapiData_c& oData)override;
+	virtual OggRet_t Close()override;
 public:
-	OggMemoryManger_c _MM;
-	void (*_printf_cb)(const char*, ...);
 	ogg_sync_state   _oggSyncS;
 	ogg_page         _oggPage;
 	ogg_stream_state _oggStreamS;
@@ -43,9 +44,12 @@ public:
 	uint8_t _oBufCache[512];
 	ogg_packet _oggPacketOld;
 	OggDeMuxerApiReceiveInfo_t _receiveInfo;
+	ogg_memory_t _memory;
 	bool _GenerateFinish = true;
 	bool _isLastPackNotComplete = false;
 };
+
+
 };
 
 
