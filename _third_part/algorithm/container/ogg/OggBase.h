@@ -4,7 +4,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <new.h>
+// #include <new.h>
+#include <new>
 #include "ogg_api.h"
 
 namespace ogg_ns {
@@ -15,7 +16,7 @@ namespace ogg_ns {
 #define LOG_OGG(func,fmt,...) if(func) func("<%s>[%s](%d)" fmt "\n", strrchr(__FILE__,'/') + 1,__func__, __LINE__, ##__VA_ARGS__)
 #endif
 
-#define OGG_VERSION "1.0.0"
+#define OGG_VERSION "1.0.1"
 
 	typedef struct {
 		void* (*malloc_cb)(uint32_t);

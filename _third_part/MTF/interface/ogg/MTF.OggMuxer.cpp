@@ -23,8 +23,11 @@ MTF_OggMuxer::~MTF_OggMuxer()
 	}
 	if (_pFile)
 		FileClosePorting(_pFile);
-#endif
 
+	if (_last_dat.Used(_last_dat._size)) {
+		free(_last_dat.Data());
+	}
+#endif
 }
 
 #if 1
@@ -75,7 +78,7 @@ mtf_i32 MTF_OggMuxer::Init()
 		MTF_PRINT("error, no such file:%s", _url);
 		return -1;
 	}
-	
+	_bytePerSample = _ch * _width;
 	OggMuxerApiParam_t oggMuxerApiParam = { 0 };
 	oggMuxerApiParam.malloc_cb = OggMalloc;
 	oggMuxerApiParam.realloc_cb = OggRealloc;
@@ -99,28 +102,32 @@ mtf_i32 MTF_OggMuxer::Init()
 	if (ret != OGG_RET_SUCCESS) {
 		MTF_PRINT();
 	}
+	
+	mtf_i32 buff_len = 4 * 1024;
+	mtf_u8* buff = (mtf_u8*)malloc(buff_len);
+	_last_dat.Init(buff, buff_len);
 	return 0;
 }
-
 mtf_i32 MTF_OggMuxer::receive(MTF_Data& iData)
 {
-	OggRet_t ret;
+	uint32_t _enc_frame_0p1ms= 200;
+	uint32_t frameSample = 48 * _enc_frame_0p1ms / 10;
+	static uint32_t frameSampleAcc = 0;
+	frameSampleAcc += frameSample;
+	OggRet_t ret = OGG_RET_SUCCESS;
+	ogg_muxer_api_set(_hd, OggMuxerApiSet_e::OGG_MUXER_API_SET_GRANULEPOS, (void*)frameSampleAcc);
 	if (iData._flags & MTF_DataFlag_ESO) {
 		ogg_muxer_api_set(_hd, OggMuxerApiSet_e::OGG_MUXER_API_SET_IS_EOS, (void*)1);
+	}
+	if (iData._size) {
 		ret = ogg_muxer_api_receive(_hd, (uint8_t*)iData.Data(), iData._size);
 		if (ret != OGG_RET_SUCCESS) {
 			LOG_OGG("%d", ret);
 			return -1;
 		}
+		iData.Used(iData._size);
 	}
-	else {
-		ret = ogg_muxer_api_receive(_hd, (uint8_t*)iData.Data(), iData._size);
-		if (ret != OGG_RET_SUCCESS) {
-			LOG_OGG("%d", ret);
-			return -1;
-		}
-	}
-	iData.Used(iData._size);
+
 	while (1) {
 		OggPage_t oggPage;
 		ret = ogg_muxer_api_generate(_hd, &oggPage);
@@ -131,6 +138,9 @@ mtf_i32 MTF_OggMuxer::receive(MTF_Data& iData)
 		}
 		else
 			break;
+	}
+	if (iData._flags & MTF_DataFlag_ESO) {
+		return -1;
 	}
 	return 0;
 }
@@ -147,7 +157,6 @@ mtf_i32 MTF_OggMuxer::Set(const char* key, mtf_void* val)
 		_page_byte_round = (mtf_u32)val;
 		return 0;
 	}
-	
 	return MTF_Sink::Set(key, val);
 }
 mtf_i32 MTF_OggMuxer::Get(const char* key, mtf_void* val)

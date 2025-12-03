@@ -178,7 +178,8 @@ OggRet_t OggDeMuxer_c::Generate(uint8_t* buf, int32_t *len) {
 		LOG_OGG(_printf_cb ,"");
 		return OGG_RET_FAIL;
 	}
-	_oPacketNum =(++_oPacketNum) % _oPacketNumMax;
+	_oPacketNum =(_oPacketNum+1) % _oPacketNumMax;
+
 	//LOG_OGG(_printf_cb ,"%d", _oPacketNum);
 
 	if (_oPacketNum == 0) {

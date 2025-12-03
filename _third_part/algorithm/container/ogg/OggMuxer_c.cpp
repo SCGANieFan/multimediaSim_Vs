@@ -110,14 +110,15 @@ OggRet_t OggMuxer_c::Init(OggMuxerApiParam_t* param, OggBasePorting_t *basePorti
 OggRet_t OggMuxer_c::Receive(uint8_t* buf, int32_t len) {
 	if(_isReceiveEnd)
 		return OGG_RET_FINISH;
+	_packetno++;
 	ogg_packet op;
 	op.packet = buf;
 	op.bytes = len;
 	op.b_o_s = 0;
 	op.e_o_s = _isEos ? 1 : 0;
 	_isReceiveEnd = _isEos ? 1 : 0;
-	op.granulepos = 0;
-	op.packetno = 0;
+	op.granulepos = _granulepos;
+	op.packetno = _packetno;
 	ogg_stream_packetin(&_oggStreamS, &op);
 	return OGG_RET_SUCCESS;
 }
@@ -173,6 +174,10 @@ OggRet_t OggMuxer_c::Set(OggMuxerApiSet_e choose, void* val) {
 	{
 	case OggMuxerApiSet_e::OGG_MUXER_API_SET_IS_EOS:
 		_isEos = (bool)val;
+		_oggStreamS.e_o_s = true;
+		break;
+	case OggMuxerApiSet_e::OGG_MUXER_API_SET_GRANULEPOS:
+		_granulepos = (uint32_t)val;
 		break;
 	default:
 		break;

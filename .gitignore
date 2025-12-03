@@ -10,3 +10,6 @@ x64/
 *.lib
 *.pdb
 *.sln
+*.rar
+*.pcm
+*.ogg

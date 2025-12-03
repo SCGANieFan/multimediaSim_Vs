@@ -186,6 +186,7 @@ void oggpackB_writealign(oggpack_buffer *b){
 #endif
 }
 
+#if 0
 static void oggpack_writecopy_helper(oggpack_buffer *b,
                                      void *source,
                                      long bits,
@@ -193,7 +194,6 @@ static void oggpack_writecopy_helper(oggpack_buffer *b,
                                                unsigned long,
                                                int),
                                      int msb){
-#if 0
   unsigned char *ptr=(unsigned char *)source;
 
   long bytes=bits/8;
@@ -236,8 +236,8 @@ static void oggpack_writecopy_helper(oggpack_buffer *b,
   return;
  err:
   oggpack_writeclear(b);
-#endif
 }
+#endif
 
 void oggpack_writecopy(oggpack_buffer *b,void *source,long bits){
 #if 0

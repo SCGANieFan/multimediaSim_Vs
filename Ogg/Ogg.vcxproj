@@ -396,7 +396,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../_third_part/algorithm/container/ogg;../TestLIb;$(MTF_PATH)/interface/ogg;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../_third_part/algorithm/container/ogg;../TestLIb;$(MTF_PATH)/interface/ogg;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32;$(GADF_PATH);$(GADF_PATH)/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -504,6 +504,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\demo\gadf_ogg.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\demo\gadf_register_info_opus_16k2ch_ogg_mux.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\demo\ogg_demo.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\ogg\OggBase.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\ogg\OggDemuxerApi_c.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\ogg\OggDemuxer_c.cpp" />
@@ -518,6 +521,8 @@
     <ClCompile Include="OggTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\demo\gadf_ogg.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\demo\ogg_demo.h" />
     <ClInclude Include="..\_third_part\algorithm\container\ogg\ogg.h" />
     <ClInclude Include="..\_third_part\algorithm\container\ogg\OggBase.h" />
     <ClInclude Include="..\_third_part\algorithm\container\ogg\OggDemuxerApi_c.h" />

@@ -23,6 +23,7 @@ typedef int32_t OggRet_t;
 enum class OggMuxerApiSet_e {
 	OGG_MUXER_API_SET_NONONE = 0,
 	OGG_MUXER_API_SET_IS_EOS,
+	OGG_MUXER_API_SET_GRANULEPOS,
 	OGG_MUXER_API_SET_MAX,
 };
 

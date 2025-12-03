@@ -35,6 +35,15 @@
     <ClCompile Include="..\_third_part\MTF\interface\ogg\MTF.OggDemuxer.cpp">
       <Filter>mtf</Filter>
     </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\demo\gadf_ogg.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\demo\gadf_register_info_opus_16k2ch_ogg_mux.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\demo\ogg_demo.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="3th">
@@ -42,6 +51,9 @@
     </Filter>
     <Filter Include="mtf">
       <UniqueIdentifier>{c72423d8-0aa4-420c-9d20-0e7776de5bd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="demo">
+      <UniqueIdentifier>{f4a937f5-5e84-4161-ae57-fdd28b04ef29}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +93,12 @@
     </ClInclude>
     <ClInclude Include="..\_third_part\MTF\interface\ogg\MTF.OggMuxer.h">
       <Filter>mtf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\demo\ogg_demo.h">
+      <Filter>demo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\demo\gadf_ogg.h">
+      <Filter>demo</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

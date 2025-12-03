@@ -147,7 +147,7 @@
 
 #else
 
-// #  include <config_types.h>
+#  include <config_types.h>
 
 #endif
 

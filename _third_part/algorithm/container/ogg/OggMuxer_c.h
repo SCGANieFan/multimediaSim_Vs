@@ -35,6 +35,11 @@ public:
 	OggPage_t _userCommentPage;
 	Stage_e _stage = Stage_e::STAGE_NONE;
 	int32_t _page_out_fill_byte = 4096;
+	int32_t _byte_per_sample = 0;
+	int32_t _acc_byte = 0;
+	int32_t _granulepos = 0;
+	int32_t _packetno = 0;
+	
 	bool _isBos = true;
 	bool _isEos = false;
 	bool _isReceiveEnd = false;

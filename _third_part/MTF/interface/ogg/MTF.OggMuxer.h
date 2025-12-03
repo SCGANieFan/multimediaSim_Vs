@@ -26,5 +26,7 @@ private:
 	mtf_void* _hd = 0;
 	mtf_i32 _hdSize = 0;
 	mtf_i32 _page_byte_round = 4096;
+	uint32_t _bytePerSample = 0;
+	MTF_Data _last_dat;
 };
 
