@@ -45,7 +45,7 @@ using namespace MTFApi_ns;
 //#define FILE_NAME "Walking01_Burn(1).wav"
 //#define FILE_NAME "30hz_48k2ch.wav"
 //#define FILE_NAME "sin1k48k2ch16b.wav"
-//#define FILE_NAME "stSection_48k1ch.wav"
+#define FILE_NAME "stSection_48k1ch.wav"
 //#define FILE_NAME "Flower Dance_44.1k2chF32.wav"
 //#define FILE_NAME "Inuyasha_48k2ch_40sF32.wav"
 //#define FILE_NAME "lfe01_48k2ch.wav"
@@ -54,11 +54,12 @@ using namespace MTFApi_ns;
 //#define FILE_NAME "lfe04_48k2ch.wav"
 //#define FILE_NAME "sin1050hz16k2ch.wav"
  //#define FILE_NAME "sin1050hz48k2ch32b.wav"
- #define FILE_NAME "plc_test_gx_32k1ch.wav"
+ //#define FILE_NAME "plc_test_gx_32k1ch.wav"
 
-#define RATE 32000
+#define RATE 48000
 //#define RATE 96000
-#define FRAME_MS 20
+//#define FRAME_MS 20
+#define FRAME_MS (0.5f)
 #endif
 #endif
 
@@ -90,7 +91,7 @@ void PlcTest()
 	void* param[] = {
 		(void*)(PATH FILE_NAME),
 		(void*)(PATH FILE_NAME ".plc.wav"),
-		(void*)(FRAME_LEN),
+		(void*)(uint32_t)(FRAME_LEN),
 	};
 	const char* str = {
 	"|wav_demuxer,url=$0,fSamples=$2|-->"
