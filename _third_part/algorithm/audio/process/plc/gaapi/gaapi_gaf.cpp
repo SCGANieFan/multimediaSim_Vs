@@ -1,7 +1,7 @@
 #include "gaapi_gaf.h"
 #include "gaapi_static.h"
 
-namespace gaapi_ns {
+namespace plc_gaapi_ns {
 
 GaapiGaf_c::GaapiGaf_c() {
 }

@@ -2,7 +2,7 @@
 #include "gaapi_base.h"
 #include "gaapi_data.h"
 
-namespace gaapi_ns {
+namespace plc_gaapi_ns {
     class GaapiGaf_c :public GaapiBase_c
     {
     public:

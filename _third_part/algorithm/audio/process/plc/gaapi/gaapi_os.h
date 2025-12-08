@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <atomic>
 #include "gaapi_base.h"
-namespace gaapi_ns {
+namespace plc_gaapi_ns {
 
     class GaapiMutex_c {
     private:

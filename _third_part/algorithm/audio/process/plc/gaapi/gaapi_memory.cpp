@@ -1,6 +1,6 @@
 #include "gaapi_memory.h"
 
-using namespace gaapi_ns;
+using namespace plc_gaapi_ns;
 #define CHECK_STEP_ON_MEMORY 0
 #if  CHECK_STEP_ON_MEMORY
 #define CHECK_STEP_ON_MEMORY_MAGIC (0x0F0F0F0F0F0F0F0F)

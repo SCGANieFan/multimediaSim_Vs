@@ -3,7 +3,7 @@
 #include "gaapi.h"
 #include "gaapi_gaf.h"
 #include "gaapi_os.h"
-namespace gaapi_ns {
+namespace plc_gaapi_ns {
 
     class GaapiGafRegister_c :public GaapiBase_c
     {
@@ -73,8 +73,8 @@ namespace gaapi_ns {
         uint64_t _magic0;
         uint64_t _magic1;
 
-        GaapiIdManagerInstance_c<32> _infos;
-        GaapiGafRegisterInstance_c<64> _gafRoot;
+        GaapiIdManagerInstance_c<8> _infos;
+        GaapiGafRegisterInstance_c<4> _gafRoot;
 
         uint64_t _magic2;
         uint64_t _magic3;

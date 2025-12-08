@@ -11,7 +11,7 @@ OggRet_t OggDeMuxerApi_c::Open(){
 		LOG_OGG("do clsoe befor open,%u,%p,%p,", _id, this, _oggDeMuxer);
 		return OGG_API_RET_FAIL;
 	}
-	_oggDeMuxer = GafCreate("oggDemux", &_bp);
+	_oggDeMuxer = gaapi_gaf_create("oggDemux", &_bp);
 	if (!_oggDeMuxer) {
 		LOG_OGG("create fail, %u,%p", _id, _bp.malloc_cb);
 		return OGG_API_RET_NOT_SUPPORT;

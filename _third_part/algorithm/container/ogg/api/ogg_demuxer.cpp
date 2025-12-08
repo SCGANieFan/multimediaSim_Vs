@@ -279,5 +279,5 @@ OggRet_t OggDeMuxer_c::Close() {
 
 
 EXTERNC void ogg_api_register_ogg_demuxer() {
-	GafRegister<OggDeMuxer_c>("oggDemux");
+	gaapi_gaf_register<OggDeMuxer_c>("oggDemux");
 }

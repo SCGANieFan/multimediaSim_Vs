@@ -58,8 +58,8 @@ using namespace MTFApi_ns;
 
 #define RATE 48000
 //#define RATE 96000
-//#define FRAME_MS 20
-#define FRAME_MS (0.5f)
+#define FRAME_MS 20
+//#define FRAME_MS (0.5f)
 #endif
 #endif
 

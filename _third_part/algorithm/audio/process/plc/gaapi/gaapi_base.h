@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <assert.h>
 
-namespace gaapi_ns {
+namespace plc_gaapi_ns {
 
 #define GAAPI_RET_SUCCESS        (0)
 #define GAAPI_RET_FAIL           (-1)

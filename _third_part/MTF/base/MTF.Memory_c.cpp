@@ -71,6 +71,7 @@ namespace mtf_ns {
                     }
                     items->_gbl = item;
                 }
+                return true;
             }
         }
 #endif

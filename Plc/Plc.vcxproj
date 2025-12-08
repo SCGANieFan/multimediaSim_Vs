@@ -476,7 +476,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ALGO_AUDIO_PATH)/process/plc/src;$(ALGO_AUDIO_PATH)/process/plc/tsplc/src;$(ALGO_AUDIO_PATH)/process/plc/tsplc;$(ALGO_AUDIO_PATH)/process/plc/lpcplc/c;$(ALGO_AUDIO_PATH)/process/plc/lpcplc/inc;$(ALGO_AUDIO_PATH)/process/plc/lpcplc;$(ALGO_AUDIO_PATH)/process/plc/sbcplc;$(ALGO_AUDIO_PATH)/process/plc/sbcplc/c;$(ALGO_AUDIO_PATH)/process/plc/musicplc;$(ALGO_AUDIO_PATH)/process/plc/inc;$(MTF_PATH)/interface/plc;$(MAF_PATH)/interface/plc;$(ALGO_PATH)/base;$(ALGO_AUDIO_PATH)/com;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ALGO_AUDIO_PATH)/process/plc/api;$(ALGO_AUDIO_PATH)/process/plc/inc;$(ALGO_AUDIO_PATH)/process/plc/src/musicplc;$(ALGO_AUDIO_PATH)/process/plc/gaapi;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32;$(GADF_PATH)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <CompileAs>CompileAsCpp</CompileAs>
       <Optimization>Disabled</Optimization>
@@ -525,80 +525,42 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\lpcplc\lpc_plc_algo_api_c.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\musicplc\music_plc_algo_api_c.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\sbcplc\c\sbcplc.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\sbcplc\sbc_plc_algo_api_c.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\src\plc_api.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\src\plc_api_c.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\src\plc_base.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\src\plc_memory_manger_c.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\src\plc_register_c.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\audio_multi_vector.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\audio_vector.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\checks.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\cross_correlation.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\division_operations.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\dot_product_with_scale.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\downsample_fast.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\dsp_helper.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\min_max_operations.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\preemptive_expand.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\SmfBase.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\spl_inl.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\spl_sqrt_floor.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\time_stretch.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\vector_scaling_operations.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\ts_plc_algo_api_c.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\api\plc_api.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_base.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_data.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_gaf.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_memory.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_os.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_static.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\plc\MTF.MusicPlc.cpp" />
     <ClCompile Include="PlcTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\api\plc_api_private.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_base.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_data.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_gaf.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_memory.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_os.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_static.h" />
     <ClInclude Include="..\_third_part\algorithm\audio\process\plc\inc\plc_api.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\lpcplc\lpc_plc_algo_api_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\music_plc_algo_api_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\music_plc_fill_signal_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_accorelation_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_basic_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_buffer_generate_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_com.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_muter_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_product_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_waveform_match_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_wave_match_by_crosscor_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_data_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_samples_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_buffer_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_data_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_math_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_overlapadd_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\sbcplc\c\sbcplc.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\sbcplc\sbc_plc_algo_api_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_algo_api_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_api_base_port_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_api_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_base.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_base_port_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_memory_manger_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_register_c.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\audio_multi_vector.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\audio_vector.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\checks.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\constructormagic.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\cpu_features_wrapper.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\dsp_helper.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\ObjectStatic.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\preemptive_expand.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\safe_conversions.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\safe_conversions_impl.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\scoped_ptr.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\signal_processing_library.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\SmfBase.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\spl_inl.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\template_util.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\time_stretch.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\typedefs.h" />
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\ts_plc_algo_api_c.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_buffer_generate.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_audio_data.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_audio_samples.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_base.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_basic.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_buffer.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_data.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_fill_signal.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_math.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_muter.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_overlapadd.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_product.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_waveform_match.h" />
     <ClInclude Include="..\_third_part\MTF\interface\plc\MTF.MusicPlc.h" />
     <ClInclude Include="PlcTest.h" />
   </ItemGroup>

@@ -1,5 +1,5 @@
 #include "gaapi_static.h"
-using namespace gaapi_ns;
+using namespace plc_gaapi_ns;
 
 static uint64_t buff[(sizeof(GaapiStatic_c) + 7) >> 3] = { 0 };
 
@@ -115,7 +115,7 @@ GaapiStatic_c::~GaapiStatic_c()
 }
 
 
-namespace gaapi_ns {
+namespace plc_gaapi_ns {
 static bool GaapiCheck() {
 	GaapiStatic_c* GaapiStatic = (GaapiStatic_c*)buff;
 	if (GaapiStatic->_magic0 != GaapiStatic->Str2U64("gaapi000")

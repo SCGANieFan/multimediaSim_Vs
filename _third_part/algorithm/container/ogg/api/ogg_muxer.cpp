@@ -200,5 +200,5 @@ OggRet_t OggMuxer_c::Close(){
 }
 
 EXTERNC void ogg_api_register_ogg_muxer() {
-	GafRegister<OggMuxer_c>("oggMuxer");
+	gaapi_gaf_register<OggMuxer_c>("oggMuxer");
 }

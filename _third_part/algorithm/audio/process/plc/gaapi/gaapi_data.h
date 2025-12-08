@@ -1,7 +1,7 @@
 #pragma once
 #include "gaapi_base.h"
 
-namespace gaapi_ns {
+namespace plc_gaapi_ns {
 
 class GaapiData_c :public GaapiBase_c
 {

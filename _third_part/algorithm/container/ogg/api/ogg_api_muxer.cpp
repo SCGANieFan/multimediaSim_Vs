@@ -23,7 +23,7 @@ OggRet_t OggMuxerApi_c::Open(){
 		LOG_OGG("usr comment:%s", _param.userComment.userCommentString);
 	if (!_bp.realloc_cb) { return OGG_API_RET_FAIL; }
 
-	_oggMuxer = GafCreate("oggMuxer", &_bp);
+	_oggMuxer = gaapi_gaf_create("oggMuxer", &_bp);
 	if (!_oggMuxer) { 
 		LOG_OGG("create fail", _id);
 		return OGG_API_RET_NOT_SUPPORT; 

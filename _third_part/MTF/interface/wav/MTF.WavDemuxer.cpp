@@ -143,6 +143,7 @@ mtf_i32 MTF_WavDemuxer::Init()
 mtf_i32 MTF_WavDemuxer::generate(MTF_Data*& oData)
 {
 #if 1
+	_oData.Clear();
 	mtf_i32 readedSize = FileReadPorting(_pFile, _oData.LeftData(), _oData.LeftSize());
 	//MTF_PRINT("%d,%d",_oData.LeftSize(), readedSize);
 	if (readedSize <= 0){

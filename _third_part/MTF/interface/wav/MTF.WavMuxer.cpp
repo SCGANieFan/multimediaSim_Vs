@@ -118,6 +118,7 @@ mtf_i32 MTF_WavMuxer::receive(MTF_Data& iData)
 #if 1
     FileWritePorting(_pFile, iData.Data(), iData._size);
     iData.Used(iData._size);
+    iData.Clear();
     if (iData._flags & MTF_DataFlag_ESO)
         return -1;
 #endif
