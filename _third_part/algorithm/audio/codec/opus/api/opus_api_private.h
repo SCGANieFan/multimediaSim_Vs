@@ -138,7 +138,7 @@ public:
     virtual OpusApiRet_t Close() { return OPUS_API_RET_NOT_SUPPORT; }
 public:
     OpusApi_BasePort_t _basePort;
-    static constexpr const char* VERSION = "1.1.0.1";
+    static constexpr const char* VERSION = "1.1.0.2";
 };
 
 class OpusApiEnc_c :public OpusApi_c
