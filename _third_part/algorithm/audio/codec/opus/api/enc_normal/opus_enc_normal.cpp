@@ -45,7 +45,7 @@ OpusApiRet_t OpusEncNormal_c::opus_encoder_run_no_head(OpusEncNormal_c* enc, Opu
         LOG(enc->_basePort->print_cb, "%d < %d", iData._len, enc->_pcmFrameByte);
         return OPUS_API_RET_FAIL;
     }
-    int ret = opus_encode(enc->_hd, (short*)iData._buf, iData._len, (unsigned char*)oData._buf, oData._max);
+    int ret = opus_encode(enc->_hd, (short*)iData._buf, enc->_pcmFrameSample, (unsigned char*)oData._buf, oData._max);
     if (ret < 0) {
         LOG(enc->_basePort->print_cb, "enc fail, (%d,%s), (%p,%p,%d,%p,%d)", 
             ret, ret2str[-ret], enc->_hd, iData._buf, iData._len, oData._buf, oData._max);

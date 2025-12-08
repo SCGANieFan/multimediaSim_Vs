@@ -8,6 +8,7 @@
     <MAF_PATH>../_third_part/MAF</MAF_PATH>
     <MTF_PATH>../_third_part/MTF</MTF_PATH>
     <GADF_PATH>../_third_part/Gadf</GADF_PATH>
+    <GAAPI_PATH>../_third_part/Gaapi</GAAPI_PATH>
   </PropertyGroup>
   <PropertyGroup>
     <OutDir>$(SolutionDir)_lib\</OutDir>
@@ -42,6 +43,9 @@
     </BuildMacro>
     <BuildMacro Include="GADF_PATH">
       <Value>$(GADF_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="GAAPI_PATH">
+      <Value>$(GAAPI_PATH)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

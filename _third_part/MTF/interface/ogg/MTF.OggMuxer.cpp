@@ -17,7 +17,7 @@ MTF_OggMuxer::MTF_OggMuxer()
 
 MTF_OggMuxer::~MTF_OggMuxer()
 {
-#if 1
+#if 0
 	if (_hd){
 		ogg_muxer_api_destory(_hd);
 	}
@@ -68,6 +68,7 @@ void MTF_OggMuxer::OggPrint(const char* fmt, ...) {
 
 mtf_i32 MTF_OggMuxer::Init()
 {
+#if 0
 	MTF_PRINT();
 	if (!_url) {
 		MTF_PRINT("error, _url = 0");
@@ -106,10 +107,12 @@ mtf_i32 MTF_OggMuxer::Init()
 	mtf_i32 buff_len = 4 * 1024;
 	mtf_u8* buff = (mtf_u8*)malloc(buff_len);
 	_last_dat.Init(buff, buff_len);
+#endif
 	return 0;
 }
 mtf_i32 MTF_OggMuxer::receive(MTF_Data& iData)
 {
+#if 0
 	uint32_t _enc_frame_0p1ms= 200;
 	uint32_t frameSample = 48 * _enc_frame_0p1ms / 10;
 	static uint32_t frameSampleAcc = 0;
@@ -142,6 +145,7 @@ mtf_i32 MTF_OggMuxer::receive(MTF_Data& iData)
 	if (iData._flags & MTF_DataFlag_ESO) {
 		return -1;
 	}
+#endif
 	return 0;
 }
 

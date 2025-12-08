@@ -28,4 +28,5 @@ void* GadfHeapMalloc(void* heap, int size);
 void* GadfHheapRealloc(void* heap, void* rmem, int newsize);
 void GadfHeapFree(void* heap, void* rmem);
 
-
+//thread
+void* GadfThreadStart(const char* name, void* threadParam, void(*func)(void*), void* funcParam, uint32_t stackSize);

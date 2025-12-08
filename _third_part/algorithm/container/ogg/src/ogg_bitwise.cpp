@@ -22,7 +22,6 @@
 #include <limits.h>
 #include "ogg.h"
 #define BUFFER_INCREMENT 256
-namespace ogg_ns {
 
 static const unsigned long mask[]=
 {0x00000000,0x00000001,0x00000003,0x00000007,0x0000000f,
@@ -544,4 +543,3 @@ unsigned char *oggpackB_get_buffer(oggpack_buffer *b){
 }
 
 #undef BUFFER_INCREMENT
-};
