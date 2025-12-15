@@ -42,8 +42,8 @@ void plc_api_register_sbc_plc_i16() {
 }
 
 void plc_api_register_ts_plc_i16() {
-	extern void plc_register_ts_plc_int16();
-	plc_register_ts_plc_int16();
+	// extern void plc_register_ts_plc_int16();
+	// plc_register_ts_plc_int16();
 }
 
 

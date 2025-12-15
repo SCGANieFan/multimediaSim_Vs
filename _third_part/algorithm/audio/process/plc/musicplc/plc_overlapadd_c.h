@@ -102,9 +102,13 @@ public:
 	INLINE b1 init(plc_memory_manger_c* mm, audio_info_c* info, overlap_add_window_choose_e window_choose, i32 overlap_samples) {
 		_info = info;
 		_overlap_samples = overlap_samples;
+#if 0
 		for (i16 ch = 0; ch < _info->_channels; ch++) {
 			_overlap_samples_now[ch] = _overlap_samples;
 		}
+#else
+		_overlap_samples_now[0] = _overlap_samples;
+#endif
 		buffer_generator_c::buffer_choose_e buffer_choose;
 		if (window_choose == overlap_add_window_choose_e::Line)
 			buffer_choose = buffer_generator_c::buffer_choose_e::WINDOW_LINE_FADE;
@@ -189,7 +193,7 @@ public:
 private:
 	audio_info_c* _info;
 	i32 _overlap_samples;
-	i32 _overlap_samples_now[16];
+	i32 _overlap_samples_now[1];
 	void* _factor;
 	i32 _fix_num = 15;
 };

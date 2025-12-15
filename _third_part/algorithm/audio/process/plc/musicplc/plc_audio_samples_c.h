@@ -183,7 +183,7 @@ public:
 	INLINE b1 clear(i32 _used_sample, i16 ch) { used(_used_sample, ch); clear_used(ch); return true; };
 	INLINE b1 clear(i32 usedSample) { used(usedSample); clear_used(); return true; };
 protected:
-	channel_info_c _channel_infos[16];
+	channel_info_c _channel_infos[1];
 	i16 _fp_num = 0;
 	i32 _samples = 0;
 	//i32 _valid_samples = 0;

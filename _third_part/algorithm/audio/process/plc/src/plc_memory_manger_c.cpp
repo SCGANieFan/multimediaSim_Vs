@@ -1,6 +1,6 @@
 #include "plc_memory_manger_c.h"
 
-#define CHECK_STEP_ON_MEMORY 1
+#define CHECK_STEP_ON_MEMORY 0
 
 #if  CHECK_STEP_ON_MEMORY
 #define CHECK_STEP_ON_MEMORY_MAGIC (0x0F0F0F0F0F0F0F0F)

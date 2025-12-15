@@ -2,7 +2,7 @@
 #include "plc_register_c.h"
 #include "signal_processing_library.h"
 
-plc_api_ret_t ts_plc_algo_api_c::create(void** pHd, plc_api_param_t* plc_api_param, plc_base_port_c* plc_base_port) {
+plc_api_ret_t ts_plc_algo_api_c::create(plc_api_param_t* plc_api_param, plc_base_port_c* plc_base_port) {
 
 	LOG(plc_base_port->print_cb, "plc api musicplc, (%p,%d,%d,%d),(%d{%d,%d,%d,%d,%d})",
 		plc_base_port,
@@ -22,30 +22,24 @@ plc_api_ret_t ts_plc_algo_api_c::create(void** pHd, plc_api_param_t* plc_api_par
 		|| plc_api_param->sbc_plc.olal < 0
 		|| plc_api_param->sbc_plc.recover < 0)
 		return TS_PLC_API_RET_FAIL;
-	ts_plc_algo_api_c* plc_api = create_hd(plc_base_port);
-	if (!plc_api) {
-		return TS_PLC_API_RET_FAIL;
-	}
-	plc_api->_base_porting = plc_base_port;
-	i32 ret = plc_api->init(plc_api_param);
+	_base_porting = plc_base_port;
+	i32 ret = init(plc_api_param);
 	if(ret != TS_PLC_API_RET_SUCCESS){
 		LOG(plc_base_port->print_cb, "plc api create fail, %d", ret);
-		destory(plc_api);
-		plc_api = 0;
+		destory();
 	}
-	*pHd = plc_api;
 	return ret;
 }
 
-plc_api_ret_t ts_plc_algo_api_c::set(void* hd, plc_api_set_e choose, void* val) {
+plc_api_ret_t ts_plc_algo_api_c::set(plc_api_set_e choose, void* val) {
 	return TS_PLC_API_RET_SUCCESS;
 }
 
-plc_api_ret_t ts_plc_algo_api_c::get(void* hd, plc_api_get_e choose, void* val) {
+plc_api_ret_t ts_plc_algo_api_c::get(plc_api_get_e choose, void* val) {
 	return TS_PLC_API_RET_SUCCESS;
 }
 
-plc_api_ret_t ts_plc_algo_api_c::run(void* hd, uint8_t* in, int32_t inLen, int32_t* inUsed, uint8_t* out, int32_t* outLen, uint16_t is_lost)
+plc_api_ret_t ts_plc_algo_api_c::run(uint8_t* in, int32_t inLen, int32_t* inUsed, uint8_t* out, int32_t* outLen, uint16_t is_lost)
 {
 #if 0
 	if (is_lost == false) {
@@ -56,21 +50,15 @@ plc_api_ret_t ts_plc_algo_api_c::run(void* hd, uint8_t* in, int32_t inLen, int32
 	if (*outLen < frame_samples * _info._bytes_per_sample)
 		return TS_PLC_API_RET_FAIL;
 #endif
-	ts_plc_algo_api_c* plc = (ts_plc_algo_api_c*)hd;
-	plc->run(in, out, outLen, is_lost ? true : false);
+	run(in, out, outLen, is_lost ? true : false);
 	if (inUsed) *inUsed = inLen;
 	return TS_PLC_API_RET_SUCCESS;
 }
 
 
-plc_api_ret_t ts_plc_algo_api_c::destory(void* hd) {
-	ts_plc_algo_api_c* plc = (ts_plc_algo_api_c*)hd;
-	if (!plc) return TS_PLC_API_RET_SUCCESS;
-	plc->deinit();
-	plc->_mm.FreeAll();
-	plc_base_port_c* base_porting = plc->_base_porting;
-	plc->~ts_plc_algo_api_c();
-	base_porting->free(plc);
+plc_api_ret_t ts_plc_algo_api_c::destory() {
+	deinit();
+	_mm.FreeAll();
 	return TS_PLC_API_RET_SUCCESS;
 }
 

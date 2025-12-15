@@ -37,8 +37,12 @@ public:
 	void init(plc_memory_manger_c* mm, audio_info_c* info, muter_window_choose_e window_choose, muter_dir_choose_e dir_choose, i32 decay_samples) {
 		_info = info;
 		_mute_samples_max = decay_samples;
+#if 0
 		for (i16 ch = 0; ch < info->_channels; ch++)
 			reset(dir_choose, ch);
+#else
+		reset(dir_choose, 0);
+#endif
 		buffer_generator_c::buffer_choose_e buffer_choose = buffer_generator_c::buffer_choose_e::WINDOW_LINE_FADE;
 		if (window_choose == muter_window_choose_e::MUTER_WINDOW_CHOOSE_LINE)
 			buffer_choose = buffer_generator_c::buffer_choose_e::WINDOW_LINE_FADE;
@@ -57,6 +61,13 @@ public:
 			PLC_MEM_SET(_mute_factor, 0, decay_samples * _mute_factor_width);
 			buffer_generator_c::generate<i16>(buffer_choose, (i16*)_mute_factor, _mute_samples_max, _facFpNum);
 		}
+	}
+	void init(muter_c<T> *muter, muter_dir_choose_e dir_choose) {
+		_info = muter->_info;
+		_mute_samples_max = muter->_mute_samples_max;
+		reset(dir_choose, 0);
+		_mute_factor_width = muter->_mute_factor_width;
+		_mute_factor = muter->_mute_factor;
 	}
 	INLINE void setDir(muter_dir_choose_e dir, i16 ch) { _dir[ch] = dir; }
 	INLINE void setDir(muter_dir_choose_e dir) { setDir(dir, 0); }
@@ -163,12 +174,12 @@ public:
 #endif
 	}
 
-private:
+public:
 	u8* _mute_factor;
 	i32 _mute_factor_width;
-	i32 _muteSamplesNow[16];
+	i32 _muteSamplesNow[1];
 	i32 _mute_samples_max;
-	muter_dir_choose_e _dir[16];
+	muter_dir_choose_e _dir[1];
 	i8 _facFpNum;
 	audio_info_c* _info;
 };

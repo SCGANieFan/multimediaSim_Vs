@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "MTF.MusicPlc.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
@@ -8,7 +9,7 @@ void mtf_music_plc_register()
 {
 	MTF_Objects::Registe<MTF_MusicPlc>("music_plc");
 	plc_api_register_music_plc_int16();
-	//plc_api_register_music_plc_int32();
+	plc_api_register_music_plc_int32();
 	//plc_api_register_music_plc_f32();
 	//plc_api_register_sbc_plc_i16();
 	//plc_api_register_ts_plc_i16();
@@ -63,7 +64,8 @@ static void PlcPrint(const char* fmt, ...) {
 	VaStartPorting(args, fmt);
 	VsprintfPorting(buf, fmt, args);
 	VaEndPorting(args);
-	MTF_PRINTORI("%s", buf);
+	//MTF_PRINTORI("%s", buf);
+	printf("%s", buf);
 }
 
 mtf_i32 MTF_MusicPlc::Init()
@@ -76,25 +78,34 @@ mtf_i32 MTF_MusicPlc::Init()
 	initParam.channels = _ch;
 	initParam.frame_samples = _frameSamples;
 	initParam.channel_select = 0xffff;
-	initParam.data_type = plc_api_data_type_e::PLC_API_DATA_TYPE_SHORT_16;
-	//initParam.dataType = plc_api_data_type_e::PLC_API_DATA_TYPE_INT_32;
-	//initParam.dataType = plc_api_data_type_e::PLC_API_DATA_TYPE_FLOAT_32;
+	if(_width==2)
+		initParam.data_type = plc_api_data_type_e::PLC_API_DATA_TYPE_SHORT_16;
+	else {
+		initParam.data_type = plc_api_data_type_e::PLC_API_DATA_TYPE_INT_32;
+		//initParam.data_type = plc_api_data_type_e::PLC_API_DATA_TYPE_FLOAT_32;
+	}
 	initParam.mode = plc_api_mode_e::PLC_API_MODE_MUSIC_PLC;
 #if 0
-	initParam.param_set = plc_api_param_set_e::PLC_API_PARAM_SET_KEY_APP;
-	initParam.key = PLC_API_KEY;
-	initParam.application = plc_api_application_e::PLC_API_APPLICATION_AUTO;
-	//initParam.application = plc_api_application_e::PLC_API_APPLICATION_MUSIC;
-#else
 	initParam.param_set = plc_api_param_set_e::PLC_API_PARAM_SET_PARAM;
 	initParam.music_plc.overlap_samples = 1 * initParam.fs_hz / 1000;
 	//initParam.music_plc.overlap_samples = 24;
 	initParam.music_plc.hold_samples_after_lost = 0 * initParam.fs_hz / 1000;
 	initParam.music_plc.attenuate_samples_after_lost = 20 * initParam.fs_hz / 1000;
 	initParam.music_plc.gain_samples_after_no_lost = 20 * initParam.fs_hz / 1000;
-	initParam.music_plc.seek_samples = 15 * initParam.fs_hz / 1000;
+	initParam.music_plc.seek_samples = 0 * initParam.fs_hz / 1000;
+	initParam.music_plc.no_seek_samples = 6 * initParam.fs_hz / 1000;
+	initParam.music_plc.match_samples = 0 * initParam.fs_hz / 1000;
+	initParam.music_plc.force_mute_together = true;
+#else
+	initParam.param_set = plc_api_param_set_e::PLC_API_PARAM_SET_PARAM;
+	initParam.music_plc.overlap_samples = 5 * initParam.fs_hz / 1000;
+	initParam.music_plc.hold_samples_after_lost = 0 * initParam.fs_hz / 1000;
+	initParam.music_plc.attenuate_samples_after_lost = 30 * initParam.fs_hz / 1000;
+	initParam.music_plc.gain_samples_after_no_lost = 30 * initParam.fs_hz / 1000;
+	initParam.music_plc.seek_samples = 10 * initParam.fs_hz / 1000;
 	initParam.music_plc.no_seek_samples = 4 * initParam.fs_hz / 1000;
 	initParam.music_plc.match_samples = 4 * initParam.fs_hz / 1000;
+	initParam.music_plc.force_mute_together = true;
 #endif
 
 	initParam.cb_malloc = PlcMalloc;
@@ -125,8 +136,8 @@ mtf_i32 MTF_MusicPlc::receive(MTF_Data& iData)
 	return 0;
 }
 
-#define FRAMES_LOST 3
-#define FRAMES_TOTAL 200
+#define FRAMES_LOST 1
+#define FRAMES_TOTAL 100
 mtf_i32 MTF_MusicPlc::generate(MTF_Data*& oData)
 {
 	//_frames++;
@@ -179,6 +190,16 @@ mtf_i32 MTF_MusicPlc::generate(MTF_Data*& oData)
 	{
 		return -1;
 	}
+#if 1
+	uint16_t* pIn = (uint16_t*)_iData.Data();
+	uint16_t* pOut = (uint16_t*)_oData.Data();
+	if (_ch == 2) {
+		for (uint32_t f = 0; f < _frameSamples; f++) {
+			pOut[f * _ch] = pIn[f * _ch];
+		}
+	}
+	
+#endif
 	_iData.Used(_iData._size);
 	_iData.Clear();
 #endif

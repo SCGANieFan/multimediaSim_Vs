@@ -8,7 +8,8 @@ mtf_void PrintfOri(const char* format, ...) {
     VaListPorting_t args;
     VaStartPorting(args, format);
     char buf[256];
-    VsprintfPorting(buf, "%lld[%u]%s\n", TimeMsPorting(), ThreadIdPorting());
+    //VsprintfPorting(buf, "%lld[%u]%s\n", TimeMsPorting(), ThreadIdPorting());
+    sprintf(buf + MTF_String::StrLen(buf), format, args);
     LogNoFormatPorting(buf);
 }
 

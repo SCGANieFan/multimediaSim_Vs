@@ -28,7 +28,7 @@ plc_api_ret_t plc_api_c::create(void** pHd, plc_api_param_t* param) {
 		return ret;
 	}
 	*pHd = plcApi;
-	LOG(param->cb_printf, "plc api create success, (%p,%p)", plcApi, plcApi->_plc_algo);
+	LOG(param->cb_printf, "plc api create success, (%p)", plcApi);
 	return PLC_API_RET_SUCCESS;
 }
 
@@ -43,7 +43,7 @@ plc_api_ret_t plc_api_c::run(void* hd, uint8_t* in, int32_t inLen, int32_t* inUs
 	if (!out)
 		return PLC_API_RET_INPUT_ERROR;
 	plc_api_c *plcApi = (plc_api_c*)hd;
-	return plcApi->_plc_algo_api->run(plcApi->_plc_algo, in, inLen, inUsed, out, pOutLen, isLost);
+	return plcApi->_plc_algo_api->run(in, inLen, inUsed, out, pOutLen, isLost);
 }
 plc_api_ret_t plc_api_c::set(void* hd, plc_api_set_e choose, void* val) {
 	if (!hd) {
@@ -51,7 +51,7 @@ plc_api_ret_t plc_api_c::set(void* hd, plc_api_set_e choose, void* val) {
 	}
 	plc_api_c* plcApi = (plc_api_c*)hd;
 	LOG(plcApi->_api_base_port.print_cb, "plc api set, (%p,%d,%d)", hd, choose, val);
-	return plcApi->_plc_algo_api->set(plcApi->_plc_algo, choose, val);
+	return plcApi->_plc_algo_api->set(choose, val);
 }
 plc_api_ret_t plc_api_c::get(void* hd, plc_api_get_e choose, void* val) {
 	if (!hd) {
@@ -59,7 +59,7 @@ plc_api_ret_t plc_api_c::get(void* hd, plc_api_get_e choose, void* val) {
 	}
 	plc_api_c* plcApi = (plc_api_c*)hd;
 	LOG(plcApi->_api_base_port.print_cb, "plc api get, (%p,%d,%d)", hd, choose, val);
-	return plcApi->_plc_algo_api->get(plcApi->_plc_algo, choose, val);
+	return plcApi->_plc_algo_api->get(choose, val);
 }
 plc_api_ret_t plc_api_c::destory(void* hd) {
 	if (!hd)
@@ -68,10 +68,7 @@ plc_api_ret_t plc_api_c::destory(void* hd) {
 	LOG(plcApi->_api_base_port.print_cb, "plc api destory");
 	plc_api_base_port_c basePort = plcApi->_api_base_port;
 	if(plcApi->_plc_algo_api){
-		if (plcApi->_plc_algo) {
-			plcApi->_plc_algo_api->destory(plcApi->_plc_algo);
-			plcApi->_plc_algo = 0;
-		}
+		plcApi->_plc_algo_api->destory();
 		plcApi->_plc_algo_api->~plc_algo_api_c();
 		basePort.free(plcApi->_plc_algo_api);
 		plcApi->_plc_algo_api = 0;
@@ -128,7 +125,7 @@ plc_api_ret_t plc_api_c::init(plc_api_param_t* param) {
 		LOG(param->cb_printf, "plc api create fail, %d", PLC_API_RET_NOT_SUPPORT);
 		return PLC_API_RET_NOT_SUPPORT;
 	}
-	plc_api_ret_t ret = _plc_algo_api->create(&_plc_algo, param, &_api_base_port);
+	plc_api_ret_t ret = _plc_algo_api->create(param, &_api_base_port);
 	if (ret != PLC_API_RET_SUCCESS) {
 		LOG(param->cb_printf, "plc api create fail, %d", ret);
 	}

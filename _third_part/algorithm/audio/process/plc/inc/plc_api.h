@@ -88,6 +88,7 @@ typedef struct {
 					int32_t seek_samples;
 					int32_t no_seek_samples;
 					int32_t match_samples;
+					bool force_mute_together;
 				}music_plc;
 				struct {
 					enum sbc_plc_codec_type_e codec_type;
@@ -116,11 +117,11 @@ EXTERNC plc_api_ret_t plc_api_set(void* hd, plc_api_set_e choose, void* val);
 EXTERNC plc_api_ret_t plc_api_get(void* hd, plc_api_get_e choose, void* val);
 EXTERNC plc_api_ret_t plc_api_destory(void* hd);
 
-EXTERNC void plc_api_register_music_plc_int16();
-EXTERNC void plc_api_register_music_plc_int32();
-EXTERNC void plc_api_register_music_plc_f32();
+EXTERNC void plc_api_register_music_plc_int16(void);
+EXTERNC void plc_api_register_music_plc_int32(void);
+EXTERNC void plc_api_register_music_plc_f32(void);
 
-EXTERNC void plc_api_register_sbc_plc_i16();
+EXTERNC void plc_api_register_sbc_plc_i16(void);
 
-EXTERNC void plc_api_register_ts_plc_i16();
+EXTERNC void plc_api_register_ts_plc_i16(void);
 

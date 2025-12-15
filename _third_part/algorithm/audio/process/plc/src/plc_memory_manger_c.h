@@ -29,7 +29,7 @@ public:
 	}
 private:
 	plc_base_port_c* _basePorting;
-	void* _allocList[100];
+	void* _allocList[8];
 };
 
 

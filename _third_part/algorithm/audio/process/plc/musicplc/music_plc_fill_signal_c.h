@@ -14,8 +14,12 @@ public:
 		buffer_samples._buf = (u8*)mm->malloc(buffer_samples._samples * info->_bytes_per_sample);
 		PLC_MEM_SET(buffer_samples._buf, 0, buffer_samples._samples * info->_bytes_per_sample);
 		_fill_signal.init(info, &buffer_samples);
+#if 0
 		for (i16 ch = 0; ch < info->_channels; ch++)
 			_fill_signal_sample_index[ch] = 0;
+#else
+		_fill_signal_sample_index[0] = 0;
+#endif
 	}
 	
 	INLINE void input(audio_samples_c& src, i32 src_sample, i32 append_sample, i16 ch) {
@@ -73,5 +77,5 @@ public:
 	}
 public:
 	audio_samples_c _fill_signal;
-	i32 _fill_signal_sample_index[16];
+	i32 _fill_signal_sample_index[1];
 };

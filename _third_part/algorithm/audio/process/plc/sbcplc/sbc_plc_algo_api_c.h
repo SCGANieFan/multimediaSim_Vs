@@ -15,11 +15,11 @@ public:
 	sbc_plc_algo_api_com_c() {}
 	virtual ~sbc_plc_algo_api_com_c() {}
 public:
-	plc_api_ret_t create(void** pHd, plc_api_param_t* plc_api_param, plc_base_port_c* plc_base_port) override;
-	plc_api_ret_t set(void* hd, plc_api_set_e choose, void* val) override;
-	plc_api_ret_t get(void* hd, plc_api_get_e choose, void* val) override;
-	plc_api_ret_t run(void* hd, uint8_t* in, int32_t inLen, int32_t* inUsed, uint8_t* out, int32_t* pOutLen, uint16_t is_lost) override;
-	plc_api_ret_t destory(void* hd) override;
+	plc_api_ret_t create(plc_api_param_t* plc_api_param, plc_base_port_c* plc_base_port) override;
+	plc_api_ret_t set(plc_api_set_e choose, void* val) override;
+	plc_api_ret_t get(plc_api_get_e choose, void* val) override;
+	plc_api_ret_t run(uint8_t* in, int32_t inLen, int32_t* inUsed, uint8_t* out, int32_t* pOutLen, uint16_t is_lost) override;
+	plc_api_ret_t destory() override;
 protected:
 	i32 init(plc_api_param_t* plc_api_param);
 	i32 deinit();

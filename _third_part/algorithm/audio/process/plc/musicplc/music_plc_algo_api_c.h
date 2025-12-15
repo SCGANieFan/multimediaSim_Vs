@@ -33,13 +33,13 @@ template<class T>
 class music_plc_algo_api_c : public plc_algo_api_c {
 public:
 	music_plc_algo_api_c() {}
-	~music_plc_algo_api_c() {}
+	virtual ~music_plc_algo_api_c() {}
 public:
-	plc_api_ret_t create(void** pHd, plc_api_param_t* plc_api_param, plc_base_port_c* plc_base_port) override;
-	plc_api_ret_t set(void* hd, plc_api_set_e choose, void* val) override;
-	plc_api_ret_t get(void* hd, plc_api_get_e choose, void* val) override;
-	plc_api_ret_t run(void* hd, uint8_t* in, int32_t inLen, int32_t* inUsed, uint8_t* out, int32_t* pOutLen, uint16_t is_lost) override;
-	plc_api_ret_t destory(void* hd) override;
+	plc_api_ret_t create(plc_api_param_t* plc_api_param, plc_base_port_c* plc_base_port) override;
+	plc_api_ret_t set(plc_api_set_e choose, void* val) override;
+	plc_api_ret_t get(plc_api_get_e choose, void* val) override;
+	plc_api_ret_t run(uint8_t* in, int32_t inLen, int32_t* inUsed, uint8_t* out, int32_t* pOutLen, uint16_t is_lost) override;
+	plc_api_ret_t destory() override;
 private:
 	void good_frame(audio_samples_c& p_in, audio_samples_c& p_out);
 	void lost_frame(audio_samples_c& p_in, audio_samples_c& p_out);
@@ -103,7 +103,7 @@ public:
 };
 
 template<class T>
-plc_api_ret_t music_plc_algo_api_c<T>::create(void** pHd, plc_api_param_t* plc_api_param, plc_base_port_c* plc_base_port) {
+plc_api_ret_t music_plc_algo_api_c<T>::create(plc_api_param_t* plc_api_param, plc_base_port_c* plc_base_port) {
 	set_param(plc_api_param);
 	LOG(plc_base_port->print_cb, "plc api musicplc, (%p,%d,%d,%d),(%d{%d,%d}{%d,%d,%d,%d,%d,%d,%d})",
 		plc_base_port,
@@ -131,25 +131,15 @@ plc_api_ret_t music_plc_algo_api_c<T>::create(void** pHd, plc_api_param_t* plc_a
 		|| plc_api_param->music_plc.seek_samples < 0
 		|| plc_api_param->music_plc.match_samples < 0)
 		return MUSIC_PLC_API_RET_FAIL;
-	int size = sizeof(music_plc_algo_api_c);
-	music_plc_algo_api_c* plc = (music_plc_algo_api_c*)plc_base_port->malloc(size);
-	if (!plc) {
-		return MUSIC_PLC_API_RET_FAIL;
-	}
-	new(plc) music_plc_algo_api_c();
-
-	plc->_base_porting = plc_base_port;
-	i32 ret = plc->init(plc_api_param);
+	_base_porting = plc_base_port;
+	i32 ret = init(plc_api_param);
 	if(ret != MUSIC_PLC_API_RET_SUCCESS){
 		LOG(plc_base_port->print_cb, "plc api create fail, %d", ret);
-		destory(plc);
-		plc = 0;
 	}
-	*pHd = plc;
 	return ret;
 }
 template<class T>
-plc_api_ret_t music_plc_algo_api_c<T>::set(void* hd, plc_api_set_e choose, void* val) {
+plc_api_ret_t music_plc_algo_api_c<T>::set(plc_api_set_e choose, void* val) {
 #if 0
 	if (!hd
 		|| choose >= MUSIC_PLC_SET_CHOOSE_MAX)
@@ -164,11 +154,11 @@ plc_api_ret_t music_plc_algo_api_c<T>::set(void* hd, plc_api_set_e choose, void*
 	return MUSIC_PLC_API_RET_SUCCESS;
 }
 template<class T>
-plc_api_ret_t music_plc_algo_api_c<T>::get(void* hd, plc_api_get_e choose, void* val) {
+plc_api_ret_t music_plc_algo_api_c<T>::get(plc_api_get_e choose, void* val) {
 	return MUSIC_PLC_API_RET_SUCCESS;
 }
 template<class T>
-plc_api_ret_t music_plc_algo_api_c<T>::run(void* hd, uint8_t* in, int32_t inLen, int32_t* inUsed, uint8_t* out, int32_t* outLen, uint16_t is_lost)
+plc_api_ret_t music_plc_algo_api_c<T>::run(uint8_t* in, int32_t inLen, int32_t* inUsed, uint8_t* out, int32_t* outLen, uint16_t is_lost)
 {
 #if 0
 	if (is_lost == false) {
@@ -179,32 +169,25 @@ plc_api_ret_t music_plc_algo_api_c<T>::run(void* hd, uint8_t* in, int32_t inLen,
 	if (*outLen < frame_samples * _info._bytes_per_sample)
 		return MUSIC_PLC_API_RET_FAIL;
 #endif
-	music_plc_algo_api_c* plc = (music_plc_algo_api_c*)hd;
-
 	buffer_samples_c buffer_samples;
 	buffer_samples._buf = in;
-	buffer_samples._samples = plc->_frame_samples;
+	buffer_samples._samples = _frame_samples;
 	audio_samples_c p_in;
-	p_in.init(&plc->_info, &buffer_samples);
+	p_in.init(&_info, &buffer_samples);
 
 	buffer_samples._buf = out;
-	buffer_samples._samples = plc->_frame_samples;
+	buffer_samples._samples = _frame_samples;
 	audio_samples_c p_out;
-	p_out.init(&plc->_info, &buffer_samples);
-	plc->run(p_in, p_out, is_lost ? true : false);
-	if(outLen) *outLen = p_out.get_valid_samples(0) * plc->_info._bytes_per_sample;
+	p_out.init(&_info, &buffer_samples);
+	run(p_in, p_out, is_lost ? true : false);
+	if(outLen) *outLen = p_out.get_valid_samples(0) * _info._bytes_per_sample;
 	if (inUsed) *inUsed = inLen;
 	return MUSIC_PLC_API_RET_SUCCESS;
 }
 
 template<class T>
-plc_api_ret_t music_plc_algo_api_c<T>::destory(void* hd) {
-	music_plc_algo_api_c* plc = (music_plc_algo_api_c*)hd;
-	if (!plc) return MUSIC_PLC_API_RET_SUCCESS;
-	plc->_mm.FreeAll();
-	plc_base_port_c* base_porting = plc->_base_porting;
-	plc->~music_plc_algo_api_c();
-	base_porting->free(plc);
+plc_api_ret_t music_plc_algo_api_c<T>::destory() {
+	_mm.FreeAll();
 	return MUSIC_PLC_API_RET_SUCCESS;
 }
 
@@ -307,8 +290,7 @@ i32 music_plc_algo_api_c<T>::init(plc_api_param_t* plc_api_param) {
 	}
 	PLC_MEM_SET(buffer_samples._buf, 0, buffer_samples._samples * _info._bytes_per_sample);
 	_in_history.init(&_info, &buffer_samples);
-	for (i16 ch = 0; ch < _info._channels; ch++)
-		_in_history.append(_in_history.get_samples_max(), ch);
+	_in_history.append(_in_history.get_samples_max(), 0);
 	buffer_samples._samples = _frame_samples;
 	buffer_samples._buf = (u8*)_mm.malloc(buffer_samples._samples * _info._bytes_per_sample);
 	if (!buffer_samples._buf) {
@@ -321,10 +303,14 @@ i32 music_plc_algo_api_c<T>::init(plc_api_param_t* plc_api_param) {
 		&_mm, &_info,
 		muter_window_choose_e::MUTER_WINDOW_CHOOSE_COSINE, muter_dir_choose_e::MUTER_DIR_CHOOSE_ATTENUATION,
 		plc_api_param->music_plc.attenuate_samples_after_lost);
-	_muter_after_no_lost.init(
-		&_mm, &_info,
-		muter_window_choose_e::MUTER_WINDOW_CHOOSE_COSINE, muter_dir_choose_e::MUTER_DIR_CHOOSE_AMPLIFICATION,
-		plc_api_param->music_plc.gain_samples_after_no_lost);
+	if (plc_api_param->music_plc.force_mute_together) {
+		_muter_after_no_lost.init(&_muter_after_lost,muter_dir_choose_e::MUTER_DIR_CHOOSE_AMPLIFICATION);
+	}else{
+		_muter_after_no_lost.init(
+			&_mm, &_info,
+			muter_window_choose_e::MUTER_WINDOW_CHOOSE_COSINE, muter_dir_choose_e::MUTER_DIR_CHOOSE_AMPLIFICATION,
+			plc_api_param->music_plc.gain_samples_after_no_lost);
+	}
 	_overlap_add.init(&_mm, &_info, overlap_add_window_choose_e::Cosine, _overlap_samples);
 	_hold_samples_after_lost = plc_api_param->music_plc.hold_samples_after_lost;
 	_wave_form_match.Init(wave_form_match_func_mode_e::WAVE_FORM_MATCH_FUNC_MODE_ACCORELATION, &_info);

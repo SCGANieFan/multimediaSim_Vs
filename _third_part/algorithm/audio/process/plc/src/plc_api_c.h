@@ -16,9 +16,8 @@ public:
 private:
 	plc_api_ret_t init(plc_api_param_t* param);
 public:
-	constexpr static const char* _version = "2.0.0.2";
+	constexpr static const char* _version = "2.0.0.3";
 	plc_api_base_port_c _api_base_port;
 	plc_algo_api_c* _plc_algo_api = 0;
-	void* _plc_algo = 0;
 };
 

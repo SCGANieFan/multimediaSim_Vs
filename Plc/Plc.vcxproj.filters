@@ -31,6 +31,9 @@
     <Filter Include="lib\tsplc\src">
       <UniqueIdentifier>{3226dae4-c847-4c6f-a92f-8415cd5f0558}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\lpcplc\c">
+      <UniqueIdentifier>{9e1b877f-6b82-41a4-8e8c-0f35cd521565}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PlcTest.cpp" />
@@ -111,6 +114,21 @@
     </ClCompile>
     <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\dot_product_with_scale.cpp">
       <Filter>lib\tsplc\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\lpcplc\c\plc_8000.c">
+      <Filter>lib\lpcplc\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\lpcplc\c\plc_16000.c">
+      <Filter>lib\lpcplc\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\lpcplc\c\table.c">
+      <Filter>lib\lpcplc\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\lpcplc\c\lpc_plc.c">
+      <Filter>lib\lpcplc\c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\lpcplc\c\lpc_plc_api.c">
+      <Filter>lib\lpcplc\c</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -252,6 +270,21 @@
     </ClInclude>
     <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\dsp_helper.h">
       <Filter>lib\tsplc\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\lpcplc\c\DSP.h">
+      <Filter>lib\lpcplc\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\lpcplc\c\plat_types.h">
+      <Filter>lib\lpcplc\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\lpcplc\c\plc_8000.h">
+      <Filter>lib\lpcplc\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\lpcplc\c\plc_16000.h">
+      <Filter>lib\lpcplc\c</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\lpcplc\c\lpc_plc_api.h">
+      <Filter>lib\lpcplc\c</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
