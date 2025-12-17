@@ -6,11 +6,47 @@
 #include "heap_api.h"
 #include "gadf_porting_api.h"
 
-#define LOG_GADF_ORI(fmt,...)    TRACE(0, fmt, ##__VA_ARGS__)
-#define LOG_GADF(fmt,...)        TRACE(0, "(%s)[%d]" fmt, __func__, __LINE__, ##__VA_ARGS__)
-
-
 #ifdef  WIN32
+
+//thread
+#include <thread>
+#include <mutex>
+static std::mutex printMtx;
+void* GadfThreadStart(const char* name, void* threadParam, void(*func)(void*), void* funcParam, uint32_t stackSize) {
+	auto threadId = new std::thread([name, func, funcParam]() {
+		func(funcParam);
+		});
+	threadId->detach();
+	return threadId;
+}
+
+unsigned int GadfThreadId() {
+#if 0
+	std::thread::id tid = std::this_thread::get_id();
+	size_t tid_hash = std::hash<std::thread::id>{}(tid);
+	return (unsigned int)tid_hash;
+#else
+	return (unsigned int)0;
+#endif
+}
+
+void* GadfMutexCreate(void* mutex_def) {
+	return (void*)new std::mutex();
+}
+int GadfMutexWait(void* mutex_id, uint32_t millisec) {
+	((std::mutex*)mutex_id)->lock();
+	return 0;
+}
+int GadfMutexRelease(void* mutex_id) {
+	if(!mutex_id)return 0;
+	((std::mutex*)mutex_id)->unlock();
+	return 0;
+}
+int GadfMutexDelete(void* mutex_id) {
+	delete (std::mutex*)mutex_id;
+	return 0;
+}
+
 void* GadfFileOpen(const char* url, const char* mode) {
 	return fopen(url, mode);
 }
@@ -29,6 +65,7 @@ int32_t GadfFileTell(void* hd) {
 void GadfFileClose(void* hd) {
 	fclose((FILE*)hd);
 }
+
 #else
 void* GadfFileOpen(const char* url, const char* mode) {
 	return (void*)1;
@@ -47,18 +84,24 @@ int32_t GadfFileTell(void* hd) {
 }
 void GadfFileClose(void* hd) {
 }
+
+
+void* GadfTheadStart(void* threadParam, void(*func)(void* param), void* param) {
+	return 0l
+}
+
 #endif
 
-
 void GadfPrint(const char* fmt, ...){
+	GadfMutexWait(&printMtx, 0xffffffff);
 	static char buf[256];
 	va_list ap;
 	va_start(ap, fmt);
 	vsprintf(buf, fmt, ap);
 	va_end(ap);
-	LOG_GADF_ORI("%s", buf);
+	TRACE("%s", buf);
+	GadfMutexRelease(&printMtx);
 }
-
 
 void* GadfHheapRegister(char* buf, int size) {
 	return heap_register(buf, size);
@@ -73,17 +116,3 @@ void GadfHeapFree(void* heap, void* rmem) {
 	heap_free((multi_heap_handle_t)heap, rmem);
 }
 
-//thread
-#ifdef  WIN32
-#include <thread>
-void* GadfThreadStart(const char* name, void* threadParam, void(*func)(void*), void* funcParam, uint32_t stackSize) {
-	auto threadId = new std::thread([name, func, funcParam]() {
-		func(funcParam);
-		});
-	return threadId;
-}
-#else	
-void* GadfTh; eadStart(void* threadParam, void(*func)(void* param), void* param) {
-	return 0l
-}
-#endif

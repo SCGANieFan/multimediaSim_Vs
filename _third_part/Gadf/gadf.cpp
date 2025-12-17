@@ -2,13 +2,14 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "gadf.h"
+#include "gadf_base.h"
 #include "gadf_private.h"
 #include "gadf_porting_api.h"
 
 #if WIN32
-#define LOG_GADF(fmt,...) GadfPrint("<%s>[%s](%d)" fmt, strrchr(__FILE__,'\\') + 1,__func__, __LINE__, ##__VA_ARGS__)
+#define LOG_GADF(fmt,...) GadfPrint("<%s>[%s](%d)" fmt "\n", strrchr(__FILE__,'\\') + 1,__func__, __LINE__, ##__VA_ARGS__)
 #else
-#define LOG_GADF(fmt,...) GadfPrint("<%s>[%s](%d)" fmt, strrchr(__FILE__,'/') + 1,__func__, __LINE__, ##__VA_ARGS__)
+#define LOG_GADF(fmt,...) GadfPrint("<%s>[%s](%d)" fmt "\n", strrchr(__FILE__,'/') + 1,__func__, __LINE__, ##__VA_ARGS__)
 #endif
 
 template<class K, class V>
@@ -109,6 +110,7 @@ static void GadfFree(void* rmem)
 }
 
 void gadf_run_by_info(void* info) {
+	LOG_GADF("v1.0.0");
 	if (!heap) {
 		heap = GadfHheapRegister(heap_pool, sizeof(heap_pool));
 	}
@@ -117,10 +119,11 @@ void gadf_run_by_info(void* info) {
 	bp._malloc = GadfMalloc;
 	bp._free = GadfFree;
 	bp._print = GadfPrint;
-	demo->Set("basePort", &bp);
-	demo->Init();
+	bool ret = true;
+	ret = demo->Set("basePort", &bp); if (!ret) return;
+	ret = demo->Init(); if (!ret) return;
 	demo->Run();
-	demo->DeInit();
+	ret = demo->DeInit();
 }
 
 

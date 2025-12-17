@@ -12,7 +12,7 @@
     <ClCompile Include="..\_third_part\Gadf\src\gadf_porting_api.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\Gadf\src\gadf_private.cpp">
+    <ClCompile Include="..\_third_part\Gadf\src\gadf_base.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\_third_part\Gadf\porting\heap_api.cpp">
@@ -27,7 +27,7 @@
     <ClInclude Include="..\_third_part\Gadf\src\gadf_private.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\Gadf\src\gadf_info.h">
+    <ClInclude Include="..\_third_part\Gadf\src\gadf_base.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="..\_third_part\Gadf\porting\hal_trace.h">

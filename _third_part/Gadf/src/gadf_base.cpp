@@ -1,8 +1,7 @@
 #include <string.h>
+#include "gadf_base.h"
 #include "gadf_private.h"
 #include "gadf_porting_api.h"
-#include "hal_trace.h"
-#include "heap_api.h"
 
 bool GadfBase_c::Set(const char* key, void* val) {
 	uint64_t _key = Str2Key(key);
@@ -15,16 +14,10 @@ bool GadfBase_c::Set(const char* key, void* val) {
 	}
 	return false;
 }
-bool GadfBase_c::Init() {
-	return true;
-}
-bool GadfBase_c::DeInit() {
-	return true;
-}
 
 
 Gadf_c::Gadf_c() {
-	LOG(_bp._print, "");
+	LOG("");
 }
 Gadf_c::~Gadf_c() {}
 
@@ -51,7 +44,7 @@ bool Gadf_c::Set(const char* key, void* val) {
 
 bool Gadf_c::Init() {
 	bool ret = GadfBase_c::Init();
-	LOG(_bp._print, "");
+	//LOG("");
 	if (!ret) return false;
 	_source->Set("basePort", &_bp);
 	_sink->Set("basePort", &_bp);
@@ -65,7 +58,7 @@ bool Gadf_c::Init() {
 bool Gadf_c::DeInit() {
 	bool ret = GadfBase_c::DeInit();
 	if (!ret) return false;
-	LOG(_bp._print, "");
+	//LOG("");
 	ret |= _source->DeInit();
 	ret |= _sink->DeInit();
 	ret |= _algo->DeInit();
@@ -73,7 +66,7 @@ bool Gadf_c::DeInit() {
 	return true;
 }
 void Gadf_c::Run() {
-	LOG(_bp._print, "");
+	//LOG("");
 	bool ret = true;
 	GadfData_c iData;
 	GadfData_c oData;
@@ -106,13 +99,9 @@ bool GadfSourceArray_c::Init() {
 	return true;
 }
 bool GadfSourceArray_c::Generate(GadfData_c& oData) {
-	LOG(_bp._print, "");
-	if (!oData._buf) {
-		oData._buf = _buf;
-		oData._size = oData._max = _bufByteMax;
-	}
-	if (oData._size == 0) {
-		return false;
+	LOG("");
+	if (!oData.Buf()) {
+		oData.Init(_buf, _bufByteMax, _bufByteMax);
 	}
 	return true;
 }
@@ -128,6 +117,8 @@ bool GadfSourceFile_c::Set(const char* key, void* val) {
 	{
 	case Str2Key("url"):
 		_url = (const char*)(uint32_t)val; return true;
+	case Str2Key("fByte"):
+		_fByte = (uint32_t)val; return true;
 	default:
 		break;
 	}
@@ -138,29 +129,31 @@ bool GadfSourceFile_c::Init() {
 		return false;
 	_fp = GadfFileOpen(_url, "rb");
 	if (!_fp) {
-		LOG(_bp._print, "open fail, %s", _url);
+		LOG("fopen fail, %s", _url);
 		return false;
 	}
-	GadfFileSeek(_fp, 0, GADF_FILE_SEEK_END);
-	_bufByteMax = GadfFileTell(_fp);
-	_buf = _bp._malloc(_bufByteMax);
+	_buf = _bp._malloc(_fByte);
 	if (!_buf) {
-		LOG(_bp._print, "open fail, %p,%d,%s", _buf, _bufByteMax, _url);
+		LOG("malloc fail, %p,%d", _buf, _fByte);
 		return false;
 	}
-	LOG(_bp._print, "%p,%d,%s", _buf, _bufByteMax, _url);
+	LOG("%p,%d,%s", _buf, _fByte, _url);
 	return true;
 }
 bool GadfSourceFile_c::Generate(GadfData_c& oData) {
-	if (!oData._buf) {
-		oData._buf = _buf;
-		oData._size = oData._max = _bufByteMax;
+	if (!oData.Buf()) {
+		oData.Init(_buf, _fByte);
 	}
-	if (oData.LeftSize() == 0) {
+	oData.Clear();
+	uint32_t readByte = GadfFileRead(_fp, oData.LeftData(), oData.LeftSize());
+	if (readByte < oData.LeftSize()) {
+		//oData._flag = 1;
 		return false;
 	}
+	oData.Append(readByte);
 	return true;
 }
+
 bool GadfSourceFile_c::DeInit() {
 	if (_fp) {
 		GadfFileClose(_fp);
@@ -170,7 +163,7 @@ bool GadfSourceFile_c::DeInit() {
 		_bp._free(_buf);
 		_buf = 0;
 	}
-	_bufByteMax = 0;
+	_fByte = 0;
 	if (!GadfSource_c::DeInit())
 		return false;
 	return true;
@@ -195,13 +188,15 @@ bool GadfSinkArray_c::Init() {
 }
 bool GadfSinkArray_c::Receive(GadfData_c& iData) {
 	if (!_buf) return false;
-	if (iData._size) {
-		if ((iData._size + _bufByte) > _bufByteMax) {
+	uint32_t iSize = iData.Size();
+	if (iSize) {
+		if ((iSize + _bufByte) > _bufByteMax) {
 			return false;
 		}
-		memcpy((uint8_t*)_buf + _bufByte, iData.Data(), iData._size);
-		iData._size = 0;
-		iData._offset = 0;
+		memcpy((uint8_t*)_buf + _bufByte, iData.Data(), iSize);
+		_bufByte += iSize;
+		iData.Used(iSize);
+		iData.Clear();
 	}
 	return true;
 }
@@ -227,7 +222,7 @@ bool GadfSinkFile_c::Init() {
 	if (!_fp) {
 		_fp = GadfFileOpen(_url, "wb");
 		if (!_fp) {
-			LOG(_bp._print, "open fail, %s", _url);
+			LOG("open fail, %s", _url);
 			return false;
 		}
 	}
@@ -237,10 +232,9 @@ bool GadfSinkFile_c::Receive(GadfData_c& iData) {
 	if (!_fp) {
 		return false;
 	}
-	if (iData._size) {
-		GadfFileWrite(_fp, iData.Data(), iData._size);
-		_bufByte += iData._size;
-		iData._size -= iData._size;
+	if (iData.Size()) {
+		GadfFileWrite(_fp, iData.Data(), iData.Size());
+		iData.Used();
 	}
 	return true;
 }

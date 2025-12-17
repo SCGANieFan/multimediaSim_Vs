@@ -1,5 +1,6 @@
 #pragma once
-#include "gadf_info.h"
+#include "gadf.h"
+#include "gadf_base.h"
 
 class GadfOpusDecSourceArray_c :public GadfSourceArray_c {
 public:

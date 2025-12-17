@@ -12,9 +12,7 @@ bool GadfOpusDecSourceArray_c::Generate(GadfData_c& oData) {
     if ((_bufByteMax - _bufUsedByte) < (frameByte + 8)) {
         return false;
     }
-    oData._buf = iHead + 8;
-    oData._size = frameByte;
-    oData._offset = 0;
+    oData.Init(iHead + 8, frameByte, frameByte);
     _bufUsedByte += frameByte + 8;
     return true;
 }
@@ -39,9 +37,7 @@ bool GadfOpusEncSourceArray_c::Generate(GadfData_c& oData) {
     if ((_bufByteMax - _bufUsedByte) < _fByte) {
         return false;
     }
-    oData._buf = _buf + _bufUsedByte;
-    oData._size = _fByte;
-    oData._offset = 0;
+    oData.Init(_buf + _bufUsedByte, _fByte, _fByte);
     _bufUsedByte += _fByte;
     return true;
 }
@@ -76,20 +72,18 @@ bool GadfOpusEnc_c::Init() {
 }
 bool GadfOpusEnc_c::Process(GadfData_c& iData, GadfData_c& oData) {
     if (!oData.Data()) {
-        oData._buf = _oBuf;
-        oData._max = _oBufMax;
+        oData.Init(_oBuf, _oBufMax);
     }
     uint8_t* iBuff = (uint8_t*)iData.Data();
-    int32_t iByte = iData._size;
+    int32_t iByte = iData.Size();
     uint8_t* oBuff = (uint8_t*)oData.LeftData();
     int32_t oByte = oData.LeftSize();
     bool ret = opus_demo_encoder_run(_enc, iBuff, &iByte, oBuff, &oByte);
     if (!ret) {
         return false; 
     }
-    iData._size -= iByte;
-    iData._offset += iByte;
-    oData._size += oByte;
+    iData.Used(iByte);
+    oData.Append(oByte);
     return true;
 }
 bool GadfOpusEnc_c::DeInit() {
@@ -129,18 +123,17 @@ bool GadfOpusDec_c::Init() {
 }
 bool GadfOpusDec_c::Process(GadfData_c& iData, GadfData_c& oData) {
     if (!oData.Data()) {
-        oData._buf = _oBuf;
-        oData._max = _oBufMax;
+        oData.Init(_oBuf, _oBufMax);
     }
     uint8_t* iBuff = (uint8_t*)iData.Data();
-    uint32_t iByte = iData._size;
+    uint32_t iByte = iData.Size();
     uint8_t* oBuff = (uint8_t*)oData.LeftData();
     int32_t oByte = oData.LeftSize();
     bool ret = opus_demo_decoder_run(_dec, iBuff, iByte, oBuff, &oByte, false);
     if (!ret) return false;
-    iData._size = 0;
-    iData._offset = 0;
-    oData._size += oByte;
+    iData.Used(iData.Size());
+    iData.Clear();
+    oData.Append(oByte);
     return true;
 }
 bool GadfOpusDec_c::DeInit() {

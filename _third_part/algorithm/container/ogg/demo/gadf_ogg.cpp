@@ -26,19 +26,17 @@ bool GadfOggMuxSourceArray_c::Generate(GadfData_c& oData) {
         }
         if ((_bufByteMax - _bufUsedByte) < 8) {
             _isEos = true;
-            oData._flag = 1;
+            oData.Flag(0x00000001);
             return true;
         }
         uint8_t* iHead = (uint8_t*)_buf + _bufUsedByte;
         uint32_t frameByte = ((uint32_t)iHead[0] << 24) | ((uint32_t)iHead[1] << 16) | ((uint32_t)iHead[2] << 8) | (uint32_t)iHead[3];
         if ((_bufByteMax - _bufUsedByte) < (frameByte + 8)) {
             _isEos = true;
-            oData._flag = 1;
+            oData.Flag(0x00000001);
             return true;
         }
-        oData._buf = iHead + 8;
-        oData._size = frameByte;
-        oData._offset = 0;
+        oData.Init(iHead + 8, frameByte, frameByte);
         _bufUsedByte += frameByte + 8;
         return true;
     }
@@ -70,16 +68,16 @@ bool GadfOggMux_c::Init() {
 }
 bool GadfOggMux_c::Process(GadfData_c& iData, GadfData_c& oData) {
     if (!oData.Data()) {
-        oData._buf = _oBuf;
-        oData._max = _oBufMax;
+        oData.Init(_oBuf, _oBufMax);
     }
-    if (iData._size) {
-        memcpy(oData.LeftData(), iData.Data(), iData._size);
-        oData._size += iData._size;
-        iData._size = 0;
-        iData._offset = 0;
+    uint32_t iSize = iData.Size();
+    if (iSize) {
+        memcpy(oData.LeftData(), iData.Data(), iSize);
+        oData.Append(iSize);
+        iData.Used(iSize);
+        iData.Clear();
     }
-    oData._flag = iData._flag;
+    oData.Flag(iData.Flag());
     return true;
 }
 bool GadfOggMux_c::DeInit() {
@@ -100,14 +98,12 @@ bool GadfOggSinkFile_c::Init() {
     uint32_t oDataMax = 5 * 1024;
     uint8_t* oBuf = (uint8_t*)_bp._malloc(oDataMax);
     if (!oBuf)return false;
-    oData._buf = oBuf;
-    oData._max = oDataMax;
+    oData.Init(oBuf, oDataMax);
     return true;
 }
 bool GadfOggSinkFile_c::DeInit() {
-    if (oData._buf) _bp._free(oData._buf);
-    oData._buf = 0;
-    oData._max = 0;
+    if (oData.Buf()) _bp._free(oData.Buf());
+    oData.DeInit();
     bool ret = ogg_demo_muxer_deinit(_ogg);
     if (!ret) return false;
     _ogg = 0;
@@ -132,25 +128,21 @@ bool GadfOggSinkFile_c::Receive(GadfData_c& iData) {
         return false;
     }
     uint8_t* iBuff = (uint8_t*)iData.Data();
-    int32_t iByte = iData._size;
+    int32_t iByte = iData.Size();
     uint8_t* oBuff = (uint8_t*)oData.LeftData();
     int32_t oByte = oData.LeftSize();
 
-    bool isEos = iData._flag;
+    bool isEos = iData.CheckFlag(0x00000001);
     bool ret = ogg_demo_muxer_run(_ogg, iBuff, &iByte, oBuff, &oByte, isEos);
     if (!ret) {
         return false;
     }
-    iData._size -= iByte;
-    iData._offset += iByte;
-    if (!iData._size) {
-        iData._offset = 0;
-    }
-    oData._size += oByte;
-    if (oData._size) {
-        GadfFileWrite(_fp, oData.Data(), oData._size);
-        _bufByte += oData._size;
-        oData._size -= oData._size;
+    iData.Used(iByte);
+    iData.Clear();
+    oData.Append(oByte);
+    if (oData.Size()) {
+        GadfFileWrite(_fp, oData.Data(), oData.Size());
+        oData.Used(oData.Size());
     }
     return true;
 }

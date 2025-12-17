@@ -30,3 +30,10 @@ void GadfHeapFree(void* heap, void* rmem);
 
 //thread
 void* GadfThreadStart(const char* name, void* threadParam, void(*func)(void*), void* funcParam, uint32_t stackSize);
+unsigned int GadfThreadId();
+
+//mutex
+void* GadfMutexCreate(void* mutex_def);
+int GadfMutexWait(void* mutex_id, uint32_t millisec);
+int GadfMutexRelease(void* mutex_id);
+int GadfMutexDelete(void* mutex_id);
