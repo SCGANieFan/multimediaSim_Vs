@@ -21,8 +21,8 @@ namespace gaapi_ns {
         static void Destory(GaapiGaf_c* gaf);
     public:
         virtual GaapiRet_t Open() { return GAAPI_RET_FAIL; }
-        virtual GaapiRet_t Set(const char* choose, void* val) { return GAAPI_RET_FAIL; }
-        virtual GaapiRet_t Get(const char* choose, void* val) { return GAAPI_RET_FAIL; }
+        virtual GaapiRet_t Set(uint32_t key, void* val) { return GAAPI_RET_FAIL; }
+        virtual GaapiRet_t Get(uint32_t key, void* val) { return GAAPI_RET_FAIL; }
         virtual GaapiRet_t Run(GaapiData_c& iData, GaapiData_c& oData) { return GAAPI_RET_FAIL; }
         virtual GaapiRet_t Receive(GaapiData_c& iData) { return GAAPI_RET_FAIL; }
         virtual GaapiRet_t Generate(GaapiData_c& oData) { return GAAPI_RET_FAIL; }
@@ -32,8 +32,8 @@ namespace gaapi_ns {
     };
 
     using FuncCreate_t = GaapiGaf_c* (*)(GaapiBasePort_t* bp);
-    void GafRegister(const char* type, FuncCreate_t funcCreate);
-    template<class T> void GafRegister(const char* type) { GafRegister(type, GaapiGaf_c::Create<T>); }
-    GaapiGaf_c* GafCreate(const char* type, GaapiBasePort_t* bp);
+    void gaapi_gaf_register(const char* type, FuncCreate_t funcCreate);
+    template<class T> void gaapi_gaf_register(const char* type) { gaapi_gaf_register(type, GaapiGaf_c::Create<T>); }
+    GaapiGaf_c* gaapi_gaf_create(const char* type, GaapiBasePort_t* bp);
 };
 

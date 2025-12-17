@@ -13,7 +13,6 @@ namespace gaapi_ns {
         bool TryLock();
     };
 
-
     class GaapiAutoMutex_c {
     public:
         GaapiAutoMutex_c(GaapiMutex_c* mtx) { _mtx = mtx; if (_mtx)_mtx->Lock(); }

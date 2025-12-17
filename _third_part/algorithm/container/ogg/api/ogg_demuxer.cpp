@@ -17,8 +17,7 @@ OggRet_t OggDeMuxer_c::Open(){
 	_receiveInfo.bufMax = 2 * 1024;
 	return OGG_API_RET_SUCCESS;
 }
-OggRet_t OggDeMuxer_c::Set(const char* choose, void* val){
-	uint64_t key = Str2Key(choose);
+OggRet_t OggDeMuxer_c::Set(uint32_t key, void* val){
 	switch (key)
 	{
 #if 0
@@ -33,10 +32,9 @@ OggRet_t OggDeMuxer_c::Set(const char* choose, void* val){
 #endif
 	default:break;
 	}
-	return Base_c::Set(choose, val);
+	return Base_c::Set(key, val);
 }
-OggRet_t OggDeMuxer_c::Get(const char* choose, void* val){
-	uint64_t key = Str2Key(choose);
+OggRet_t OggDeMuxer_c::Get(uint32_t key, void* val){
 	switch (key)
 	{
 	case Str2Key("recInfo"): 
@@ -70,7 +68,7 @@ OggRet_t OggDeMuxer_c::Get(const char* choose, void* val){
 		return OGG_API_RET_SUCCESS;
 	default:break;
 	}
-	return Base_c::Get(choose, val);
+	return Base_c::Get(key, val);
 }
 OggRet_t OggDeMuxer_c::Receive(GaapiData_c& iData){
 	int32_t len = iData.Size();
@@ -279,5 +277,5 @@ OggRet_t OggDeMuxer_c::Close() {
 
 
 EXTERNC void ogg_api_register_ogg_demuxer() {
-	GafRegister<OggDeMuxer_c>("oggDemux");
+	gaapi_gaf_register<OggDeMuxer_c>("oggDemux");
 }

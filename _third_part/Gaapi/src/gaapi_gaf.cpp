@@ -18,13 +18,13 @@ void GaapiGaf_c::Destory(GaapiGaf_c* gaf) {
 }
 
 
-void GafRegister(const char* type, FuncCreate_t funcCreate) {
+void gaapi_gaf_register(const char* type, FuncCreate_t funcCreate) {
 	GaapiInit();
 	GaapiGafRegister()->Register(type, funcCreate);
 }
 
 
-GaapiGaf_c* GafCreate(const char* type, GaapiBasePort_t* bp) {
+GaapiGaf_c* gaapi_gaf_create(const char* type, GaapiBasePort_t* bp) {
 	return GaapiGafRegister()->Create(type, bp);
 }
 

@@ -11,7 +11,7 @@ OggRet_t OggDeMuxerApi_c::Open(){
 		LOG_OGG("do clsoe befor open,%u,%p,%p,", _id, this, _oggDeMuxer);
 		return OGG_API_RET_FAIL;
 	}
-	_oggDeMuxer = GafCreate("oggDemux", &_bp);
+	_oggDeMuxer = gaapi_gaf_create("oggDemux", &_bp);
 	if (!_oggDeMuxer) {
 		LOG_OGG("create fail, %u,%p", _id, _bp.malloc_cb);
 		return OGG_API_RET_NOT_SUPPORT;
@@ -26,8 +26,8 @@ OggRet_t OggDeMuxerApi_c::Open(){
 	return OGG_API_RET_SUCCESS;
 }
 OggRet_t OggDeMuxerApi_c::Set(const char* choose, void* val){
+	uint32_t key = Str2Key(choose);
 #if 0
-	uint64_t key = Str2Key(choose);
 	switch (key)
 	{
 		//case Str2Key("test"):return OGG_API_RET_SUCCESS;
@@ -36,14 +36,14 @@ OggRet_t OggDeMuxerApi_c::Set(const char* choose, void* val){
 	}
 #endif
 	if (_oggDeMuxer) {
-		if(_oggDeMuxer->Set(choose, val) == OGG_API_RET_SUCCESS) return OGG_API_RET_SUCCESS;
+		if(_oggDeMuxer->Set(key, val) == OGG_API_RET_SUCCESS) return OGG_API_RET_SUCCESS;
 	}
 	if(Base_c::Set(choose, val) == GAAPI_RET_SUCCESS) return OGG_API_RET_SUCCESS;
 	return OGG_API_RET_FAIL;
 }
 OggRet_t OggDeMuxerApi_c::Get(const char* choose, void* val){
+	uint32_t key = Str2Key(choose);
 #if 0
-	uint64_t key = Str2Key(choose);
 	switch (key)
 	{
 		//case Str2Key("test"):return OGG_API_RET_SUCCESS;
@@ -52,7 +52,7 @@ OggRet_t OggDeMuxerApi_c::Get(const char* choose, void* val){
 	}
 #endif
 	if (_oggDeMuxer) {
-		if (_oggDeMuxer->Get(choose, val) == OGG_API_RET_SUCCESS) return OGG_API_RET_SUCCESS;
+		if (_oggDeMuxer->Get(key, val) == OGG_API_RET_SUCCESS) return OGG_API_RET_SUCCESS;
 	} 
 	if(Base_c::Get(choose, val) == GAAPI_RET_SUCCESS) return OGG_API_RET_SUCCESS;
 	return OGG_API_RET_FAIL;

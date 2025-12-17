@@ -2,11 +2,14 @@
 #include "gaapi_base.h"
 
 namespace gaapi_ns {
-    
+
 class GaapiMemory_c:public GaapiBase_c
 {
 public:
-    GaapiMemory_c() {}
+    GaapiMemory_c(void** allocList, uint32_t allocListNum) {
+        _allocList = allocList;
+        _allocListNum = allocListNum;
+    }
     ~GaapiMemory_c() {}
 public:
     void Init(GaapiBasePort_t* base_porting);
@@ -29,9 +32,19 @@ public:
     }
 private:
     GaapiBasePort_t* _bp = 0;
-    void* _allocList[100];
+    uint32_t _allocListNum = 0;
+    void** _allocList = 0;
 };
 
+template <uint32_t Num>
+class GaapiMemoryInstance_c :public GaapiMemory_c
+{
+public:
+    GaapiMemoryInstance_c() :GaapiMemory_c(&_allocListInstance[0], Num) {}
+    ~GaapiMemoryInstance_c() {}
+private:
+    void* _allocListInstance[Num];
+};
 
 
 

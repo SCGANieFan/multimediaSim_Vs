@@ -23,13 +23,13 @@ OggRet_t OggMuxerApi_c::Open(){
 		LOG_OGG("usr comment:%s", _param.userComment.userCommentString);
 	if (!_bp.realloc_cb) { return OGG_API_RET_FAIL; }
 
-	_oggMuxer = GafCreate("oggMuxer", &_bp);
+	_oggMuxer = gaapi_gaf_create("oggMuxer", &_bp);
 	if (!_oggMuxer) { 
 		LOG_OGG("create fail", _id);
 		return OGG_API_RET_NOT_SUPPORT; 
 	}
 	OggApiRet_t ret = 0;
-	ret |= _oggMuxer->Set("param", (void*)(uint32_t)&_param);
+	ret |= _oggMuxer->Set(Str2Key("param"), (void*)(uint32_t)&_param);
 	if (ret != OGG_API_RET_SUCCESS) { 
 		LOG_OGG("set fail", _id);
 		Close();
@@ -64,13 +64,13 @@ OggRet_t OggMuxerApi_c::Set(const char* choose, void* val){
 	case Str2Key("pageByte"):_param.page_byte_round = (uint32_t)val; return OGG_API_RET_SUCCESS;
 	case Str2Key("gPos"):
 		if (_oggMuxer) {
-			_oggMuxer->Set("gPos", val);
+			_oggMuxer->Set(Str2Key("gPos"), val);
 			return OGG_API_RET_SUCCESS;
 		}
 		return OGG_API_RET_FAIL;
 	case Str2Key("eos"):
 		if (_oggMuxer) {
-			_oggMuxer->Set("eos", val);
+			_oggMuxer->Set(Str2Key("gPos"), val);
 			return OGG_API_RET_SUCCESS;
 		}
 		return OGG_API_RET_FAIL;

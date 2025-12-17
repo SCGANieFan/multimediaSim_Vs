@@ -17,7 +17,7 @@ private:
 	MTF_Data _iData;
 	MTF_Data _oData;
 
-	mtf_void* _hd = 0;
+	mtf_u32 _plcApiId = 0;
 	mtf_i32 _hdSize = 0;
 
 	mtf_i16 _decayMs = 0;

@@ -22,7 +22,7 @@ public:
     uint32_t Used() { return _offset; }
     uint32_t Used(uint32_t size);
     uint32_t ClearUsed();
-    uint32_t Flag(uint32_t flag) { _flag |= flag; }
+    uint32_t Flag(uint32_t flag) { _flag |= flag; return _flag; }
     uint32_t Flag() { return _flag; }
 private:
     void* _buf = 0;

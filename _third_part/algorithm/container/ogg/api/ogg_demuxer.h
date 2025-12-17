@@ -20,8 +20,8 @@ public:
 	virtual ~OggDeMuxer_c();
 public:
 	virtual OggRet_t Open()override;
-	virtual OggRet_t Set(const char* choose, void* val)override;
-	virtual OggRet_t Get(const char* choose, void* val)override;
+	virtual OggRet_t Set(uint32_t key, void* val)override;
+	virtual OggRet_t Get(uint32_t key, void* val)override;
 	//virtual OggRet_t Run(GaapiData_c& iData, GaapiData_c& oData)override;
 	virtual OggRet_t Receive(GaapiData_c& iData)override;
 	virtual OggRet_t Generate(GaapiData_c& oData)override;

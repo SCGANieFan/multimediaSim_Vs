@@ -8,28 +8,22 @@
       <UniqueIdentifier>{1d505b0b-1ca1-47ce-b4d7-ad6e9bc387f3}</UniqueIdentifier>
     </Filter>
     <Filter Include="lib\inc">
-      <UniqueIdentifier>{91bf34dc-24bf-430f-adcf-c8e91bf77be3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\musicplc">
-      <UniqueIdentifier>{b9fee5ef-0cde-4c91-9894-af109cdbad2c}</UniqueIdentifier>
+      <UniqueIdentifier>{48a63d68-8ca8-4fe7-a725-11dcfc36c4f1}</UniqueIdentifier>
     </Filter>
     <Filter Include="lib\src">
-      <UniqueIdentifier>{185b31a9-9b23-4f7d-8d87-d801e75a24d8}</UniqueIdentifier>
+      <UniqueIdentifier>{f9e5b038-8e1e-42e6-afd6-8899528b44eb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\sbcplc">
-      <UniqueIdentifier>{171e1bdb-2e8d-4079-b5d5-47921064b8ae}</UniqueIdentifier>
+    <Filter Include="lib\api">
+      <UniqueIdentifier>{d7d2299d-44c9-4f28-8ddb-777a4cb1031c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\sbcplc\c">
-      <UniqueIdentifier>{d94b6ba2-9806-4079-8f78-64574790bf31}</UniqueIdentifier>
+    <Filter Include="demo">
+      <UniqueIdentifier>{f4479219-4f6a-4115-99b0-a9c07008cee4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\lpcplc">
-      <UniqueIdentifier>{472e9c71-477d-4efa-ab0b-fb466f888240}</UniqueIdentifier>
+    <Filter Include="lib\src\musicplc">
+      <UniqueIdentifier>{a28e012f-730a-4552-968a-21a13f650f21}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\tsplc">
-      <UniqueIdentifier>{65baa368-96b5-49dd-abe0-5d60325f0180}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\tsplc\src">
-      <UniqueIdentifier>{3226dae4-c847-4c6f-a92f-8415cd5f0558}</UniqueIdentifier>
+    <Filter Include="lib\gaapi">
+      <UniqueIdentifier>{00d3c80e-b78a-453c-9b66-b04fea4f64d0}</UniqueIdentifier>
     </Filter>
     <Filter Include="lib\lpcplc\c">
       <UniqueIdentifier>{9e1b877f-6b82-41a4-8e8c-0f35cd521565}</UniqueIdentifier>
@@ -40,80 +34,32 @@
     <ClCompile Include="..\_third_part\MTF\interface\plc\MTF.MusicPlc.cpp">
       <Filter>mtf</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\musicplc\music_plc_algo_api_c.cpp">
-      <Filter>lib\musicplc</Filter>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\api\plc_api.cpp">
+      <Filter>lib\api</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\src\plc_api.cpp">
-      <Filter>lib\src</Filter>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc.cpp">
+      <Filter>lib\src\musicplc</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\src\plc_api_c.cpp">
-      <Filter>lib\src</Filter>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_memory.cpp">
+      <Filter>lib\gaapi</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\src\plc_base.cpp">
-      <Filter>lib\src</Filter>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_os.cpp">
+      <Filter>lib\gaapi</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\src\plc_memory_manger_c.cpp">
-      <Filter>lib\src</Filter>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_static.cpp">
+      <Filter>lib\gaapi</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\src\plc_register_c.cpp">
-      <Filter>lib\src</Filter>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi.cpp">
+      <Filter>lib\gaapi</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\sbcplc\sbc_plc_algo_api_c.cpp">
-      <Filter>lib\sbcplc</Filter>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_base.cpp">
+      <Filter>lib\gaapi</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\sbcplc\c\sbcplc.cpp">
-      <Filter>lib\sbcplc\c</Filter>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_data.cpp">
+      <Filter>lib\gaapi</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\lpcplc\lpc_plc_algo_api_c.cpp">
-      <Filter>lib\lpcplc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\ts_plc_algo_api_c.cpp">
-      <Filter>lib\tsplc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\audio_multi_vector.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\audio_vector.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\preemptive_expand.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\time_stretch.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\SmfBase.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\spl_inl.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\checks.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\dsp_helper.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\min_max_operations.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\vector_scaling_operations.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\cross_correlation.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\downsample_fast.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\spl_sqrt_floor.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\division_operations.cpp">
-      <Filter>lib\tsplc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\dot_product_with_scale.cpp">
-      <Filter>lib\tsplc\src</Filter>
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_gaf.cpp">
+      <Filter>lib\gaapi</Filter>
     </ClCompile>
     <ClCompile Include="..\_third_part\algorithm\audio\process\plc\lpcplc\c\plc_8000.c">
       <Filter>lib\lpcplc\c</Filter>
@@ -136,140 +82,74 @@
     <ClInclude Include="..\_third_part\MTF\interface\plc\MTF.MusicPlc.h">
       <Filter>mtf</Filter>
     </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\api\plc_api_private.h">
+      <Filter>lib\api</Filter>
+    </ClInclude>
     <ClInclude Include="..\_third_part\algorithm\audio\process\plc\inc\plc_api.h">
       <Filter>lib\inc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\music_plc_algo_api_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_basic.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\music_plc_fill_signal_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_buffer.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_accorelation_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_data.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_basic_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_fill_signal.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_buffer_generate_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_math.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_com.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_muter.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_muter_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_overlapadd.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_product_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_product.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_waveform_match_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_waveform_match.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_cal_wave_match_by_crosscor_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_data_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_buffer_generate.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_audio_samples_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_audio_data.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_buffer_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_audio_samples.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_data_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\musicplc\music_plc_base.h">
+      <Filter>lib\src\musicplc</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_math_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_memory.h">
+      <Filter>lib\gaapi</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\musicplc\plc_overlapadd_c.h">
-      <Filter>lib\musicplc</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_os.h">
+      <Filter>lib\gaapi</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_algo_api_c.h">
-      <Filter>lib\src</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_static.h">
+      <Filter>lib\gaapi</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_api_base_port_c.h">
-      <Filter>lib\src</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi.h">
+      <Filter>lib\gaapi</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_api_c.h">
-      <Filter>lib\src</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_base.h">
+      <Filter>lib\gaapi</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_base.h">
-      <Filter>lib\src</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_data.h">
+      <Filter>lib\gaapi</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_base_port_c.h">
-      <Filter>lib\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_memory_manger_c.h">
-      <Filter>lib\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\src\plc_register_c.h">
-      <Filter>lib\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\sbcplc\sbc_plc_algo_api_c.h">
-      <Filter>lib\sbcplc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\sbcplc\c\sbcplc.h">
-      <Filter>lib\sbcplc\c</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\lpcplc\lpc_plc_algo_api_c.h">
-      <Filter>lib\lpcplc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\ts_plc_algo_api_c.h">
-      <Filter>lib\tsplc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\audio_multi_vector.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\audio_vector.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\constructormagic.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\ObjectStatic.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\preemptive_expand.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\scoped_ptr.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\SmfBase.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\template_util.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\time_stretch.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\typedefs.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\signal_processing_library.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\spl_inl.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\safe_conversions.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\safe_conversions_impl.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\cpu_features_wrapper.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\checks.h">
-      <Filter>lib\tsplc\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\tsplc\src\dsp_helper.h">
-      <Filter>lib\tsplc\src</Filter>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_gaf.h">
+      <Filter>lib\gaapi</Filter>
     </ClInclude>
     <ClInclude Include="..\_third_part\algorithm\audio\process\plc\lpcplc\c\DSP.h">
       <Filter>lib\lpcplc\c</Filter>

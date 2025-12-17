@@ -6,10 +6,10 @@ namespace mtf_ns {
 
 mtf_void PrintfOri(const char* format, ...) {
     VaListPorting_t args;
-    VaStartPorting(args, format);
+    //VaStartPorting(args, format);
+    va_start(args, format);
     char buf[256];
-    //VsprintfPorting(buf, "%lld[%u]%s\n", TimeMsPorting(), ThreadIdPorting());
-    sprintf(buf + MTF_String::StrLen(buf), format, args);
+    VsprintfPorting(buf, "%lld[%u]%s\n", TimeMsPorting(), ThreadIdPorting(), args);
     LogNoFormatPorting(buf);
 }
 

@@ -116,8 +116,7 @@ OggRet_t OggMuxer_c::Open(){
 	_stage = Stage_e::STAGE_ID_HEAD;
 	return OGG_API_RET_SUCCESS;
 }
-OggRet_t OggMuxer_c::Set(const char* choose, void* val){
-	uint64_t key = Str2Key(choose);
+OggRet_t OggMuxer_c::Set(uint32_t key, void* val){
 	switch (key)
 	{
 	case Str2Key("param"):_param = (OggMuxerApiParam_t*)val; return OGG_API_RET_SUCCESS;
@@ -131,16 +130,15 @@ OggRet_t OggMuxer_c::Set(const char* choose, void* val){
 		
 	default:break;
 	}
-	return Base_c::Set(choose, val);
+	return Base_c::Set(key, val);
 }
-OggRet_t OggMuxer_c::Get(const char* choose, void* val){
-	uint64_t key = Str2Key(choose);
+OggRet_t OggMuxer_c::Get(uint32_t key, void* val){
 	switch (key)
 	{
 	//case Str2Key("test"): _param.mode = (OggMuxerApiMode_e)(uint32_t)val; return OGG_API_RET_SUCCESS;
 	default:break;
 	}
-	return Base_c::Get(choose, val);
+	return Base_c::Get(key, val);
 }
 #if 0
 OggRet_t OggMuxer_c::Run(GaapiData_c& iData, GaapiData_c& oData){
@@ -200,5 +198,5 @@ OggRet_t OggMuxer_c::Close(){
 }
 
 EXTERNC void ogg_api_register_ogg_muxer() {
-	GafRegister<OggMuxer_c>("oggMuxer");
+	gaapi_gaf_register<OggMuxer_c>("oggMuxer");
 }

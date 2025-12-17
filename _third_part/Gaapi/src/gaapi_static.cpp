@@ -11,7 +11,7 @@ GaapiGafRegister_c::GaapiGafRegister_c(Item_c* items, uint32_t itemNum) {
 GaapiGafRegister_c::~GaapiGafRegister_c() {}
 void GaapiGafRegister_c::Register(const char* type, FuncCreate_t funcCreate) {
 	GaapiAutoMutex_c autoMtx(&_mtx);
-	uint64_t id = Str2Key(type);
+	uint32_t id = Str2Key(type);
 	for (uint32_t n = 0; n < _itemNum; n++) {
 		if (_items[n]._id == id) {
 			_items[n]._funcCreate = funcCreate;
@@ -26,10 +26,9 @@ void GaapiGafRegister_c::Register(const char* type, FuncCreate_t funcCreate) {
 			break;
 		}
 	}
-
 }
 GaapiGaf_c* GaapiGafRegister_c::Create(const char* type, GaapiBasePort_t* bp) {
-	uint64_t id = Str2Key(type);
+	uint32_t id = Str2Key(type);
 	for (uint32_t n = 0; n < _itemNum; n++) {
 		if (_items[n]._id == id) {
 			return _items[n]._funcCreate(bp);
@@ -101,10 +100,10 @@ uint32_t GaapiIdManager_c::Remove(uint32_t id) {
 
 GaapiStatic_c::GaapiStatic_c()
 {
-	_magic0 = Str2Key("gaapi000");
-	_magic1 = Str2Key("gaapi001");
-	_magic2 = Str2Key("gaapi002");
-	_magic3 = Str2Key("gaapi003");
+	_magic0 = Str2U64("gaapi000");
+	_magic1 = Str2U64("gaapi001");
+	_magic2 = Str2U64("gaapi002");
+	_magic3 = Str2U64("gaapi003");
 }
 
 GaapiStatic_c::~GaapiStatic_c()
@@ -119,10 +118,10 @@ GaapiStatic_c::~GaapiStatic_c()
 namespace gaapi_ns {
 static bool GaapiCheck() {
 	GaapiStatic_c* GaapiStatic = (GaapiStatic_c*)buff;
-	if (GaapiStatic->_magic0 != GaapiStatic->Str2Key("gaapi000")
-		|| GaapiStatic->_magic1 != GaapiStatic->Str2Key("gaapi001")
-		|| GaapiStatic->_magic2 != GaapiStatic->Str2Key("gaapi002")
-		|| GaapiStatic->_magic3 != GaapiStatic->Str2Key("gaapi003")) {
+	if (GaapiStatic->_magic0 != GaapiStatic->Str2U64("gaapi000")
+		|| GaapiStatic->_magic1 != GaapiStatic->Str2U64("gaapi001")
+		|| GaapiStatic->_magic2 != GaapiStatic->Str2U64("gaapi002")
+		|| GaapiStatic->_magic3 != GaapiStatic->Str2U64("gaapi003")) {
 		return false;
 	}
 	return true;

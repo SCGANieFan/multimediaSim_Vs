@@ -10,21 +10,18 @@ namespace gaapi_ns {
     public:
         class Item_c {
         public:
-            Item_c() {}
-            virtual ~Item_c() {}
-        public:
-            uint64_t _id = 0;
+            uint32_t _id = 0;
             FuncCreate_t _funcCreate = 0;
         };
     public:
         GaapiGafRegister_c(Item_c* items, uint32_t itemNum);
-        virtual ~GaapiGafRegister_c();
+        ~GaapiGafRegister_c();
     public:
         void Register(const char* type, FuncCreate_t funcCreate);
         GaapiGaf_c* Create(const char* type, GaapiBasePort_t* bp);
     public:
         uint32_t _itemNum;
-        Item_c *_items;
+        Item_c* _items;
         GaapiMutex_c _mtx;
     };
 
@@ -39,17 +36,14 @@ namespace gaapi_ns {
 
     class GaapiIdManager_c :public GaapiBase_c {
     public:
-        class Item_c{
-        public:
-            Item_c() {}
-            ~Item_c() {}
+        class Item_c {
         public:
             Gaapi_c* _api = 0;
             uint32_t _id = 0;
         };
     public:
         GaapiIdManager_c(Item_c* items, uint32_t itemNum);
-        virtual ~GaapiIdManager_c();
+        ~GaapiIdManager_c();
     public:
         uint32_t Add(Gaapi_c* api);
         uint32_t Api2Id(Gaapi_c* api);
@@ -66,7 +60,7 @@ namespace gaapi_ns {
     class GaapiIdManagerInstance_c :public GaapiIdManager_c {
     public:
         GaapiIdManagerInstance_c() :GaapiIdManager_c(items, Num) {}
-        virtual ~GaapiIdManagerInstance_c() {}
+        ~GaapiIdManagerInstance_c() {}
     public:
         Item_c items[Num];
     };
@@ -85,10 +79,10 @@ namespace gaapi_ns {
         uint64_t _magic2;
         uint64_t _magic3;
     };
-	void GaapiInit();
-	void GaapiDeinit();
-	GaapiStatic_c* GaapiStatic();
-	GaapiIdManager_c* GaapiIdManager();
+    void GaapiInit();
+    void GaapiDeinit();
+    GaapiStatic_c* GaapiStatic();
+    GaapiIdManager_c* GaapiIdManager();
     GaapiGafRegister_c* GaapiGafRegister();
 };
 
