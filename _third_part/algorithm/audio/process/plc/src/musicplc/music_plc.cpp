@@ -172,7 +172,7 @@ PlcApiRet_t music_plc_c::Run(GaapiData_c& iData, GaapiData_c& oData) {
 	bool is_lost = iData.Flag();
 	run(p_in, p_out, is_lost ? true : false);
 	oData.Append(p_out.get_valid_samples(0) * _info._bytes_per_sample);
-	iData.Used(iData.Size());
+	iData.Used(_frame_samples * _info._bytes_per_sample);
 	return MUSIC_PLC_API_RET_SUCCESS;
 }
 

@@ -12025,16 +12025,16 @@ using PlcSink_c = GadfPlcSinkArray_c;
 
 using PlcDemo_c = GadfPlc_c;
 
-typedef struct Table_t {
+struct Table_t {
 	const char* key;
 	uint8_t* buf;
 };
 
 void gadf_register_info_plc_16k2ch() {
-	static const uint32_t bufByte = sizeof(PlcDemo_c)
+	static const uint32_t bufByte = (sizeof(PlcDemo_c)
 		+ sizeof(PlcAlgo_c)
 		+ sizeof(PlcSrc_c)
-		+ sizeof(PlcSink_c);
+		+ sizeof(PlcSink_c) + 63) >> 6 << 6;
 	static uint8_t bufAll[2][bufByte] = { 0 };
 	Table_t table[] = {
 		{KEY "0", bufAll[0]},

@@ -16,11 +16,11 @@
 #define PLC_API_RET_NOT_SUPPORT		(-3)
 
 
-typedef struct plc_api_param_t {
-	void* (*malloc_cb)(uint32_t size) = 0;                  //dynamic memory alloc function pointer, it can not be null
-	void* (*realloc_cb)(void* rmem, uint32_t newsize) = 0;  //dynamic memory realloc function pointer, it can not be null
-	void(*free_cb)(void* buf) = 0;                          //dynamic memory free function pointer, it can not be null
-	void(*print_cb)(const char* fmt, ...) = 0;              //log print function pointer, if donot want print, it can be null
+struct plc_api_param_t {
+	void* (*malloc_cb)(uint32_t size);                  //dynamic memory alloc function pointer, it can not be null
+	void* (*realloc_cb)(void* rmem, uint32_t newsize);  //dynamic memory realloc function pointer, it can not be null
+	void(*free_cb)(void* buf);                          //dynamic memory free function pointer, it can not be null
+	void(*print_cb)(const char* fmt, ...);              //log print function pointer, if donot want print, it can be null
 };
 
 
@@ -29,7 +29,7 @@ typedef int32_t plc_api_ret_t;
 EXTERNC uint32_t plc_api_create(plc_api_param_t* param);
 EXTERNC plc_api_ret_t plc_api_open(uint32_t id);
 EXTERNC plc_api_ret_t plc_api_receive(uint32_t id, uint8_t* in, int32_t in_len);
-EXTERNC plc_api_ret_t plc_api_run(uint32_t id, uint8_t* in, int32_t in_len, int32_t* in_used, uint8_t* out, int32_t* p_out_len, uint16_t is_lost);
+EXTERNC plc_api_ret_t plc_api_run(uint32_t id, uint8_t* pmc_in, int32_t* pmc_in_byte, uint8_t* pcm_out, int32_t* pcm_out_byte, uint16_t is_lost);
 EXTERNC plc_api_ret_t plc_api_generate(uint32_t id, uint8_t* out, int32_t* p_out_len);
 EXTERNC plc_api_ret_t plc_api_set(uint32_t id, const char *choose, void* val);
 EXTERNC plc_api_ret_t plc_api_get(uint32_t id, const char* choose, void* val);

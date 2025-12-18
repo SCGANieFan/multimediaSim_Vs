@@ -1,6 +1,13 @@
 #include <string.h>
 #include "gadf_plc.h"
-#include "plc_api_demo.h"
+#include "plc_demo.h"
+
+bool GadfPlcSourceArray_c::Init() {
+	if (!GadfSourceArray_c::Init()) return false;
+	_frameNum = 0;
+	return true;
+}
+
 
 bool GadfPlcSourceArray_c::Set(const char* key, void* val) {
 	switch (Str2Key(key))
@@ -76,7 +83,6 @@ bool GadfPlcAlgo_c::Set(const char* key, void* val) {
 }
 
 bool GadfPlcAlgo_c::Process(GadfData_c& iData, GadfData_c& oData) {
-	int32_t in_used = 0;
 	uint8_t* in = (uint8_t*)iData.Data();
 	int32_t in_len = iData.Size();
 	uint16_t is_lost = 0;
@@ -89,9 +95,9 @@ bool GadfPlcAlgo_c::Process(GadfData_c& iData, GadfData_c& oData) {
 	oData.Clear();
 	uint8_t* out = (uint8_t*)oData.LeftData();
 	int32_t out_len = oData.LeftSize();
-	bool ret = plc_api_demo_run(_plc_id, in, in_len, &in_used, out, &out_len, is_lost);
+	bool ret = plc_api_demo_run(_plc_id, in, &in_len, out, &out_len, is_lost);
 	if (!ret) return false;
-	iData.Used(in_used);
+	iData.Used(in_len);
 	oData.Append(out_len);
 	return true;
 }

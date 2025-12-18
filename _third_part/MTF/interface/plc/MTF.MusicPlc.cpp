@@ -82,8 +82,6 @@ mtf_i32 MTF_MusicPlc::Init()
 	MTF_PRINT();
 	plc_api_param_t initParam;
 	MTF_MEM_SET(&initParam, 0, sizeof(plc_api_param_t));
-
-
 	initParam.malloc_cb = PlcMalloc;
 	initParam.free_cb = PlcFree;
 	initParam.print_cb = PlcPrint;
@@ -164,6 +162,7 @@ mtf_i32 MTF_MusicPlc::generate(MTF_Data*& oData)
 	_frames++;
 
 	mtf_i32 ret = 0;
+	mtf_i32 inByte = _iData._size;
 	mtf_i32 outByte = _oData.LeftSize();
 #if SIM_PLC_FILL_ZERO
 	if (_iData._flags & MTF_DataFlag_EMPTY) {
@@ -185,7 +184,6 @@ mtf_i32 MTF_MusicPlc::generate(MTF_Data*& oData)
 			_plcApiId,
 			NULL,
 			0,
-			0,
 			_oData.LeftData(),
 			&outByte,
 			0xffff);
@@ -195,8 +193,7 @@ mtf_i32 MTF_MusicPlc::generate(MTF_Data*& oData)
 		ret = plc_api_run(
 			_plcApiId,
 			_iData.Data(),
-			_iData._size,
-			0,
+			&inByte,
 			_oData.LeftData(),
 			&outByte,
 			0x0000);
@@ -207,7 +204,7 @@ mtf_i32 MTF_MusicPlc::generate(MTF_Data*& oData)
 	{
 		return -1;
 	}
-#if 1
+#if 0
 	uint16_t* pIn = (uint16_t*)_iData.Data();
 	uint16_t* pOut = (uint16_t*)_oData.Data();
 	if (_ch == 2) {

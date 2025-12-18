@@ -9,6 +9,7 @@ public:
 	GadfPlcSourceArray_c() {}
 	virtual ~GadfPlcSourceArray_c() {}
 public:
+	virtual bool Init()override;
 	virtual bool Set(const char* key, void* val)override;
 	virtual bool Generate(GadfData_c& oData) override;
 public:

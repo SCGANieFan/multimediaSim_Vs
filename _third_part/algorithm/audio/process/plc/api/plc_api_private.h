@@ -7,7 +7,7 @@ using namespace plc_gaapi_ns;
 
 #define LOG_PLC(fmt,...)		   LOG_GAAPI(fmt,##__VA_ARGS__)
 
-typedef struct plcApiParam_t {
+struct plcApiParam_t {
 	int32_t fs_hz;
 	int16_t channels;
 	int16_t frame_samples;

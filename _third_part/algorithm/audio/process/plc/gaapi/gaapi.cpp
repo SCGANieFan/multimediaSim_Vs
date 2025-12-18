@@ -2,7 +2,7 @@
 #include "gaapi_static.h"
 
 using namespace plc_gaapi_ns;
-#define VERSION "1.0.0"
+#define VERSION "1.0.2"
 
 Gaapi_c::Gaapi_c() {
 #if 0

@@ -1,9 +1,9 @@
 #include "plc_api_private.h"
 
-#define VERSION "2.1.0.0"
+#define VERSION "2.1.0.1"
 
 plc_api_ret_t plc_api_c::Open() {
-	LOG_PLC("plc api %s (%d,%d)", VERSION, _param.mode, _param.data_type);
+	LOG_PLC("plc api %s (%s,%s)", VERSION, _param.mode, _param.data_type);
 	uint32_t modeKey = Str2Key(_param.mode);
 	uint32_t dataTypeKey = Str2Key(_param.data_type);
 	if (modeKey == Str2Key("musicPlc")) {
@@ -38,13 +38,13 @@ plc_api_ret_t plc_api_c::Set(const char* choose, void* val) {
 	case Str2Key("rate"): _param.fs_hz = (int32_t)(uint32_t)val; return PLC_API_RET_SUCCESS;
 	case Str2Key("ch"): _param.channels = (int16_t)(uint32_t)val; return PLC_API_RET_SUCCESS;
 	case Str2Key("fSample"): _param.frame_samples = (int16_t)(uint32_t)val; return PLC_API_RET_SUCCESS;
-	case Str2Key("dataType"): _param.data_type = (const char*)val; return PLC_API_RET_SUCCESS;
-	case Str2Key("mode"): _param.mode = (const char*)val; return PLC_API_RET_SUCCESS;
+	case Str2Key("dataType"): _param.data_type = (const char*)val; LOG_PLC("dataType:%s", _param.data_type); return PLC_API_RET_SUCCESS;
+	case Str2Key("mode"): _param.mode = (const char*)val; LOG_PLC("mode:%s", _param.mode); return PLC_API_RET_SUCCESS;
 	//music plc
 	case Str2Key("chSelect"): _param.musicPlcParam.channel_select = (uint16_t)(uint32_t)val; return PLC_API_RET_SUCCESS;
-	case Str2Key("paramSet"): _param.musicPlcParam.param_set = (const char*)val; return PLC_API_RET_SUCCESS;
+	case Str2Key("paramSet"): _param.musicPlcParam.param_set = (const char*)val; LOG_PLC("paramSet:%s", _param.musicPlcParam.param_set); return PLC_API_RET_SUCCESS;
 	case Str2Key("key"): _param.musicPlcParam.key = (int32_t)(uint32_t)val; return PLC_API_RET_SUCCESS;
-	case Str2Key("app"): _param.musicPlcParam.application = (const char*)val; return PLC_API_RET_SUCCESS;
+	case Str2Key("app"): _param.musicPlcParam.application = (const char*)val; LOG_PLC("application:%u", _param.musicPlcParam.application); return PLC_API_RET_SUCCESS;
 	case Str2Key("overlap"): _param.musicPlcParam.overlap_samples = (int32_t)(uint32_t)val; return PLC_API_RET_SUCCESS;
 	case Str2Key("holdAL"): _param.musicPlcParam.hold_samples_after_lost = (int32_t)(uint32_t)val; return PLC_API_RET_SUCCESS;
 	case Str2Key("attAL"): _param.musicPlcParam.attenuate_samples_after_lost = (int32_t)(uint32_t)val; return PLC_API_RET_SUCCESS;
@@ -122,17 +122,18 @@ plc_api_ret_t plc_api_receive(uint32_t id, uint8_t* in, int32_t in_len) {
 	plc_api_ret_t ret = plc_api_c::ReceiveApi(id, iData);
 	return ret;
 }
-
-plc_api_ret_t plc_api_run(uint32_t id, uint8_t* in, int32_t in_len, int32_t* in_used, uint8_t* out, int32_t* p_out_len, uint16_t is_lost){
-	if (!p_out_len) return PLC_API_RET_INPUT_ERROR;
+plc_api_ret_t plc_api_run(uint32_t id, uint8_t* pmc_in, int32_t* pmc_in_byte, uint8_t* pcm_out, int32_t* pcm_out_byte, uint16_t is_lost){
+	if (!pcm_out_byte) return PLC_API_RET_INPUT_ERROR;
 	GaapiData_c iData;
 	GaapiData_c oData;
-	iData.Init(in, in_len, in_len);
+	int32_t inByte = 0;
+	if(pmc_in_byte) inByte = *pmc_in_byte;
+	iData.Init(pmc_in, inByte, inByte);
 	iData.Flag(is_lost);
-	oData.Init(out, *p_out_len);
+	oData.Init(pcm_out, *pcm_out_byte);
 	plc_api_ret_t ret = plc_api_c::RunApi(id, iData, oData);
-	if (in_used) *in_used = iData.Used();
-	*p_out_len = oData.Size();
+	if(pmc_in_byte) *pmc_in_byte = iData.Used();
+	*pcm_out_byte = oData.Size();
 	return ret;
 }
 

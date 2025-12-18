@@ -9,9 +9,9 @@ namespace plc_gaapi_ns {
 #define GAAPI_RET_FAIL           (-1)
 
 #if WIN32
-#define LOG_GAAPI(fmt,...) if(_bp.print_cb) _bp.print_cb("<%s>[%s](%d)" fmt "\n", Strrchr_m(__FILE__,'\\') + 1,__func__, __LINE__, ##__VA_ARGS__)
+#define LOG_GAAPI(fmt,...) if(_bp.print_cb) _bp.print_cb("<%s>[%s](%d)" fmt, Strrchr_m(__FILE__,'\\') + 1,__func__, __LINE__, ##__VA_ARGS__)
 #else
-#define LOG_GAAPI(fmt,...) if(_bp.print_cb) _bp.print_cb("<%s>[%s](%d)" fmt "\n", Strrchr_m(__FILE__,'/') + 1,__func__, __LINE__, ##__VA_ARGS__)
+#define LOG_GAAPI(fmt,...) if(_bp.print_cb) _bp.print_cb("<%s>[%s](%d)" fmt, Strrchr_m(__FILE__,'/') + 1,__func__, __LINE__, ##__VA_ARGS__)
 #endif
 
 

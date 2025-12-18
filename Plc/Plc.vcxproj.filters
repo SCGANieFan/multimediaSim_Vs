@@ -58,13 +58,16 @@
     <ClCompile Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_gaf.cpp">
       <Filter>lib\gaapi</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\demo\plc_api_demo.cpp">
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\demo\plc_demo.cpp">
       <Filter>demo</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\demo\plc_api_gadf.cpp">
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\demo\gadf_plc.cpp">
       <Filter>demo</Filter>
     </ClCompile>
     <ClCompile Include="PlcMtfTest.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\process\plc\demo\gadf_register_info_plc_16k2ch.cpp">
+      <Filter>demo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PlcTest.h" />
@@ -140,7 +143,10 @@
     <ClInclude Include="..\_third_part\algorithm\audio\process\plc\gaapi\gaapi_gaf.h">
       <Filter>lib\gaapi</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\demo\plc_api_gadf.h">
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\demo\gadf_plc.h">
+      <Filter>demo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\process\plc\demo\plc_demo.h">
       <Filter>demo</Filter>
     </ClInclude>
   </ItemGroup>

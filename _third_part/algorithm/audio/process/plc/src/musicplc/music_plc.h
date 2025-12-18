@@ -29,7 +29,7 @@ enum plc_api_application_e {
 };
 #endif
 
-typedef struct musicplc_param_t {
+struct musicplc_param_t {
 	int32_t fs_hz;
 	int16_t channels;
 	int16_t frame_samples;
