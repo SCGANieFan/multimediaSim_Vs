@@ -133,6 +133,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\_third_part\Gadf\gadf.cpp" />
+    <ClCompile Include="..\_third_part\Gadf\porting\hal_trace.cpp" />
     <ClCompile Include="..\_third_part\Gadf\porting\heap_api.cpp" />
     <ClCompile Include="..\_third_part\Gadf\src\gadf_porting_api.cpp" />
     <ClCompile Include="..\_third_part\Gadf\src\gadf_base.cpp" />

@@ -37,3 +37,7 @@ void* GadfMutexCreate(void* mutex_def);
 int GadfMutexWait(void* mutex_id, uint32_t millisec);
 int GadfMutexRelease(void* mutex_id);
 int GadfMutexDelete(void* mutex_id);
+
+
+//time
+void sleep_for(uint32_t ms);

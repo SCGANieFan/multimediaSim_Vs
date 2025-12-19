@@ -29,12 +29,12 @@ struct GadfInfoTable_t {
 };
 
 GadfInfoTable_t<Gadf_c*, 20> tables;
-static void GadfInfoTableAdd(const char* key, Gadf_c** val) {
+static void GadfInfoTableAdd(const char* key, Gadf_c* val) {
 	if (key) {
 		for (uint32_t n = 0; n < tables._numMax; n++) {
 			if (tables._info[n].key && !strcmp(tables._info[n].key, key)) {
 				tables._info[n].key = key;
-				tables._info[n].val = *val;
+				tables._info[n].val = val;
 				tables._num++;
 				return;
 			}
@@ -42,19 +42,21 @@ static void GadfInfoTableAdd(const char* key, Gadf_c** val) {
 		for (uint32_t n = 0; n < tables._numMax; n++) {
 			if (!tables._info[n].key) {
 				tables._info[n].key = key;
-				tables._info[n].val = *val;
+				tables._info[n].val = val;
 				tables._num++;
+				LOG_GADF("%d,%s,%p", n, key, val);
 				return;
 			}
 		}
 	}
 }
 
-Gadf_c** GadfInfoTableGet() {
+Gadf_c* GadfInfoTableGet() {
 	for (uint32_t n = tables._readIndex; n < tables._numMax; n++) {
 		if (tables._info[n].key) {
 			tables._readIndex = n + 1;
-			return &tables._info[n].val;
+			LOG_GADF("%d,%s,%p", n, tables._info[n].key, tables._info[n].val);
+			return tables._info[n].val;
 		}
 	}
 	return 0;
@@ -62,8 +64,8 @@ Gadf_c** GadfInfoTableGet() {
 
 
 bool gadf_register_info(const char* key, Gadf_c* info) {
-	uint32_t numMax = tables._numMax;
 	if (tables._isFirst) {
+		uint32_t numMax = tables._numMax;
 		for (uint8_t n = 0; n < numMax; n++) {
 			tables._info[n].key = 0;
 			tables._info[n].val = 0;
@@ -73,16 +75,12 @@ bool gadf_register_info(const char* key, Gadf_c* info) {
 		tables._numMax = numMax;
 		tables._isFirst = false;
 	}
-	GadfInfoTableAdd(key, &info);
+	GadfInfoTableAdd(key, info);
 	return true;
 }
 
 void* gadf_get_register_info() {
-	Gadf_c** algo = GadfInfoTableGet();
-	if (algo) {
-		return *algo;
-	}
-	return 0;
+	return GadfInfoTableGet();
 }
 
 static char heap_pool[80 * 1024];
@@ -110,7 +108,7 @@ static void GadfFree(void* rmem)
 }
 
 void gadf_run_by_info(void* info) {
-	LOG_GADF("v1.0.0");
+	LOG_GADF("v1.0.1, %p", info);
 	if (!heap) {
 		heap = GadfHheapRegister(heap_pool, sizeof(heap_pool));
 	}
@@ -120,6 +118,7 @@ void gadf_run_by_info(void* info) {
 	bp._free = GadfFree;
 	bp._print = GadfPrint;
 	bool ret = true;
+	LOG_GADF("%p,%u,%u,%u,%u", demo, ((uint32_t*)demo)[0], ((uint32_t*)demo)[1], ((uint32_t*)demo)[2], ((uint32_t*)demo)[3]);
 	ret = demo->Set("basePort", &bp); if (!ret) return;
 	ret = demo->Init(); if (!ret) return;
 	demo->Run();

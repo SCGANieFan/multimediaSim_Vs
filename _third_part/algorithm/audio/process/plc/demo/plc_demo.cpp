@@ -33,8 +33,8 @@ static void PlcPrint(const char* fmt, ...) {
 	va_start(args, fmt);
 	int len = vsprintf(buf, fmt, args);
 	va_end(args);
-	//TRACE(0, "%s", buf);
-	hal_trace_output((const unsigned char*)buf, len);
+	TRACE(0, "%s", buf);
+	//hal_trace_output((const unsigned char*)buf, len);
 }
 
 uint32_t plc_api_demo_init(uint32_t rate, uint16_t channels, uint16_t width, uint32_t frameSample) {
@@ -77,7 +77,7 @@ uint32_t plc_api_demo_init(uint32_t rate, uint16_t channels, uint16_t width, uin
 	ret |= plc_api_set(plc_id, "holdAL", (void*)(uint32_t)(0 * samplePerMs));
 	ret |= plc_api_set(plc_id, "attAL", (void*)(uint32_t)(20 * samplePerMs));
 	ret |= plc_api_set(plc_id, "gainANL", (void*)(uint32_t)(20 * samplePerMs));
-	//ret |= plc_api_set(plc_id, "forceMT", (void*)1);
+	ret |= plc_api_set(plc_id, "forceMT", (void*)1);
 	ret |= plc_api_set(plc_id, "seek", (void*)(uint32_t)(15 * samplePerMs));
 	ret |= plc_api_set(plc_id, "noSeek", (void*)(uint32_t)(4 * samplePerMs));
 	ret |= plc_api_set(plc_id, "match", (void*)(uint32_t)(4 * samplePerMs));

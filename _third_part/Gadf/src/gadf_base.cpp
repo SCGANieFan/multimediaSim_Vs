@@ -184,6 +184,7 @@ bool GadfSinkArray_c::Set(const char* key, void* val) {
 bool GadfSinkArray_c::Init() {
 	if (!GadfSink_c::Init())
 		return false;
+	_bufByte = 0;
 	return true;
 }
 bool GadfSinkArray_c::Receive(GadfData_c& iData) {
