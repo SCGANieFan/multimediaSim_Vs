@@ -108,7 +108,7 @@ static void GadfFree(void* rmem)
 }
 
 void gadf_run_by_info(void* info) {
-	LOG_GADF("v1.0.1, %p", info);
+	LOG_GADF("v1.0.2, %p", info);
 	if (!heap) {
 		heap = GadfHheapRegister(heap_pool, sizeof(heap_pool));
 	}

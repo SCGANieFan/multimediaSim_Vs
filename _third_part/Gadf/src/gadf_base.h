@@ -57,6 +57,7 @@ public:
 	GadfData_c() {}
 	~GadfData_c() {}
 public:
+	virtual bool Init() override { return true; }
 	void Init(void* buf,uint32_t size, uint32_t max) { 
 		_buf = buf;
 		_size = size;

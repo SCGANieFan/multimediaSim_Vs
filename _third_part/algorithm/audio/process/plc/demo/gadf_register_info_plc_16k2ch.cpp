@@ -12035,7 +12035,8 @@ void gadf_register_info_plc_16k2ch() {
 		+ sizeof(PlcAlgo_c)
 		+ sizeof(PlcSrc_c)
 		+ sizeof(PlcSink_c) + 63) >> 6 << 6;
-	static uint8_t bufAll[2][bufByte] = { 0 };
+	static uint8_t bufAll[2][bufByte];
+	memset(bufAll,0,sizeof(bufAll));
 	Table_t table[] = {
 		{KEY "0", bufAll[0]},
 		{KEY "1", bufAll[1]},
