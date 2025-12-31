@@ -70,7 +70,7 @@ OggRet_t OggMuxerApi_c::Set(const char* choose, void* val){
 		return OGG_API_RET_FAIL;
 	case Str2Key("eos"):
 		if (_oggMuxer) {
-			_oggMuxer->Set(Str2Key("gPos"), val);
+			_oggMuxer->Set(Str2Key("eos"), val);
 			return OGG_API_RET_SUCCESS;
 		}
 		return OGG_API_RET_FAIL;
