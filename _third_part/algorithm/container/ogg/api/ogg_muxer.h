@@ -2,7 +2,7 @@
 #include "ogg.h"
 #include "ogg_api_private.h"
 #include "gaapi_gaf.h"
-using namespace gaapi_ns;
+using namespace ogg_gaapi_ns;
 
 namespace ogg_api_ns {
 	class OggMuxer_c:public GaapiGaf_c

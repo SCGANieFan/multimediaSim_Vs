@@ -97,7 +97,7 @@ namespace mtf_ns {
     }
 
 
-
+#if 0
     void* MTF_Memory_c::Malloc_s(mtf_i32 size) {
         MTF_Memory_c* items = MemoryItems();
         if (items->_gbl)
@@ -121,6 +121,22 @@ namespace mtf_ns {
         if (items->_gbl)
             items->_gbl->_memory->Free(block);
     }
+#else
+#include <stdlib.h>
+    void* MTF_Memory_c::Malloc_s(mtf_i32 size) {
+        return malloc(size);
+    }
+    void* MTF_Memory_c::Realloc(void* block, int32_t size) {
+        return realloc(block, size);
+    }
+    void* MTF_Memory_c::Calloc(int32_t count, int32_t size) {
+        return calloc(count, size);
+    }
+    void MTF_Memory_c::Free(void* block) {
+        free(block);
+    }
+#endif
+#if 1
     void* MTF_Memory_c::MallocName(const char* name, mtf_i32 size) {
         MTF_IMemory_c* memory = GetMemory(name);
         if (memory)
@@ -144,7 +160,7 @@ namespace mtf_ns {
         if (memory)
             return memory->Free(block);
     }
-
+#endif
 
 }
 

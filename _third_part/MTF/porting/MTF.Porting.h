@@ -49,3 +49,9 @@ mtf_void SleepMsPorting(mtf_i32 ms);
 
 // thread
 mtf_u32 ThreadIdPorting();
+
+
+// other
+void AssertPorting(bool isAssert);
+bool RandomPorting(uint32_t parent);
+

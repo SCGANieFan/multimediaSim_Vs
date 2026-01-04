@@ -78,18 +78,21 @@ EXTERNC
 	OggApiRet_t ogg_api_demuxer_open(uint32_t id) {
 		return OggDeMuxerApi_c::OpenApi(id);
 	}
-	OggApiRet_t ogg_api_demuxer_receive(uint32_t id, int32_t len) {
+	OggApiRet_t ogg_api_demuxer_receive(uint32_t id, uint8_t * buf, int32_t *len) {
 		GaapiData_c iData;
-		iData.Init(0, len);
-		iData.Append(len);
-		return OggDeMuxerApi_c::ReceiveApi(id, iData);
+		iData.Init(buf, *len, *len);
+		//iData.Append(len);
+		OggApiRet_t ret = OggDeMuxerApi_c::ReceiveApi(id, iData);
+		*len = iData.Used();
+		return ret;
 	}
 	OggApiRet_t ogg_api_demuxer_generate(uint32_t id, uint8_t* buf, int32_t *len) {
 		GaapiData_c oData;
-		oData.Init(0, *len);
-		oData.Append(0, oData.LeftSize());
+		if(len) oData.Init(buf, *len);
+		else oData.Init(0, 0);
+		//oData.Append(0, oData.LeftSize());
 		OggApiRet_t ret = OggDeMuxerApi_c::GenerateApi(id, oData);
-		*len = oData.Size();
+		if (len) *len = oData.Size();
 		return ret;
 	}
 	OggApiRet_t ogg_api_demuxer_set(uint32_t id, const char* choose, void* val) {

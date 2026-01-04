@@ -17,12 +17,13 @@ MTF_PcmMuxer::~MTF_PcmMuxer()
 {
 	if (_pFile)
 		FileClosePorting(_pFile);
+#if 0
 	if (_iData.Data())
 	{
 		_iData.Used(_iData._size);
 		MTF_FREE(_iData.Data());
 	}
-	
+#endif
 }
 
 
@@ -38,9 +39,10 @@ mtf_i32 MTF_PcmMuxer::Init()
 		MTF_PRINT("error, no such file:%s", _url);
 		return -1;
 	}
-
+#if 0
 	mtf_i32 size = _frameBytes;
 	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
+#endif
 	return 0;
 }
 

@@ -19,6 +19,7 @@
 #define OGG_API_RET_INNER_ERROR          (-6)
 #define OGG_API_RET_FINISH               (-7)
 #define OGG_API_RET_NOT_SUPPORT          (-8)
+#define OGG_API_RET_INCOMPLETE           (-9)
 
 typedef int32_t OggApiRet_t;
 
@@ -42,7 +43,7 @@ OggApiRet_t ogg_api_muxer_destory(uint32_t id);
 
 uint32_t ogg_api_demuxer_create(OggApiBasePort_t* bp);
 OggApiRet_t ogg_api_demuxer_open(uint32_t id);
-OggApiRet_t ogg_api_demuxer_receive(uint32_t id, int32_t len);
+OggApiRet_t ogg_api_demuxer_receive(uint32_t id, uint8_t* buf, int32_t* len);
 OggApiRet_t ogg_api_demuxer_generate(uint32_t id, uint8_t* buf, int32_t* len);
 OggApiRet_t ogg_api_demuxer_set(uint32_t id, const char* choose, void* val);
 OggApiRet_t ogg_api_demuxer_get(uint32_t id, const char* choose, void* val);

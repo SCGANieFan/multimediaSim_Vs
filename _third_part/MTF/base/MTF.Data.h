@@ -4,6 +4,7 @@ enum MTF_DataFlag {
 	MTF_DataFlag_ESO=1<<0,
 	MTF_DataFlag_EMPTY=1<<1,
 	MTF_DataFlag_EXTRA_INFO=1<<2,
+	MTF_DataFlag_INCOMPLETE=1<<3,
 };
 
 class MTF_Data

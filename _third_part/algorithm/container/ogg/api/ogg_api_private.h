@@ -4,10 +4,10 @@
 #include "gaapi_memory.h"
 #include "gaapi_gaf.h"
 
-using namespace gaapi_ns;
+using namespace ogg_gaapi_ns;
 
 namespace ogg_api_ns {
-#define OGG_VERSION "2.0.1"
+#define OGG_VERSION "2.0.2"
 #define LOG_OGG(fmt,...)		   LOG_GAAPI(fmt,##__VA_ARGS__)
 
 using OggRet_t = OggApiRet_t;
@@ -86,7 +86,7 @@ public:
 	virtual OggRet_t Generate(GaapiData_c& oData)override;
 	virtual OggRet_t Close()override;
 public:
-	GaapiGaf_c* _oggDeMuxer;
+	GaapiGaf_c* _oggDeMuxer = 0;
 };
 
 

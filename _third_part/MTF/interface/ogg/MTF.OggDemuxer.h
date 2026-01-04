@@ -8,6 +8,7 @@ public:
 
 protected:
 	virtual mtf_i32 Init() final;
+	//virtual mtf_i32 DeInit() final;
 	virtual mtf_i32 generate(MTF_Data*& oData) final;
 public:
 	virtual mtf_i32 Set(const char* key, mtf_void* val) final;
@@ -18,7 +19,9 @@ private:
 	const char* _url = 0;
 private:
 	MTF_Data _oData;
+	MTF_Data _tmpData;
 private:
+	uint32_t _idDemuxer = 0;
 	mtf_void* _hd = 0;
 	mtf_i32 _hdSize = 0;
 };

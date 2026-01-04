@@ -28,5 +28,6 @@ private:
 	mtf_i32 _page_byte_round = 4096;
 	uint32_t _bytePerSample = 0;
 	MTF_Data _last_dat;
+	uint32_t _idMuxer = 0;
 };
 

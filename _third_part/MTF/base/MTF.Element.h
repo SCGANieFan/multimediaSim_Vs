@@ -14,6 +14,7 @@ public:
 	virtual ~MTF_Element();
 public:
 	virtual mtf_i32 Init() = 0;
+	//virtual mtf_i32 DeInit() = 0;
 	virtual mtf_i32 Run() = 0;
 
 //protected:
