@@ -52,61 +52,6 @@ STATIC INLINE i32 GetHeaderSize()
     return size1 > size2 ? size1 : size2;
 }
 
-STATIC INLINE i32 GetPraseInBufferByte(u8* in, i32 inLen)
-{
-    u8* pIn = in;
-    i32 inByteUsed = 0;
-    i32 inByteMax = inLen;
-    while ((*(u32*)(&pIn[inByteUsed]) != *(u32*)"MAC "))
-    {
-        //search Head
-        if (inByteUsed > (inByteMax - 4)) {
-            return 1024 * 1024;
-        }
-        inByteUsed++;
-    }
-    inByteUsed += 4;
-    u16 fileversion = (*(u16*)(&pIn[inByteUsed]));
-    inByteUsed -= 4;
-    if (fileversion >= 3980)
-    {
-        ApeDescriptor* descriptor = (ApeDescriptor*)&pIn[inByteUsed];
-        inByteUsed += sizeof(ApeDescriptor) + sizeof(ApeHeader) + descriptor->seektablelength + descriptor->wavheaderlength;
-    }
-    else
-    {
-        ApeHeaderOld headerOld;
-        ALGO_MEM_CPY(&headerOld, &pIn[inByteUsed], sizeof(ApeHeaderOld));
-        inByteUsed += sizeof(ApeHeaderOld);
-
-        if (headerOld.nTotalFrames == 0)
-            return 1024 * 1024;
-
-        if (headerOld.nFormatFlags & APE_FORMAT_FLAG_HAS_PEAK_LEVEL)
-        {
-            inByteUsed += 4;
-        }
-
-        //nSeekTableElements
-        i32 seektablelength;
-        if (headerOld.nFormatFlags & APE_FORMAT_FLAG_HAS_SEEK_ELEMENTS)
-        {
-            seektablelength = (*((i32*)&pIn[inByteUsed])) * 4;
-            inByteUsed += 4;
-        }
-        else
-            seektablelength = (i32)(headerOld.nTotalFrames * 4);
-        inByteUsed += seektablelength;
-
-        //wavheaderlength
-        uint32_t wavheaderlength;
-        wavheaderlength = (headerOld.nFormatFlags & APE_FORMAT_FLAG_CREATE_WAV_HEADER) ? (int64_t)(sizeof(WaveHeader)) : headerOld.nHeaderBytes;
-        inByteUsed += wavheaderlength;
-
-    }
-    return inByteUsed;
-}
-
 
 i32 ApeContext::Parser(u8* in, i32 inByte)
 {
@@ -117,7 +62,11 @@ i32 ApeContext::Parser(u8* in, i32 inByte)
     ApeContext_t* context = &_context;
     memset(context, 0, sizeof(ApeContext_t));
     //search Head
-    while ((*(u32*)(&pIn[inByteUsed]) != *(u32*)"MAC "))
+    // while ((*(u32*)(&pIn[inByteUsed]) != *(u32*)"MAC "))
+    while ( pIn[inByteUsed+0] != 'M'
+            &&pIn[inByteUsed+1] != 'A'
+            &&pIn[inByteUsed+2] != 'C'
+            &&pIn[inByteUsed+3] != ' ')
     {
         if (inByteUsed > (inByteMax - 4)) {
             return APERET_FAIL;
@@ -126,7 +75,6 @@ i32 ApeContext::Parser(u8* in, i32 inByte)
     }
 
     //inbyte 
-    //if ((inByteMax - inByteUsed) < GetPraseInBufferByte(&pIn[inByteUsed], inByteMax - inByteUsed))
     if ((inByteMax - inByteUsed) < GetContextSize())
         return APERET_FAIL;
 
@@ -160,9 +108,8 @@ i32 ApeContext::Parser(u8* in, i32 inByte)
         //headerOld
         ApeHeaderOld headerOld;
         ALGO_MEM_CPY(&headerOld, pIn, sizeof(ApeHeaderOld));
-        // pIn += sizeof(ApeHeaderOld);
+        //pIn += sizeof(ApeHeaderOld);
         inByteUsed += sizeof(ApeHeaderOld);
-
         // fail on 0 length APE files (catches non-finalized APE files)
         if (headerOld.nTotalFrames == 0)
             return APE_RET_INVALID_INPUT_FILE;

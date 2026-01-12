@@ -32,9 +32,8 @@ char filenames[][50] = {
 	"Flower_Dance_44p1k2ch.ape",
 	"Inuyasha_48k2ch.ape",
 #else
-	//"demo6_48k1ch8b.ape",
-	"Flower_Dance_44p1k2ch.ape",
-	//"demo5_48k1ch.ape",
+	//"shokz_192k.ape"
+	"shokz_说散就散-前任3.ape"
 #endif
 };
 

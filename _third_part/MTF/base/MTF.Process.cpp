@@ -36,7 +36,7 @@ mtf_i32 MTF_Process::Receive(MTF_Data& iData)
 	if (receive(iData) < 0)
 		return -1;
 	
-	MTF_Data* oData;
+	MTF_Data* oData = 0;
 	if (generate(oData) < 0)
 		return -1;
 	if (Push(*oData) < 0)

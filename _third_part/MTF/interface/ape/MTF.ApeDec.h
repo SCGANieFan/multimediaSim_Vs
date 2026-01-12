@@ -22,5 +22,10 @@ private:
 	mtf_i32 _frames = 0;
 	mtf_void* _basePorting;
 
+
+	void* _pContext = 0;
+	mtf_u32 _startFrameNum = 0;
+	mtf_u32 _skip = 0;
+
 };
 

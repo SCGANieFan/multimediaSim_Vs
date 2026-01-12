@@ -2,11 +2,11 @@
 #include"Ape.Inner.context.h"
 
 
-class ApeDemuxer
+class ApeDemuxer_c
 {
 public:
-    ApeDemuxer() {};
-    ~ApeDemuxer() {};
+    ApeDemuxer_c() {};
+    ~ApeDemuxer_c() {};
     i32 Init()
     {
         context.Init();

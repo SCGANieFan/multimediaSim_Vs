@@ -90,8 +90,9 @@ mtf_i32 MTF_ApeDemux::Init()
 	mtf_u8 readData[readDataLen];
 	while (1){
 		FileReadPorting(_pFile, readData, readDataLen);
-#if 0
-		MAF_Run(_hd, &AA_iData, 0);
+#if 1
+		//MAF_Run(_hd, &AA_iData, 0);
+		ApeDemux_Run(_hd, readData, readDataLen);
 #else
 		mtf_i32 ret;
 		ret = ApeDemux_Run(_hd, readData, readDataLen);
@@ -113,14 +114,15 @@ mtf_i32 MTF_ApeDemux::Init()
 	ApeDemux_Get(_hd, ApeDemuxGet_e::APE_DEMUX_GET_SEEK_TABLE, (mtf_void**)param0);
 	SeekTableManger seekTableManger;
 	seekTableManger.Init(seekTablePos,seekTableSizeByte,_pFile);
-	_startPos = 150 * 1024;
+	_startPos = 0;// 150 * 1024;
 	mtf_u32 _startPosTmp = 0;
 	while (1) {
 	seekTableManger.UpdataSeektable();
 	if (seekTableManger.GetValidSeekTableNum() == 0)
 			break;
 		mtf_void* param1[] = { (mtf_void*)seekTableManger.GetValidSeekTable(),(mtf_void*)seekTableManger.GetValidSeekTableByte() };
-		ApeDemux_Set(_hd, ApeDemuxSet_e::APE_DEMUX_SET_SEEK_TABLE, (mtf_void**)param1); return 0;
+		int32_t ret = ApeDemux_Set(_hd, ApeDemuxSet_e::APE_DEMUX_SET_SEEK_TABLE, (mtf_void**)param1);
+		if (ret != APERET_SUCCESS) return 0;
 		_startPosTmp = _startPos;
 		mtf_u32 seekTableNumOffset;
 		mtf_void* param2[3] = { &_startPosTmp, &seekTableNumOffset ,&_extraInfo.skip };
@@ -169,9 +171,10 @@ mtf_i32 MTF_ApeDemux::generate(MTF_Data*& oData)
 			return 0;
 		}
 
+		_oData.Clear();
 		mtf_i32 readedSize = FileReadPorting(_pFile, _oData.LeftData(), _oData.LeftSize());
 		
-		if (readedSize < _oData.LeftSize()) {
+		if (readedSize <= 0) {
 			_oData._flags |= MTF_DataFlag_ESO;
 		}
 		_oData._size += readedSize;

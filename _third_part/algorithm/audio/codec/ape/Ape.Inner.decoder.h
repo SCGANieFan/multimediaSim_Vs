@@ -3,19 +3,19 @@
 #include"Ape.Inner.rangeCoder.h"
 #include"Ape.Inner.NNfilter.h"
 #include"Ape.Inner.prediction.h"
-#include"Algo.BasePorting.Inner.h"
 
-class ApeDecoder
+class ApeDecoder_c
 {
 public:
-    ApeDecoder() {};
-    ~ApeDecoder() {};
+    ApeDecoder_c() {};
+    ~ApeDecoder_c() { DeInitInner(); }
 public:
     MemoryManger_c* GetMM() { return &MM; }
 
 public:
     i32 Init(AlgoBasePorting_c* basePorting, ApeContext_t* contextIn, u32 startFrameNum, u32 skip);
-    i32 Run(uint8_t* in, int32_t inLen, uint8_t* out, int32_t* outLen);
+    i32 ReInit(u32 startFrameNum, u32 skip);
+    i32 Run(uint8_t* in, int32_t* inLen, uint8_t* out, int32_t* outLen);
     i32 DeInitInner();
 
     //private:

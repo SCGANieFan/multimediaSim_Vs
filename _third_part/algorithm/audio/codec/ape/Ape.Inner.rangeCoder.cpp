@@ -59,7 +59,7 @@ uint32_t ApeRangecoder::range_dec_normalize(BufferRead* bufferRead)
 	}
 	return 0;
 }
-i64 frames = 0;
+// i64 frames = 0;
 bool ApeRangecoder::range_get_symbol(const uint16_t counts[], const uint16_t counts_diff[], BufferRead* bufferRead, int32_t* symbol)
 {
 	int32_t cf;
