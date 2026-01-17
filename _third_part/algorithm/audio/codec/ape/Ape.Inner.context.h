@@ -62,7 +62,8 @@ public:
         _context = *context;
     };
 #endif
-    i32 Parser(u8* in, i32 inByte);
+    //i32 Parser(u8* in, i32 inByte);
+    i32 Parser(Data* data);
 
 //private:
 public:

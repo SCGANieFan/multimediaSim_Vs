@@ -53,30 +53,34 @@ STATIC INLINE i32 GetHeaderSize()
 }
 
 
-i32 ApeContext::Parser(u8* in, i32 inByte)
+//i32 ApeContext::Parser(u8* in, i32 inByte)
+i32 ApeContext::Parser(Data* data)
 {
     // ALGO_PRINT();
-    u8* pIn = in;
-    i32 inByteMax = inByte;
+    u8* pIn = data->GetData();
+    i32 inByteMax = data->GetSize();
     i32 inByteUsed = 0;
     ApeContext_t* context = &_context;
     memset(context, 0, sizeof(ApeContext_t));
     //search Head
     // while ((*(u32*)(&pIn[inByteUsed]) != *(u32*)"MAC "))
     while ( pIn[inByteUsed+0] != 'M'
-            &&pIn[inByteUsed+1] != 'A'
-            &&pIn[inByteUsed+2] != 'C'
-            &&pIn[inByteUsed+3] != ' ')
+            || pIn[inByteUsed+1] != 'A'
+            || pIn[inByteUsed+2] != 'C'
+            || pIn[inByteUsed+3] != ' ')
     {
         if (inByteUsed > (inByteMax - 4)) {
+            data->Used(inByteUsed);
             return APERET_FAIL;
         }
         inByteUsed++;
     }
 
     //inbyte 
-    if ((inByteMax - inByteUsed) < GetContextSize())
+    if ((inByteMax - inByteUsed) < GetContextSize()) {
+        data->Used(inByteUsed);
         return APERET_FAIL;
+    }
 
     ApeDescriptor* descriptor = &context->descriptor;
     ApeHeader* header = &context->header;

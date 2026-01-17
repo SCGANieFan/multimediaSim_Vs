@@ -89,7 +89,10 @@ mtf_i32 MTF_ApeDemux::Init()
 	const mtf_i32 readDataLen = 512;
 	mtf_u8 readData[readDataLen];
 	while (1){
-		FileReadPorting(_pFile, readData, readDataLen);
+		uint32_t readByte = FileReadPorting(_pFile, readData, readDataLen);
+		MTF_PRINT("readByte:%d", readByte);
+		if (!readByte) 
+			return -1;
 #if 1
 		//MAF_Run(_hd, &AA_iData, 0);
 		ApeDemux_Run(_hd, readData, readDataLen);
