@@ -76,9 +76,16 @@ void MTF_OggMuxer::OggPrint(const char* fmt, ...) {
 
 mtf_i32 MTF_OggMuxer::Init()
 {
-#if 0
 
-	
+	if (!_url) {
+		MTF_PRINT("error, _url = 0");
+		return -1;
+	}
+	_pFile = FileOpenPorting(_url, "wb");
+	if (!_pFile) {
+		MTF_PRINT("error, no such file:%s", _url);
+		return -1;
+	}
 
 	uint32_t id = 0;
 	OggApiRet_t ret = OGG_API_RET_SUCCESS;
@@ -92,9 +99,9 @@ mtf_i32 MTF_OggMuxer::Init()
 
 	ret |= ogg_api_muxer_set(id, "mode", (void*)"opus");
 	ret |= ogg_api_muxer_set(id, "version", (void*)(uint32_t)1);
-	ret |= ogg_api_muxer_set(id, "ch", (void*)(uint32_t)channels);
+	ret |= ogg_api_muxer_set(id, "ch", (void*)(uint32_t)_ch);
 	ret |= ogg_api_muxer_set(id, "preSkip", (void*)(uint32_t)0);
-	ret |= ogg_api_muxer_set(id, "fs", (void*)(uint32_t)rate);
+	ret |= ogg_api_muxer_set(id, "fs", (void*)(uint32_t)_rate);
 	ret |= ogg_api_muxer_set(id, "oGain", (void*)(uint32_t)0);
 	ret |= ogg_api_muxer_set(id, "vendor", (void*)(uint32_t)"Lavf60.16.100");
 	ret |= ogg_api_muxer_set(id, "comment", (void*)(uint32_t)"encoder=Lavc60.31.102 libopus");
@@ -103,28 +110,15 @@ mtf_i32 MTF_OggMuxer::Init()
 
 	ret = ogg_api_muxer_open(id);
 	if (ret != OGG_API_RET_SUCCESS) { LOG_OGG("ogg open fail, %d", ret); return -1; }
-
 	//_frame_sample = frameDMs * rate / 10000;
 	//_frame_sample = frameDMs * 48 / 10;
 	//_frame_sample_acc = 0;
-
 	mtf_i32 size = 5 * 1024;
 	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
-
-
-#endif
-
-
-
 	return 0;
 }
 mtf_i32 MTF_OggMuxer::receive(MTF_Data& iData)
 {
-#if 0
-
-
-#if 1
-	
 	uint8_t* iBuf = iData.Data();
 	int32_t iSize = iData._size;
 	uint8_t* oBuf = _oData.LeftData();
@@ -135,6 +129,7 @@ mtf_i32 MTF_OggMuxer::receive(MTF_Data& iData)
 	}
 	OggApiRet_t ret = OGG_API_RET_SUCCESS;
 	if (iSize) {
+#if 0
 		_frame_sample_acc += _frame_sample;
 		{
 			static uint32_t iSizeAcc = 0;
@@ -144,19 +139,14 @@ mtf_i32 MTF_OggMuxer::receive(MTF_Data& iData)
 			LOG_OGG("%d,%d,%dms", _frame_sample_acc, iSizeAcc, ms);
 		}
 		ogg_api_muxer_set((uint32_t)_idMuxer, "gPos", (void*)(uint32_t)_frame_sample_acc);
+#endif
 		ret = ogg_api_muxer_receive((uint32_t)_idMuxer, iBuf, &iSize);
 		if (ret != OGG_API_RET_SUCCESS) return false;
 	}
 	ret = ogg_api_muxer_generate((uint32_t)_idMuxer, oBuf, &oSize);
 	_oData._size += oSize;
-#endif
-	//OggApiRet_t ret;
-	//ret = ogg_api_muxer_receive(_idMuxer, uint8_t *buf, int32_t * bufByte);
-	//ret = ogg_api_muxer_generate(_idMuxer, uint8_t *buf, int32_t * bufByte);
-
-
-#endif
-
+	FileWritePorting(_pFile, (mtf_void*)_oData.Data(), _oData._size);
+	_oData._size = 0;
 	return 0;
 }
 

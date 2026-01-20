@@ -48,3 +48,27 @@ op->granulepos=os->granule_vals[ptr];
 
 
 
+
+// id page
+common head,
+// comment page
+common head,
+// data page
+common head,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

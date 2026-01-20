@@ -68,14 +68,28 @@ struct OggIdPage_t {
 
 struct OggUserCommentPage_t {
 	OggPage2_t page;
-	uint8_t userBody[4];
-	OggCodecType_e codecType;
 	uint32_t bodyLenRem;
+	uint8_t *packet[8];
+	uint32_t packetLen[8];
+	uint32_t packetNum;
+	//uint8_t *_tag;
+	//uint8_t _tagLen;
+	uint8_t*_vendorString;
+	uint32_t _vendorStringLen;
+	uint32_t _commentListLength;
+	//uint32_t _commentListNow;
+	uint8_t *_title;
+	uint32_t _titleLen;
+	uint8_t* _artist;
+	uint32_t _artistLen;
+	uint8_t* _album;
+	uint8_t _albumLen;
 };
 
 struct OggDataPage_t {
 	OggPage2_t page;
 	uint32_t packByte;
+	uint32_t packNum;
 	uint32_t bodyLenRem;
 	int16_t segmentIndex;
 	uint8_t packIndex;
@@ -89,6 +103,7 @@ public:
 		STAGE_ID_PAGE_BODY,
 		STAGE_USER_COMMENT_HEAD,
 		STAGE_USER_COMMENT_BODY,
+		STAGE_DATA_FIRST_HEAD,
 		STAGE_DATA_HEAD,
 		STAGE_DATA_BODY,
 		STAGE_EOS,
@@ -105,7 +120,10 @@ public:
 	virtual OggRet_t Generate(GaapiData_c& oData)override;
 	virtual OggRet_t Close()override;
 protected:
-	uint8_t* SyncString(uint8_t* buf, uint32_t len, const char* str);
+	bool Str2Low(uint8_t* str, uint32_t strLen);
+	bool StrLen(uint8_t* str, uint32_t* strLen, uint32_t searchLenMax = 4096);
+	bool SyncString(uint8_t* searchStr, uint32_t searchStrLen, uint8_t* syncStr, uint8_t** oStr = 0, uint32_t* oStrLen = 0);
+	bool SyncString(uint8_t* searchStr, uint32_t searchStrLen, uint8_t* syncStr, uint32_t syncStrLen, uint8_t** oStr = 0, uint32_t* oStrLen = 0);
 	OggRet_t DemuxIdPageHead(GaapiData_c& oData);
 	OggRet_t DemuxIdPageBody(GaapiData_c& oData);
 	OggRet_t DemuxUserCommentHead(GaapiData_c& oData);
@@ -118,11 +136,13 @@ public:
 	Stage_e _stage = Stage_e::STAGE_ID_PAGE_HEAD;
 	const uint8_t _headByteCom = 27;
 	GaapiData_c _iCache;
-	OggIdPage_t _idPage2;
-	OggUserCommentPage_t _userPage2;
-	OggDataPage_t _dataPage2;
+	OggIdPage_t _idPage;
+	OggUserCommentPage_t _userPage;
+	OggDataPage_t _dataPage;
 	uint32_t _rate = 0;
 	uint32_t _ch = 0;
+	const char* _syncStr = "OggS";
+	uint32_t _syncStrLen = 4;
 };
 
 

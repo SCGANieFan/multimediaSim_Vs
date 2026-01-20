@@ -161,6 +161,7 @@ OggRet_t OggMuxer_c::Receive(GaapiData_c& iData){
 	iData.Used(iData.Size());
 	return OGG_API_RET_SUCCESS;
 }
+
 OggRet_t OggMuxer_c::Generate(GaapiData_c& oData){
 	OggPage_t page;
 	if (_isGenrateEnd)
@@ -170,10 +171,12 @@ OggRet_t OggMuxer_c::Generate(GaapiData_c& oData){
 	if (_stage == Stage_e::STAGE_ID_HEAD) {
 		page = _idPage;
 		_stage = Stage_e::STAGE_USER_COMMENT_HEAD;
+		return OGG_API_RET_SUCCESS;
 	}
 	else if (_stage == Stage_e::STAGE_USER_COMMENT_HEAD) {
 		page = _userCommentPage;
 		_stage = Stage_e::STAGE_DATA_HEAD;
+		return OGG_API_RET_SUCCESS;
 	}
 	else if (_stage == Stage_e::STAGE_DATA_HEAD) {
 		int32_t ret = ogg_stream_pageout_fill(&_oggStreamS, &_oggPage, _page_out_fill_byte);
@@ -184,14 +187,16 @@ OggRet_t OggMuxer_c::Generate(GaapiData_c& oData){
 		page.headLen = _oggPage.header_len;
 		page.bodyData = _oggPage.body;
 		page.bodyLen = _oggPage.body_len;
+		if (oData.LeftSize() < page.headLen + page.bodyLen) {
+			return OGG_API_RET_FAIL;
+		}
+		oData.Append(page.headData, page.headLen);
+		oData.Append(page.bodyData, page.bodyLen);
+		return OGG_API_RET_SUCCESS;
 	}
-	if (oData.LeftSize() < page.headLen + page.bodyLen) {
-		return OGG_API_RET_FAIL;
-	}
-	oData.Append(page.headData, page.headLen);
-	oData.Append(page.bodyData, page.bodyLen);
-	return OGG_API_RET_SUCCESS;
+	return OGG_API_RET_FAIL;
 }
+
 OggRet_t OggMuxer_c::Close(){
 	ogg_stream_clear(&_oggStreamS);
 	return OGG_API_RET_SUCCESS;
