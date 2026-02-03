@@ -20,12 +20,11 @@ private:
 	mtf_void* _hd = 0;
 	mtf_i32 _hdSize = 0;
 
-	mtf_i32 _bitrate;
-	mtf_i32 _complexity;
-	mtf_bool _vbr;
-
-
-	mtf_i32 _frame0p1Ms;
-
+	mtf_i32 _bitrate = 12000;
+	mtf_i32 _complexity = 0;
+	mtf_bool _vbr = false;
+	mtf_i32 _pcmFrameSample = 0;
+	mtf_i32 _pcmFrameByte = 0;
+	void* _enc = 0;
 };
 
