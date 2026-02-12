@@ -11,6 +11,7 @@ OggRet_t OggDeMuxer_c::Open(){
 	_memory.realloc_cb = _bp.realloc_cb;
 	_memory.free_cb = _bp.free_cb;
 	uint32_t bufMax = 4 * 1024;
+	gaapi_memset(&_userPage, 0, sizeof(_userPage));
 	void* buf = _memory.malloc_cb(bufMax);
 	if (!buf) return OGG_API_RET_FAIL;
 	_iCache.Init(buf, bufMax);

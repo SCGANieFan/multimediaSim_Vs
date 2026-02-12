@@ -7,7 +7,7 @@
 using namespace ogg_gaapi_ns;
 
 namespace ogg_api_ns {
-#define OGG_VERSION "2.0.3"
+#define OGG_VERSION "2.0.4"
 #define LOG_OGG(fmt,...)		   LOG_GAAPI(fmt,##__VA_ARGS__)
 
 using OggRet_t = OggApiRet_t;
