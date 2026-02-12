@@ -1,17 +1,207 @@
 #pragma once
-#if 1
-#include"Algo.Type.h"
-#include"Algo.BasePorting.Inner.h"
-#include"Algo.Macro.h"
-#include"Algo.Memory.h"
-#include"Algo.Data.h"
-#include"Algo.Printer.h"
-#endif
+
+#include<stdint.h>
+#include<string.h>
+#include<stdio.h>
 #include"ApeCom.h"
 
-using namespace Algo;
+#define STATIC static
+#define INLINE inline
+
+#define ALIGEN8(x) (((x+7)>>3)<<3)
 
 
+#define MAX(a,b) ((a)>(b)?(a):(b))
+#define MIN(a,b) ((a)>(b)?(b):(a))
+
+#define ALGO_MEM_CPY(dst,src,size)	memcpy((void*)dst,(void*)src,(i32)size)
+#define ALGO_MEM_SET(dst,val,size)	memset((void*)dst,(i32)val,(i32)size)
+#define ALGO_MEM_MOVE(dst,src,size) memmove((void*)dst,(void*)src,(i32)size)
+
+#if WIN32
+#define ALGO_PRINT(fmt,...)		printf("[%s](%d)" fmt "\n",__func__, __LINE__, ##__VA_ARGS__)
+#else
+#define ALGO_PRINT(fmt,...)
+#endif
+
+
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
+
+typedef int8_t i8;
+typedef int16_t i16;
+typedef int32_t i32;
+typedef int64_t i64;
+
+typedef float f32;
+typedef double f64;
+typedef bool b1;
+
+
+class MemoryManger_c
+{
+public:
+	MemoryManger_c() {};
+	~MemoryManger_c() {};
+public:
+	INLINE AlgoBasePorting_c* GetBasePorting() { return _basePorting; }
+public:
+	INLINE void Init(AlgoBasePorting_c* basePorting) {
+		_basePorting = basePorting;
+		for (void*& p : _allocList) {
+			p = 0;
+		}
+	}
+
+	INLINE void* Malloc(i32 size) {
+		void* ptr = _basePorting->Malloc(size);
+		for (void*& p : _allocList) {
+			if (!p) {
+				p = ptr;
+				return p;
+			}
+		}
+		return 0;
+	}
+
+	INLINE void Free(void* ptr) {
+		for (void*& p : _allocList) {
+			if (p == ptr) {
+				_basePorting->Free(p);
+				p = 0;
+				return;
+			}
+		}
+	}
+
+	INLINE void FreeAll() {
+		for (void*& p : _allocList) {
+			if (p) {
+				_basePorting->Free(p);
+				p = 0;
+			}
+		}
+	}
+private:
+	AlgoBasePorting_c* _basePorting;
+	void* _allocList[10];
+};
+
+
+class Buffer
+{
+public:
+	Buffer() {};
+	Buffer(u8* buf, i32 max) { _buf = buf; _max = max; };
+	~Buffer() {};
+public:
+	INLINE void Init(u8* buf, i32 max) { _buf = buf; _max = max; };
+public:
+	u8* _buf = 0;
+	i32 _max = 0;
+};
+
+
+class Data
+{
+public:
+	Data() {};
+	~Data() {};
+public:
+	//set
+	INLINE void SetFlags(u32 flags) {
+		_flags |= flags;
+	};
+	INLINE void ClearFlags(u32 flags) {
+		_flags &= ~flags;
+	};
+
+	//get
+	INLINE u8* GetData() {
+		return _buff + _off;
+	};
+
+	INLINE i32 GetSize() {
+		return _size;
+	};
+
+	INLINE u8* GetLeftData() {
+		return GetData() + _size;
+	};
+
+	INLINE i32 GetLeftSize() {
+		return _max - _off - _size;
+	};
+
+	INLINE u32 GetFlags() {
+		return _flags;
+	};
+
+	INLINE u8* GetBuf() {
+		return _buff;
+	};
+
+
+	INLINE b1 Init(Buffer* buffer) {
+		_buff = buffer->_buf;
+		_off = 0;
+		_size = 0;
+		_max = buffer->_max;
+		_flags = 0;
+		return true;
+	};
+
+	INLINE b1 Append(u8* buf, i32 size) {
+		ALGO_MEM_CPY(GetLeftData(), buf, size);
+		_size += size;
+		return true;
+	};
+
+	INLINE b1 Append(i32 size) {
+		_size += size;
+		return true;
+	};
+
+	INLINE b1 AppendFully(u8* buf, i32 size, i32* usedSize) {
+		i32 appendSize = GetLeftSize();
+		appendSize = appendSize > size ? size : appendSize;
+		Append(buf, appendSize);
+		if (usedSize)
+			*usedSize = appendSize;
+		return true;
+	};
+
+	INLINE void Used(i32 usedSize)
+	{
+		_off += usedSize;
+		_size -= usedSize;
+	}
+
+	INLINE void ClearUsed()
+	{
+		if (_off)
+		{
+			ALGO_MEM_MOVE(_buff, GetData(), _size);
+			_off = 0;
+		}
+	}
+
+	INLINE b1 CheckFlag(u32 flag)
+	{
+		return (b1)(_flags & flag);
+	}
+
+protected:
+	u8* _buff = 0;
+	i32 _off = 0;
+	i32 _size = 0;
+	i32 _max = 0;
+	u32 _flags = 0;
+};
+
+#include"ApeCom.h"
 #ifndef WIN32
 #define __ALIGN8__ __attribute__ ((aligned (8)))
 #else
@@ -30,7 +220,7 @@ using namespace Algo;
 #define APE_RET_CONTINUE        		-8
 
 
-#define APE_BLOCKS_MAX   512
+#define APE_BLOCKS_MAX   256
 #define APE_FILTER_LEVELS 3
 #define APE_MAX_CHANNELS 2
 

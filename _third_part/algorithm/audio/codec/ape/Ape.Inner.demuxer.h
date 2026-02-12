@@ -2,11 +2,11 @@
 #include"Ape.Inner.context.h"
 
 
-class ApeDemuxer
+class ApeDemuxer_c
 {
 public:
-    ApeDemuxer() {};
-    ~ApeDemuxer() {};
+    ApeDemuxer_c() {};
+    ~ApeDemuxer_c() {};
     i32 Init()
     {
         context.Init();
@@ -24,14 +24,18 @@ public:
         if (_isDemuxRunFinish) {
             return APERET_SUCCESS;
         }
-
+        inTemp.ClearUsed();
         inTemp.AppendFully(in, inLen, 0);
         if (_isDemuxContextInitSuccess == false) {
             if (inTemp.GetSize() < sizeof(ApeContext_t)) {
                 return APERET_SUCCESS;
             }
-            if (context.Parser(inTemp.GetData(), inTemp.GetSize()) == APERET_SUCCESS) {
+            //if (context.Parser(inTemp.GetData(), inTemp.GetSize()) == APERET_SUCCESS) {
+            if (context.Parser(&inTemp) == APERET_SUCCESS) {
                 _isDemuxContextInitSuccess = true;
+            }
+            else {
+                return APERET_SUCCESS;
             }
         }
         

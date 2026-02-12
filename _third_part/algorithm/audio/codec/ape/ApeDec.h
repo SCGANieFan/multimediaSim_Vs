@@ -33,7 +33,7 @@ EXTERNC int32_t ApeDec_GetSize();
 EXTERNC int32_t ApeDec_Init(void* pStateIn, ApeDecInitParam_t* sampleParam);
 EXTERNC int32_t ApeDec_Set(void* pStateIn, ApeDecSet_e choose, void* val);
 EXTERNC int32_t ApeDec_Get(void* pStateIn, ApeDecGet_e choose, void* val);
-EXTERNC int32_t ApeDec_Run(void* pStateIn, uint8_t* in, int32_t inLen, uint8_t* out, int32_t* outLen);
+EXTERNC int32_t ApeDec_Run(void* pStateIn, uint8_t* in, int32_t *inLen, uint8_t* out, int32_t* outLen);
 EXTERNC int32_t ApeDec_DeInit(void* pStateIn);
 
 #endif

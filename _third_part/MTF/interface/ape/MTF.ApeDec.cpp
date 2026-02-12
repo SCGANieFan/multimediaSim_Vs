@@ -2,6 +2,7 @@
 #include "MTF.String.h"
 #include "MTF.Objects.h"
 #include "ApeDec.h"
+#include "Ape.Inner.decoder.h"
 using namespace mtf_ns;
 
 void mtf_ape_dec_register()
@@ -35,8 +36,14 @@ public:
 	ApeBasePorting_c() {}
 	~ApeBasePorting_c() {}
 public:
-	virtual void* Malloc(int32_t size) { return mtf_ns::Malloc(size); }
-	virtual void Free(void* block) { mtf_ns::Free(block); }
+	virtual void* Malloc(int32_t size) { 
+		return malloc(size);
+		//return mtf_ns::Malloc(size); 
+	}
+	virtual void Free(void* block) { 
+		free(block);
+		//mtf_ns::Free(block); 
+	}
 public:
 	void (*print_cb)(const char* fmt, ...);
 };
@@ -48,15 +55,16 @@ MTF_ApeDec::MTF_ApeDec()
 
 MTF_ApeDec::~MTF_ApeDec()
 {
+#if 0
 	if (_iData.Data())
 	{
 		_iData.Used(_iData._size);
-		MTF_FREE(_iData.Data());
+		apeBasePorting.Free(_iData.Data());
 	}
 	if (_oData.Data())
 	{
 		_oData.Used(_oData._size);
-		MTF_FREE(_oData.Data());
+		apeBasePorting.Free(_oData.Data());
 	}
 	if (_hd)
 	{
@@ -70,31 +78,45 @@ MTF_ApeDec::~MTF_ApeDec()
 		Free(_basePorting);
 #endif
 	}
+#endif
 }
 
 mtf_i32 MTF_ApeDec::Init()
-{	
+{
 	//lib init
 #if 0
 	ret = MAF_Init(_hd, script, param);
 #else
 	MTF_PRINT();
-	apeBasePorting.print_cb = MTF_Printf;
+	//mtf_void PrintfOri(const char* format, ...);
+	//mtf_void Printf(mtf_u16 ch, const char* format, ...);
+	//mtf_void PrintfNoformat(const char* buf);
+	apeBasePorting.print_cb = PrintfOri;
 	_basePorting = &apeBasePorting;
 
 #endif
+
+
 	//io data
 	mtf_i32 size = _frameBytes;
-	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
+	
+	_iData.Init((mtf_u8*)apeBasePorting.Malloc(size), size);
 	size = 10 * size;
-	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_u8*)apeBasePorting.Malloc(size), size);
 
 	return 0;
 }
 
 mtf_i32 MTF_ApeDec::receive(MTF_Data& iData)
 {
-	_iData.Append(iData.Data(), iData._size);
+	static uint32_t cnt = 0;
+	cnt++;
+	//MTF_PRINT("[%d]", cnt);
+	_iData.Clear();
+	mtf_i32 appenSize = iData._size;
+	appenSize = appenSize > _iData.LeftSize() ? _iData.LeftSize() : appenSize;
+	_iData.Append(iData.Data(), appenSize);
+	iData.Used(appenSize);
 	if (iData._flags & MTF_DataFlag_ESO)
 	{
 		_iData._flags = MTF_DataFlag_ESO;
@@ -108,12 +130,13 @@ mtf_i32 MTF_ApeDec::receive(MTF_Data& iData)
 	return 0;
 }
 
-#define FRAMES_LOST 5
-#define FRAMES_TOTAL 50
 mtf_i32 MTF_ApeDec::generate(MTF_Data*& oData)
 {
+	if (!oData) oData = &_oData;
 	_frames++;
+	//MTF_PRINT("[%d]", _frames);
 	if (_iData._flags&MTF_DataFlag_EXTRA_INFO) {
+#if 0
 		_iData._flags&=~MTF_DataFlag_EXTRA_INFO;
 		_hdSize = ApeDec_GetSize();
 		_hd = Malloc(_hdSize);
@@ -132,19 +155,56 @@ mtf_i32 MTF_ApeDec::generate(MTF_Data*& oData)
 		if (ret < 0) {
 			return false;
 		}
+#else
+		_iData._flags &= ~MTF_DataFlag_EXTRA_INFO;
+		_hd = new ApeDecoder_c();
+		_pContext = (void*)*(mtf_u32*)_iData.Data();
+		_startFrameNum = *(mtf_u32*)(_iData.Data() + 4);
+		_skip = *(mtf_u32*)(_iData.Data() + 8);
+		//_decReInit = (u32*)ptr; ptr += 4;
+		//*_decReInit = 0;
+		mtf_i32 ret = ((ApeDecoder_c*)_hd)->Init(
+			(AlgoBasePorting_c*)_basePorting,
+			(ApeContext_t*)_pContext,
+			_startFrameNum, 
+			_skip);
+		_iData.Used(12);
+		if (ret < 0) {
+			return false;
+		}
+#endif
 	}
+
+#if 1
+	if (_iData._flags & MTF_DataFlag_ESO) {
+		((ApeDecoder_c*)_hd)->haveInCache = false;
+	}
+	uint8_t* inBuffer = (uint8_t*)_iData.Data();
+	int32_t inSize = _iData._size;
+	uint8_t* outBuffer = oData->LeftData();
+	int32_t outSize = oData->LeftSize();
+	APE_RET_t ret = ((ApeDecoder_c*)_hd)->Run(inBuffer, &inSize, outBuffer, &outSize);
+	if (ret != APERET_SUCCESS) {
+		return -1;
+	}
+	_iData.Used(inSize);
+	_oData._size += outSize;
+#else
 
 	if (_iData._flags&MTF_DataFlag_ESO) {
 		ApeDec_Set(_hd, ApeDecSet_e::APE_DEC_SET_E_HAS_IN_CACHE, (void*)false);
 	}
 	
 	mtf_i32 outByte = oData->LeftSize();
-	mtf_i32 ret = ApeDec_Run(_hd, _iData.Data(), _iData._size, oData->LeftData(), &outByte);
+	mtf_i32 iSize = _iData._size;
+	mtf_i32 ret = ApeDec_Run(_hd, _iData.Data(), &iSize, oData->LeftData(), &outByte);
 	if (ret < 0) {
 		return -1;
 	}
-	_iData.Used(_iData._size);
+
+	_iData.Used(iSize);
 	_oData._size+= outByte;
+#endif
 	//exit check
 	if ((_iData._flags & MTF_DataFlag_ESO)
 		&& _oData._size <= 0)

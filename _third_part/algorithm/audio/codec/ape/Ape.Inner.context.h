@@ -62,7 +62,8 @@ public:
         _context = *context;
     };
 #endif
-    i32 Parser(u8* in, i32 inByte);
+    //i32 Parser(u8* in, i32 inByte);
+    i32 Parser(Data* data);
 
 //private:
 public:
@@ -87,6 +88,7 @@ public:
     }
     void SetFirstFramePos(i32 firstFramePos) {
         _firstFramePos = firstFramePos;
+        _lastPosTmp = _firstFramePos;
     }
     b1 GetStartPosFromFrame(u32 frame,u32 * pos) {
         u32 posTemp;
@@ -138,6 +140,9 @@ public:
         _seektableNum = _sizeInByte >> 2;
         _lastPos = _lastPosTmp;
         _lastPosTmp = seektable[_seektableNum - 1];
+        if (_lastPos >= seektable[0]) {
+            _lastPos = _firstFramePos;
+        }
     }
 private:
     i32* _seektable = 0;

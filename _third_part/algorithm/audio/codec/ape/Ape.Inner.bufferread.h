@@ -20,6 +20,7 @@ public:
     }
     b1 INLINE Init()
     {
+        ALGO_MEM_SET(this, 0, sizeof(BufferRead));
         offset = -1;
         return true;
     }

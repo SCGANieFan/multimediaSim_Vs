@@ -8,7 +8,7 @@ using namespace Audio;
 
 
 typedef struct {
-	ApeDecoder dec;
+	ApeDecoder_c dec;
 	union {
 		struct {
 			b1 isInited;
@@ -33,7 +33,7 @@ EXTERNC {
 			return APERET_FAIL;
 		ApeDecState* pState = (ApeDecState*)pStateIn;
 		ALGO_MEM_SET(pState, 0, ApeDec_GetSize());
-		ApeDecoder* pDec = &pState->dec;
+		ApeDecoder_c* pDec = &pState->dec;
 		i32 ret;
 		ret = pDec->Init(sampleParam->basePorting, (ApeContext_t*)sampleParam->context, sampleParam->startFrame, sampleParam->skip);
 		if (ret == APERET_SUCCESS) {
@@ -51,7 +51,7 @@ EXTERNC {
 		ApeDecState* pState = (ApeDecState*)pStateIn;
 		if (pState->isInited == false)
 			return APERET_FAIL;
-		ApeDecoder* pDec = &pState->dec;
+		ApeDecoder_c* pDec = &pState->dec;
 		switch (choose)
 		{
 		case APE_DEC_SET_E_HAS_IN_CACHE:
@@ -73,7 +73,7 @@ EXTERNC {
 		ApeDecState* pState = (ApeDecState*)pStateIn;
 		if (pState->isInited == false)
 			return APERET_FAIL;
-		ApeDecoder* pDec = &pState->dec;
+		ApeDecoder_c* pDec = &pState->dec;
 		switch (choose)
 		{
 		default:
@@ -82,7 +82,7 @@ EXTERNC {
 		return APERET_SUCCESS;
 	}
 
-	int32_t ApeDec_Run(void* pStateIn, uint8_t* in, int32_t inLen, uint8_t* out, int32_t* outLen)
+	int32_t ApeDec_Run(void* pStateIn, uint8_t* in, int32_t *inLen, uint8_t* out, int32_t* outLen)
 	{
 #if 1
 		//check
@@ -91,7 +91,7 @@ EXTERNC {
 			||!outLen)
 			return APERET_FAIL;
 		ApeDecState* pState = (ApeDecState*)pStateIn;
-		ApeDecoder* pDec = &pState->dec;
+		ApeDecoder_c* pDec = &pState->dec;
 		if (pState->isInited)
 			return pDec->Run(in, inLen, out, outLen);
 		return APERET_FAIL;

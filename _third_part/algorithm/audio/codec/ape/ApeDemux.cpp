@@ -9,7 +9,7 @@ using namespace Audio;
 
 
 typedef struct {
-	ApeDemuxer demux;
+	ApeDemuxer_c demux;
 	union {
 		struct {
 			b1 isInited;
@@ -32,7 +32,7 @@ EXTERNC {
 			return APERET_FAIL;
 		ApeDemuxState* pState = (ApeDemuxState*)pStateIn;
 		ALGO_MEM_SET(pState, 0, ApeDemux_GetSize());
-		ApeDemuxer* pDemux = &pState->demux;
+		ApeDemuxer_c* pDemux = &pState->demux;
 		pState->isInited = true;
 		return pDemux->Init();
 	}
@@ -46,7 +46,7 @@ EXTERNC {
 		ApeDemuxState* pState = (ApeDemuxState*)pStateIn;
 		if (pState->isInited == false)
 			return APERET_FAIL;
-		ApeDemuxer* pDemux = &pState->demux;
+		ApeDemuxer_c* pDemux = &pState->demux;
 		switch (choose)
 		{
 		case APE_DEMUX_SET_SEEK_TABLE:
@@ -72,7 +72,7 @@ EXTERNC {
 		if (pState->isInited == false)
 			return APERET_FAIL;
 
-		ApeDemuxer* pDemux = &pState->demux;
+		ApeDemuxer_c* pDemux = &pState->demux;
 		switch (choose)
 		{
 		case APE_DEMUX_GET_IS_RUN_FINISH:
@@ -112,7 +112,7 @@ EXTERNC {
 		if (!pStateIn)
 			return APERET_FAIL;
 		ApeDemuxState* pState = (ApeDemuxState*)pStateIn;
-		ApeDemuxer* pDemux = &pState->demux;
+		ApeDemuxer_c* pDemux = &pState->demux;
 		if (pState->isInited)
 			return pDemux->Run(in, inLen);
 	}
