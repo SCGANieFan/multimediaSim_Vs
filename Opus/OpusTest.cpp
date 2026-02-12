@@ -2,9 +2,13 @@
 using namespace MTFApi_ns;
 
 #define PATH "../../source/audio/opus/"
-#define FILE_NAME "mbz_48k2h.wav"
-#define FRAME_MS 20
-#define BIT_RATE 20000
+//#define FILE_NAME "mbz_48k2h.wav"
+//#define FILE_NAME "stSection_48k1ch.wav"
+//#define FILE_NAME "chirp_sin_48k1ch.wav"
+//#define FILE_NAME "mbz_48k1h_40s.wav"
+#define FILE_NAME "chirp_sin_48k1ch.wav"
+#define FRAME_MS 5
+#define BIT_RATE 179200
 #define COMPLEXITY 0
 #define VBR 0
 
@@ -15,6 +19,7 @@ static void OpusMtfTest()
 	MTF_REGISTER(opus_enc);
 	MTF_REGISTER(opus_dec);
 	MTF_REGISTER(wav_muxer);
+	MTF_REGISTER(pcm_muxer);
 
 	void* param[] = {
 		(void*)(PATH FILE_NAME),
@@ -24,13 +29,20 @@ static void OpusMtfTest()
 		(void*)(COMPLEXITY),
 		(void*)(VBR),
 	};
-
+#if 1
 	const char* str = {
 	"|wav_demuxer,url=$0,fMs=$2|-->"
 	"|opus_enc,bitrate=$3,cpmplexity=$4,vbr=$5|-->"
 	"|opus_dec|-->"
 	"|wav_muxer,url=$1|"
 	};
+#else
+	const char* str = {
+	"|wav_demuxer,url=$0,fMs=$2|-->"
+	"|opus_enc,bitrate=$3,cpmplexity=$4,vbr=$5|-->"
+	"|pcm_muxer,url=$1|"
+	};
+#endif
 	MTFApi::Api(str, param);
 }
 
@@ -51,6 +63,6 @@ static void OpusDemoTest()
 
 void OpusTest()
 {
-	//OpusMtfTest();
-	OpusDemoTest();
+	OpusMtfTest();
+	//OpusDemoTest();
 }

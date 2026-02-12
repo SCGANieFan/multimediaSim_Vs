@@ -19,5 +19,6 @@ private:
 
 	mtf_void* _hd = 0;
 	mtf_i32 _hdSize = 0;
+	mtf_void* _dec = 0;
 };
 

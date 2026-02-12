@@ -1,29 +1,23 @@
 #include "MTF.OpusDec.h"
 #include "MTF.String.h"
 #include "MTF.Objects.h"
-
+#include "opus_api.h"
+#include <stdarg.h>
+#include <stdio.h>
 
 using namespace mtf_ns;
-static const char* type_this = "opus_dec";
 
 void mtf_opus_dec_register()
 {
-	MTF_Objects::Registe<MTF_OpusDec>(type_this);
+	MTF_Objects::Registe<MTF_OpusDec>("opus_dec");
+	OpusDecoderNormalRegister();
 }
 MTF_OpusDec::MTF_OpusDec()
 {
-#if 0
-	OpusApiMemory_t opusApiMemory;
-	opusApiMemory.malloc_cb = Malloc;
-	opusApiMemory.realloc_cb = Realloc;
-	opusApiMemory.free_cb = Free;
-	OpusApi::memory_register(&opusApiMemory);
-#endif
 }
 
 MTF_OpusDec::~MTF_OpusDec()
 {
-#if 0
 	if (_iData.Data())
 	{
 		_iData.Used(_iData._size);
@@ -34,78 +28,107 @@ MTF_OpusDec::~MTF_OpusDec()
 		_oData.Used(_oData._size);
 		MTF_FREE(_oData.Data());
 	}
-	if (_hd)
+	if (_dec)
 	{
-		if(_hd)
-			OpusApi::destory_decoder(_hd);
-		_hd = 0;
+		opus_api_close_decoder(_dec);
+		opus_api_destory_decoder(_dec);
+		_dec = 0;
 	}
-#endif
+}
+
+static void* opus_malloc(int size)
+{
+	void* buf = MTF_MALLOC(size);
+	MTF_PRINT("%d,%p", size, buf);
+	return buf;
+}
+
+static void* opus_realloc(void* rmem, int newsize)
+{
+	void* buf = MTF_REALLOC(rmem, newsize);
+	MTF_PRINT("%d,%p,%p", newsize, rmem, buf);
+	return buf;
+}
+
+static void opus_free(void* rmem)
+{
+	MTF_PRINT("%p", rmem);
+	MTF_FREE(rmem);
+	return;
+}
+
+static void opus_print(const char* fmt, ...)
+{
+	static char buf[256];
+	va_list ap;
+	va_start(ap, fmt);
+	vsprintf(buf, fmt, ap);
+	va_end(ap);
+	printf("%s\n", buf);
 }
 
 mtf_i32 MTF_OpusDec::Init()
 {	
-#if 0
-	//lib init
-	const mtf_int8* type = type_this;
-	MA_Ret ret;
-	ret = MAF_GetHandleSize(type, &_hdSize);
-	if (ret != MA_RET_SUCCESS)
-		MTF_PRINT("err");
-	if (_hdSize < 1)
-		MTF_PRINT("err");
-	_hd = MTF_MALLOC(_hdSize);
-	if (!_hd)
-		MTF_PRINT("err");
-
-	OpusApiRet_t ret = OpusApi::create_decoder(&_hd, _rate, _ch);
+	OpusApi_CreateDecParam_t param;
+	param.basePort.malloc_cb = opus_malloc;
+	param.basePort.realloc_cb = opus_realloc;
+	param.basePort.free_cb = opus_free;
+	param.basePort.print_cb = opus_print;
+	OpusApiRet_t ret = opus_api_create_decoder(&_dec, &param);
 	if (ret != OPUS_API_RET_SUCCESS) {
 		MTF_PRINT("Cannot create decoder: %d\n", ret);
-		return false;
+		return -1;
 	}
-	MTF_PRINT("create decoder success\n");
-
-	//io data
-	mtf_int32 size = _frameBytes;
-	_iData.Init((mtf_uint8*)MTF_MALLOC(size), size);
-	_oData.Init((mtf_uint8*)MTF_MALLOC(size), size);
-#endif
+	ret |= opus_api_decoder_set(_dec, "choose", (void*)OpusApi_DecChoose_e::OPUS_API_DEC_CHOOSE_NORMAL);
+	ret |= opus_api_decoder_set(_dec, "fs", (void*)_rate);
+	ret |= opus_api_decoder_set(_dec, "ch", (void*)(uint32_t)_ch);
+	if (ret != OPUS_API_RET_SUCCESS) {
+		MTF_PRINT("set fail"); return 0;
+	}
+	ret = opus_api_open_decoder(_dec);
+	if (ret != OPUS_API_RET_SUCCESS) {
+		MTF_PRINT("set fail"); return 0;
+	}
+	mtf_i32 size = _frameBytes;
+	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
+	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
 	return 0;
 }
 
 mtf_i32 MTF_OpusDec::receive(MTF_Data& iData)
 {
-#if 0
 	_iData.Append(iData.Data(), iData._size);
 	if (iData._flags & MTF_DataFlag_ESO)
 		_iData._flags |= MTF_DataFlag_ESO;
 	iData.Used(iData._size);
-#endif
 	return 0;
 }
 
 mtf_i32 MTF_OpusDec::generate(MTF_Data*& oData)
 {
-#if 0
-	AA_Data AA_iData;
-	MTF_MEM_SET(&AA_iData, 0, sizeof(AA_Data));
-	AA_iData.buff = _iData.Data();
-	AA_iData.max = AA_iData.size = _iData._size;
-
-	AA_Data AA_oData;
-	MTF_MEM_SET(&AA_oData, 0, sizeof(AA_Data));
-	AA_oData.buff = _oData.LeftData();
-	AA_oData.max = _oData.LeftSize();
-
-	MAF_Run(_hd, &AA_iData, &AA_oData);
-	_iData.Used(_iData._size);
-	_oData._size += oSample * 2 * _ch;
-
-	if (_iData._flags & MTF_DataFlag_ESO){
-		_oData._flags |= MTF_DataFlag_ESO;
+	{
+		static uint32_t cnt = 0;
+		++cnt;
+		//MTF_PRINT("[%u]", cnt);
+		if (cnt == 2001)
+			int a = 1;
 	}
+	if (_iData._flags & MTF_DataFlag_ESO) {
+		_oData._flags |= MTF_DataFlag_ESO;
+		oData = &_oData;
+		return 0;
+	}
+	mtf_u8* encodedOneFrame = (mtf_u8*)_iData.Data();
+	mtf_i32 encodedOneFrameByte = _iData._size;
+	mtf_u8* decodecPcm = (mtf_u8*)_oData.LeftData();
+	mtf_i32 decodecPcmByte = _oData.LeftSize();
+	OpusApiRet_t ret = opus_api_decoder_run(_dec, encodedOneFrame, encodedOneFrameByte, decodecPcm, &decodecPcmByte, false);
+	if (ret != OPUS_API_RET_SUCCESS) {
+		MTF_PRINT("opus run fail, %d", ret); return false;
+	}
+	_iData.Used(_iData._size);
+	_oData._size += decodecPcmByte;
 	oData = &_oData;
-#endif
 	return 0;
 }
 
