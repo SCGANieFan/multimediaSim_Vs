@@ -15,7 +15,7 @@ private:
 	static void* OggMalloc(uint32_t size);
 	static void* OggRealloc(void* ptr, uint32_t size);
 	static void OggFree(void* ptr);
-	static void OggPrint(const char* fmt, ...);
+	static void OggPrint(const char* fmt, uint32_t len);
 private:
 	void* _pFile = 0;
 	const char* _url = 0;
@@ -28,6 +28,6 @@ private:
 	mtf_i32 _page_byte_round = 4096;
 	uint32_t _bytePerSample = 0;
 	MTF_Data _last_dat;
-	uint32_t _idMuxer = 0;
+	void* _idMuxer = 0;
 };
 

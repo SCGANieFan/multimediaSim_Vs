@@ -1,20 +1,20 @@
-#include "gaapi_base.h"
-using namespace ogg_gaapi_ns;
+#include "gasf_base.h"
+using namespace GASF_NAME_SPACE;
 
-void* GaapiBase_c::operator new(size_t size, void* buf) {
+void* GasfBase_c::operator new(size_t size, void* buf) {
     return buf;
 }
-void GaapiBase_c::operator delete(void* buf, size_t size) {
+void GasfBase_c::operator delete(void* buf, size_t size) {
     return;
 }
-void GaapiBase_c::operator delete(void* buf, void* place) {
+void GasfBase_c::operator delete(void* buf, void* place) {
     return;
 }
-void GaapiBase_c::operator delete(void* buf) {
+void GasfBase_c::operator delete(void* buf) {
     return;
 }
 
-namespace ogg_gaapi_ns {
+namespace GASF_NAME_SPACE {
 static inline void memset_add64_inner(uint32_t* p32, uint32_t v8, uint32_t length) {
     //assert((dst0&7)==0)
     int32_t lengthFrac = length & 15;
@@ -33,7 +33,7 @@ static inline void memset_add64_inner(uint32_t* p32, uint32_t v8, uint32_t lengt
     }
 }
 
-void* gaapi_memset(void* dst, uint8_t val, int32_t length) {
+void* gasf_memset(void* dst, uint8_t val, int32_t length) {
     uint32_t addRem8 = (uint32_t)dst & 7;
     if (addRem8 == 0) {
         memset_add64_inner((uint32_t*)dst, val, length);
@@ -58,7 +58,7 @@ void* gaapi_memset(void* dst, uint8_t val, int32_t length) {
     return 0;
 }
 
-void* gaapi_memcpy(void* dst, const void* src, int32_t length) {
+void* gasf_memcpy(void* dst, const void* src, int32_t length) {
     uint32_t addDstRem4 = (uint32_t)dst & 3;
     uint32_t addSrcRem4 = (uint32_t)src & 3;
     if (addDstRem4
@@ -103,9 +103,9 @@ static inline void* memcpy_reverse_inner(void* dst, const void* src, int32_t len
     return 0;
 }
 
-void* gaapi_memmove(void* dst, const void* src, int32_t length) {
+void* gasf_memmove(void* dst, const void* src, int32_t length) {
     if (src >= dst) {
-        gaapi_memcpy(dst, src, length);
+        gasf_memcpy(dst, src, length);
     }
     else {
         memcpy_reverse_inner(dst, src, length);

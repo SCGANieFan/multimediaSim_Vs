@@ -27,31 +27,37 @@ typedef struct {
 	void* (*malloc_cb)(uint32_t);
 	void* (*realloc_cb)(void*, uint32_t);
 	void (*free_cb)(void*);
-	void (*printf_cb)(const char*, ...);
+	void (*printf_cb)(const char*, uint32_t);
 }OggApiBasePort_t;
 
+typedef struct {
+	uint8_t* headData;
+	int32_t headByte;
+	uint8_t* bodyData;
+	int32_t bodyByte;
+}OggApiPage_t;
+
 EXTERNC{
-uint32_t ogg_api_muxer_create(OggApiBasePort_t* bp);
-OggApiRet_t ogg_api_muxer_open(uint32_t id);
-OggApiRet_t ogg_api_muxer_set(uint32_t id, const char* choose, void* val);
-OggApiRet_t ogg_api_muxer_get(uint32_t id, const char* choose, void* val);
-OggApiRet_t ogg_api_muxer_receive(uint32_t id, uint8_t* buf, int32_t* bufByte);
-OggApiRet_t ogg_api_muxer_generate(uint32_t id, uint8_t* buf, int32_t* bufByte);
-OggApiRet_t ogg_api_muxer_close(uint32_t id);
-OggApiRet_t ogg_api_muxer_destory(uint32_t id);
+void* ogg_api_muxer_create(OggApiBasePort_t* bp);
+OggApiRet_t ogg_api_muxer_open(void* id);
+OggApiRet_t ogg_api_muxer_set(void* id, const char* choose, void* val);
+OggApiRet_t ogg_api_muxer_get(void* id, const char* choose, void* val);
+OggApiRet_t ogg_api_muxer_receive(void* id, uint8_t* buf, int32_t* bufByte);
+//OggApiRet_t ogg_api_muxer_generate(void* id, uint8_t* buf, int32_t* bufByte);
+OggApiRet_t ogg_api_muxer_generate(void* id, OggApiPage_t* page);
+OggApiRet_t ogg_api_muxer_close(void* id);
+OggApiRet_t ogg_api_muxer_destory(void* id);
 
 
-uint32_t ogg_api_demuxer_create(OggApiBasePort_t* bp);
-OggApiRet_t ogg_api_demuxer_open(uint32_t id);
-OggApiRet_t ogg_api_demuxer_receive(uint32_t id, uint8_t* buf, int32_t* len);
-OggApiRet_t ogg_api_demuxer_generate(uint32_t id, uint8_t* buf, int32_t* len);
-OggApiRet_t ogg_api_demuxer_set(uint32_t id, const char* choose, void* val);
-OggApiRet_t ogg_api_demuxer_get(uint32_t id, const char* choose, void* val);
-OggApiRet_t ogg_api_demuxer_close(uint32_t id);
-OggApiRet_t ogg_api_demuxer_destory(uint32_t id);
+void* ogg_api_demuxer_create(OggApiBasePort_t* bp);
+OggApiRet_t ogg_api_demuxer_open(void* id);
+OggApiRet_t ogg_api_demuxer_receive(void* id, uint8_t* buf, int32_t* len);
+OggApiRet_t ogg_api_demuxer_generate(void* id, uint8_t* buf, int32_t* len);
+OggApiRet_t ogg_api_demuxer_set(void* id, const char* choose, void* val);
+OggApiRet_t ogg_api_demuxer_get(void* id, const char* choose, void* val);
+OggApiRet_t ogg_api_demuxer_close(void* id);
+OggApiRet_t ogg_api_demuxer_destory(void* id);
 
-void ogg_api_register_ogg_muxer();
-void ogg_api_register_ogg_demuxer();
 
 }
 

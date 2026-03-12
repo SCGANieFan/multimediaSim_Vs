@@ -8,7 +8,6 @@ using namespace mtf_ns;
 void mtf_ogg_demuxer_register()
 {
 	MTF_Objects::Registe<MTF_OggDemuxer>("ogg_demuxer");
-	ogg_api_register_ogg_demuxer();
 }	
 
 
@@ -70,7 +69,8 @@ static void OggFree(void* ptr) {
 	return free(ptr);
 }
 #include <stdio.h>
-static void OggPrint(const char* fmt, ...) {
+static void OggPrint(const char* buf, uint32_t len) {
+#if 0
 	static char buf[256];
 	VaListPorting_t args;
 	VaStartPorting(args, fmt);
@@ -78,6 +78,9 @@ static void OggPrint(const char* fmt, ...) {
 	VaEndPorting(args);
 #if 0
 	MTF_PRINTORI("%s", buf);
+#else
+	printf("%s", buf);
+#endif
 #else
 	printf("%s", buf);
 #endif
@@ -181,12 +184,41 @@ mtf_i32 MTF_OggDemuxer::Init()
 		}
 	}
 
+	//last data page off
+	mtf_i32 offLastPage = 0;
+	offLastPage += _tmpData.Max();
+	while (1) {
+		_tmpData.Used(_tmpData._size);
+		_tmpData.Clear();
+		FileSeekPorting(_pFile, -offLastPage, FileSeekPorting_e::FILE_PORTING_SEEK_END);
+		mtf_i32 readedSize = FileReadPorting(_pFile, _tmpData.LeftData(), _tmpData.LeftSize());
+		if (!readedSize) return -1;
+		_tmpData._size += readedSize;
+		if (_tmpData._size < 4) {
+			return -1;
+		}
+		mtf_i32 size = _tmpData._size - 4;
+		uint8_t* ptr = (uint8_t*)_tmpData.Data() + size;
+		for (; size >= 0; size--) {
+			if (ptr[0] == 'O') {
+				if (ptr[1] == 'g'
+					&& ptr[2] == 'g'
+					&& ptr[3] == 'S') {
+					offLastPage -= size;
+					break;
+				}
+			}
+			ptr--;
+		}
+		if (size >= 0) 
+			break;
+		offLastPage += _tmpData._size - 4;
+	}
+
 	//last data page head
 	ogg_api_demuxer_set(_idDemuxer, "resetToData", 0);
 	_tmpData.Used(_tmpData._size);
-	mtf_i32 off = (_firstPageSize * 3) >> 1;
-	off = off > (_totalsize - _firstPageSize) ? (_totalsize - _firstPageSize) : off;
-	FileSeekPorting(_pFile, -off, FileSeekPorting_e::FILE_PORTING_SEEK_END);
+	FileSeekPorting(_pFile, -offLastPage, FileSeekPorting_e::FILE_PORTING_SEEK_END);
 	while (1) {
 		_tmpData.Clear();
 		mtf_i32 readedSize = FileReadPorting(_pFile, _tmpData.LeftData(), _tmpData.LeftSize());
@@ -210,7 +242,7 @@ mtf_i32 MTF_OggDemuxer::Init()
 	MTF_PRINT("(%u,%u),(%u,%u),%u,%llu", _firstPageSize, _lastPageSize, _firstPacketNum, _lastPacketNum, _pageNum, _lastGranulePos);
 	_fcnt = _pageNum * (_lastPacketNum + _firstPacketNum) / 2;
 	_fsize = _totalsize / _fcnt;
-	_duration = _lastGranulePos / (_rate / 1000);
+	_duration = _lastGranulePos * 10 / (_rate / 100);
 	MTF_PRINT("%u,%u,%u ms", _fcnt, _fsize, _duration);
 
 	ogg_api_demuxer_set(_idDemuxer, "resetToData", 0);
