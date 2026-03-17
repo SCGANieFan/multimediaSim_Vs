@@ -1,25 +1,26 @@
-#include "gaapi_memory.h"
+#if 0
+#include "gasf_memory.h"
 
-using namespace ogg_gaapi_ns;
+using namespace GASF_NAME_SPACE;
 #define CHECK_STEP_ON_MEMORY 0
 #if  CHECK_STEP_ON_MEMORY
 #define CHECK_STEP_ON_MEMORY_MAGIC (0x0F0F0F0F0F0F0F0F)
 #endif
 
 
-void GaapiMemory_c::Init(GaapiBasePort_t* base_porting) {
+void GasfMemory_c::Init(GasfBasePort_t* base_porting) {
 	_bp = base_porting;
 	for (uint32_t n = 0; n < _allocListNum; n++) {
 		_allocList[n] = 0;
 	}
 }
-void GaapiMemory_c::DeInit() {
+void GasfMemory_c::DeInit() {
 	_bp = 0;
 	for (uint32_t n = 0; n < _allocListNum; n++) {
 		_allocList[n] = 0;
 	}
 }
-void* GaapiMemory_c::Malloc(int32_t size) {
+void* GasfMemory_c::Malloc(int32_t size) {
 #if  CHECK_STEP_ON_MEMORY
 	size += 8;
 #endif
@@ -39,7 +40,7 @@ void* GaapiMemory_c::Malloc(int32_t size) {
 	return 0;
 }
 
-void* GaapiMemory_c::Realloc(void* bufOri, int32_t size) {
+void* GasfMemory_c::Realloc(void* bufOri, int32_t size) {
 #if  CHECK_STEP_ON_MEMORY
 	bufOri = (u8*)bufOri - 8;
 	u64 magic = *(u64*)bufOri;
@@ -63,7 +64,7 @@ void* GaapiMemory_c::Realloc(void* bufOri, int32_t size) {
 	return 0;
 }
 
-void GaapiMemory_c::Free(void* ptr) {
+void GasfMemory_c::Free(void* ptr) {
 	for (uint32_t n = 0; n < _allocListNum; n++) {
 		if (_allocList[n] == ptr) {
 #if  CHECK_STEP_ON_MEMORY
@@ -79,7 +80,7 @@ void GaapiMemory_c::Free(void* ptr) {
 }
 
 
-void GaapiMemory_c::FreeAll() {
+void GasfMemory_c::FreeAll() {
 	for (uint32_t n = 0; n < _allocListNum; n++) {
 		if (_allocList[n]) {
 #if  CHECK_STEP_ON_MEMORY
@@ -99,3 +100,4 @@ void GaapiMemory_c::FreeAll() {
 
 
 
+#endif

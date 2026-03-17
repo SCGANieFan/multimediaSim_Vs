@@ -1,13 +1,13 @@
 #pragma once
-#include "gaapi_base.h"
+#include "gasf_base.h"
 
-namespace ogg_gaapi_ns {
+namespace GASF_NAME_SPACE {
 
-class GaapiData_c :public GaapiBase_c
+class GasfData_c :public GasfBase_c
 {
 public:
-    GaapiData_c() {}
-    ~GaapiData_c() {}
+    GasfData_c() {}
+    ~GasfData_c() {}
 public:
     void Init(void* buf, uint32_t max);
     void Init(void* buf, uint32_t size, uint32_t max);

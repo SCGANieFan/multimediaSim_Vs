@@ -396,7 +396,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../_third_part/algorithm/container/ogg;../_third_part/algorithm/container/ogg/gaapi;../_third_part/algorithm/container/ogg/api;../_third_part/algorithm/container/ogg/demo;../_third_part/algorithm/container/ogg/src;../TestLIb;$(MTF_PATH)/interface/ogg;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32;$(GADF_PATH);$(GADF_PATH)/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../_third_part/algorithm/container/ogg;../_third_part/algorithm/container/ogg/gasf;../_third_part/algorithm/container/ogg/api;../_third_part/algorithm/container/ogg/demo;../_third_part/algorithm/container/ogg/src;../TestLIb;$(MTF_PATH)/interface/ogg;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32;$(GADF_PATH);$(GADF_PATH)/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -504,21 +504,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\api\ogg_api_demuxer.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\ogg\api\ogg_demuxer.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\ogg\api\ogg_muxer.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\api\ogg_api_muxer.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\api\ogg_api_private.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\api\ogg_api.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\ogg\demo\gadf_ogg.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\ogg\demo\gadf_register_info_opus_16k2ch_ogg_mux.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\ogg\demo\ogg_demo.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_base.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_data.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_gaf.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_memory.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_os.cpp" />
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_static.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\gasf\gasf.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\gasf\gasf_base.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\gasf\gasf_data.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\gasf\gasf_memory.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\ogg\src\ogg_bitwise.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\ogg\src\ogg_framing.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\ogg\MTF.OggDemuxer.cpp" />
@@ -528,17 +523,14 @@
   <ItemGroup>
     <ClInclude Include="..\_third_part\algorithm\container\ogg\api\ogg_demuxer.h" />
     <ClInclude Include="..\_third_part\algorithm\container\ogg\api\ogg_muxer.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\api\ogg_common.h" />
     <ClInclude Include="..\_third_part\algorithm\container\ogg\api\ogg_api.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\api\ogg_api_private.h" />
     <ClInclude Include="..\_third_part\algorithm\container\ogg\demo\gadf_ogg.h" />
     <ClInclude Include="..\_third_part\algorithm\container\ogg\demo\ogg_demo.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_base.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_data.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_gaf.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_memory.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_os.h" />
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_static.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\gasf\gasf.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\gasf\gasf_base.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\gasf\gasf_data.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\gasf\gasf_memory.h" />
     <ClInclude Include="..\_third_part\algorithm\container\ogg\src\config_types.h" />
     <ClInclude Include="..\_third_part\algorithm\container\ogg\src\ogg.h" />
     <ClInclude Include="..\_third_part\algorithm\container\ogg\src\ogg_crctable.h" />

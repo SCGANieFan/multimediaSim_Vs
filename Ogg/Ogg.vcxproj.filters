@@ -23,41 +23,26 @@
     <ClCompile Include="..\_third_part\algorithm\container\ogg\demo\ogg_demo.cpp">
       <Filter>3th\demo</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\api\ogg_api_muxer.cpp">
-      <Filter>3th\api</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\api\ogg_api_private.cpp">
-      <Filter>3th\api</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\api\ogg_muxer.cpp">
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\api\ogg_api.cpp">
       <Filter>3th\api</Filter>
     </ClCompile>
     <ClCompile Include="..\_third_part\algorithm\container\ogg\api\ogg_demuxer.cpp">
       <Filter>3th\api</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\api\ogg_api_demuxer.cpp">
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\api\ogg_muxer.cpp">
       <Filter>3th\api</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_memory.cpp">
-      <Filter>3th\gaapi</Filter>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\gasf\gasf_data.cpp">
+      <Filter>3th\gasf</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_os.cpp">
-      <Filter>3th\gaapi</Filter>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\gasf\gasf_memory.cpp">
+      <Filter>3th\gasf</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_static.cpp">
-      <Filter>3th\gaapi</Filter>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\gasf\gasf.cpp">
+      <Filter>3th\gasf</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi.cpp">
-      <Filter>3th\gaapi</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_base.cpp">
-      <Filter>3th\gaapi</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_data.cpp">
-      <Filter>3th\gaapi</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_gaf.cpp">
-      <Filter>3th\gaapi</Filter>
+    <ClCompile Include="..\_third_part\algorithm\container\ogg\gasf\gasf_base.cpp">
+      <Filter>3th\gasf</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -76,7 +61,7 @@
     <Filter Include="3th\demo">
       <UniqueIdentifier>{c8fe89c0-928d-4a5d-acb0-157b750287e4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="3th\gaapi">
+    <Filter Include="3th\gasf">
       <UniqueIdentifier>{1cb72c64-e91c-440b-9b85-3c583e9c6fb0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -109,35 +94,26 @@
     <ClInclude Include="..\_third_part\algorithm\container\ogg\api\ogg_api.h">
       <Filter>3th\api</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\api\ogg_api_private.h">
-      <Filter>3th\api</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\api\ogg_muxer.h">
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\api\ogg_common.h">
       <Filter>3th\api</Filter>
     </ClInclude>
     <ClInclude Include="..\_third_part\algorithm\container\ogg\api\ogg_demuxer.h">
       <Filter>3th\api</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_memory.h">
-      <Filter>3th\gaapi</Filter>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\api\ogg_muxer.h">
+      <Filter>3th\api</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_os.h">
-      <Filter>3th\gaapi</Filter>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\gasf\gasf_data.h">
+      <Filter>3th\gasf</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_static.h">
-      <Filter>3th\gaapi</Filter>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\gasf\gasf_memory.h">
+      <Filter>3th\gasf</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi.h">
-      <Filter>3th\gaapi</Filter>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\gasf\gasf.h">
+      <Filter>3th\gasf</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_base.h">
-      <Filter>3th\gaapi</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_data.h">
-      <Filter>3th\gaapi</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\container\ogg\gaapi\gaapi_gaf.h">
-      <Filter>3th\gaapi</Filter>
+    <ClInclude Include="..\_third_part\algorithm\container\ogg\gasf\gasf_base.h">
+      <Filter>3th\gasf</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

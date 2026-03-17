@@ -17,7 +17,7 @@ mtf_i32 MTF_Source::Push(MTF_Data& oData)
 		MTF_PRINT("err");
 		return -1;
 	}
-	_to->Receive(oData);
+	return _to->Receive(oData);
 }
 
 mtf_i32 MTF_Source::Run()

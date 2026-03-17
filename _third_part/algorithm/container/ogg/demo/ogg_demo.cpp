@@ -72,7 +72,7 @@ void* ogg_demo_muxer_init(uint32_t rate, uint16_t channels, uint8_t width, uint3
     oggMuxerApiParam.userComment.userCommentStringLen = strlen(userComment);
     oggMuxerApiParam.page_byte_round = 4096;
 #endif
-    uint32_t id = 0;
+    void* id = 0;
     OggApiRet_t ret = OGG_API_RET_SUCCESS;
     OggApiBasePort_t bp;
     bp.malloc_cb = ogg_malloc;
@@ -110,7 +110,7 @@ bool ogg_demo_muxer_run(void* ogg, uint8_t* data, int32_t *dataByte, uint8_t* og
     *oggMuxedDataByte = 0;
     *dataByte = iSize;
     if (isEos) {
-        ogg_api_muxer_set((uint32_t)ogg, "eos", (void*)1);
+        ogg_api_muxer_set(ogg, "eos", (void*)1);
     }
     OggApiRet_t ret = OGG_API_RET_SUCCESS;
     if (iSize) {
@@ -122,8 +122,8 @@ bool ogg_demo_muxer_run(void* ogg, uint8_t* data, int32_t *dataByte, uint8_t* og
             ms += 20;
             LOG_OGG("%d,%d,%dms", _frame_sample_acc,iSizeAcc, ms);
         }
-        ogg_api_muxer_set((uint32_t)ogg, "gPos", (void*)(uint32_t)_frame_sample_acc);
-        ret = ogg_api_muxer_receive((uint32_t)ogg, iBuf, &iSize);
+        ogg_api_muxer_set(ogg, "gPos", (void*)(uint32_t)_frame_sample_acc);
+        ret = ogg_api_muxer_receive(ogg, iBuf, &iSize);
         if (ret != OGG_API_RET_SUCCESS) return false;
     }
 #if 0
@@ -139,16 +139,16 @@ bool ogg_demo_muxer_run(void* ogg, uint8_t* data, int32_t *dataByte, uint8_t* og
         memcpy(oBuf + oggPage.headLen, oggPage.bodyData, oggPage.bodyLen);
         *oggMuxedDataByte = oggPage.headLen + oggPage.bodyLen;
     }
+    ret = ogg_api_muxer_generate(ogg, oBuf, &oSize);
 #else
-    ret = ogg_api_muxer_generate((uint32_t)ogg, oBuf, &oSize);
     *oggMuxedDataByte = oSize;
 #endif
     return true;
 }
 
 bool ogg_demo_muxer_deinit(void* ogg) {
-    ogg_api_muxer_close((uint32_t)ogg);
-    ogg_api_muxer_destory((uint32_t)ogg);
+    ogg_api_muxer_close(ogg);
+    ogg_api_muxer_destory(ogg);
     return true;
 }
 
@@ -157,7 +157,6 @@ bool ogg_demo_muxer_deinit(void* ogg) {
 //for test
 #include "gadf.h"
 static void OggDemoMuxTest0() {
-    ogg_api_register_ogg_muxer();
 
     void gadf_register_info_opus_16k2ch_ogg_mux(); gadf_register_info_opus_16k2ch_ogg_mux();
     while (1) {
@@ -177,12 +176,10 @@ static void OggDemoMuxTest1() {
     GadfThreadStart("reg0", 0,[](void*) {
         t0 = true;
         while (!t1);
-        ogg_api_register_ogg_muxer();
         }, 0, 0);
     GadfThreadStart("reg1", 0, [](void*) {
         t1 = true;
         while (!t0);
-        ogg_api_register_ogg_demuxer();
         }, 0, 0);
 }
 

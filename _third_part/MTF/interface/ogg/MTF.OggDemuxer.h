@@ -21,7 +21,7 @@ private:
 	MTF_Data _oData;
 	MTF_Data _tmpData;
 private:
-	uint32_t _idDemuxer = 0;
+	void* _idDemuxer = 0;
 	mtf_void* _hd = 0;
 	mtf_i32 _hdSize = 0;
 	mtf_u32 _hsize = 0;
