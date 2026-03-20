@@ -1,7 +1,7 @@
 #pragma once
 #include "gasf.h"
 
-#define OGG_VERSION "3.0.0"
+#define OGG_VERSION "3.0.1"
 
 #define OGG_RET_SUCCESS              (0)
 #define OGG_RET_FAIL                 (-1)
@@ -18,5 +18,6 @@
 
 namespace ogg_ns {
 using OggRet_t = GASF_NAME_SPACE::GasfRet_t;
-
+using OggData_c = GASF_NAME_SPACE::GasfData_c;
+using OggBase_c = GASF_NAME_SPACE::Gasf_c;
 };

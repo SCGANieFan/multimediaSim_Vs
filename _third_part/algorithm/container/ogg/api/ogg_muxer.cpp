@@ -1,6 +1,7 @@
 #include <string.h>
 #include "ogg_muxer.h"
 
+using namespace GASF_NAME_SPACE;
 using namespace ogg_ns;
 
 OggMuxer_c::OggMuxer_c() {
@@ -159,7 +160,7 @@ OggRet_t OggMuxer_c::Set(uint32_t key, void* val) {
 	default:break;
 	}
 #endif
-	if (Base_c::Set(key, val) == GASF_RET_SUCCESS) return OGG_RET_SUCCESS;
+	if (OggBase_c::Set(key, val) == GASF_RET_SUCCESS) return OGG_RET_SUCCESS;
 	return OGG_RET_FAIL;
 }
 OggRet_t OggMuxer_c::Get(uint32_t key, void* val) {
@@ -170,15 +171,15 @@ OggRet_t OggMuxer_c::Get(uint32_t key, void* val) {
 	default:break;
 	}
 #endif
-	if (Base_c::Get(key, val) == GASF_RET_SUCCESS) return OGG_RET_SUCCESS;
+	if (OggBase_c::Get(key, val) == GASF_RET_SUCCESS) return OGG_RET_SUCCESS;
 	return OGG_RET_FAIL;
 }
 #if 0
-OggRet_t OggMuxer_c::Run(GasfData_c& iData, GasfData_c& oData) {
+OggRet_t OggMuxer_c::Run(OggData_c& iData, OggData_c& oData) {
 	return OGG_RET_FAIL;
 }
 #endif
-OggRet_t OggMuxer_c::Receive(GasfData_c& iData) {
+OggRet_t OggMuxer_c::Receive(OggData_c& iData) {
 	if (_isReceiveEnd)
 		return OGG_RET_SUCCESS;
 	_packetno++;
@@ -194,7 +195,7 @@ OggRet_t OggMuxer_c::Receive(GasfData_c& iData) {
 	iData.Used(iData.Size());
 	return OGG_RET_SUCCESS;
 }
-OggRet_t OggMuxer_c::Generate(GasfData_c& oData) {
+OggRet_t OggMuxer_c::Generate(OggData_c& oData) {
 	OggPage_t page = { 0,0,0,0 };
 	if (_isGenrateEnd)
 		return OGG_RET_SUCCESS;

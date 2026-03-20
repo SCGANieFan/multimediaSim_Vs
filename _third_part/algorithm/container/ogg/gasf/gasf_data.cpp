@@ -1,21 +1,14 @@
 #include "gasf_data.h"
 using namespace GASF_NAME_SPACE;
 
-void GasfData_c::Init(void* buf, uint32_t max) {
+void GasfData_c::Init(void* buf, uint32_t max, uint32_t size) {
     _buf = buf;
-    _size = 0;
     _max = max;
-    _offset = 0;
-    _flag = 0;
-}
-void GasfData_c::Init(void* buf, uint32_t size, uint32_t max) {
-    size = size > max ? max : size;
-    _buf = buf;
     _size = size;
-    _max = max;
     _offset = 0;
     _flag = 0;
 }
+
 void GasfData_c::Deinit() {
     _buf = 0;
     _size = 0;

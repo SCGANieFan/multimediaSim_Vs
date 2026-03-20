@@ -1,6 +1,7 @@
 #include "ogg_api.h"
 #include "ogg_demuxer.h"
 #include "ogg_muxer.h"
+using namespace GASF_NAME_SPACE;
 using namespace ogg_ns;
 
 static OggApiRet_t RetConvert(OggRet_t ret) {
@@ -110,7 +111,7 @@ EXTERNC
 		OggPage_t page_m;
 		GasfData_c oData;
 		oData.Init(&page_m, sizeof(OggApiPage_t));
-		oData.Flag((uint32_t)OggMuxer_c::DataFlag_e::DATA_FLAG_GET_DATA_PAGE);
+		oData.SetFlag((uint32_t)OggMuxer_c::DataFlag_e::DATA_FLAG_GET_DATA_PAGE);
 		OggRet_t ret = OggMuxer_c::GenerateApi(id, oData);
 		page->headData = (uint8_t*)page_m.headData;
 		page->headByte= page_m.headLen;

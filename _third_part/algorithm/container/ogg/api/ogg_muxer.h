@@ -4,7 +4,6 @@
 #include "ogg_common.h"
 
 
-using namespace GASF_NAME_SPACE;
 
 namespace ogg_ns {
 
@@ -61,9 +60,8 @@ typedef struct
 }OggMuxerApiParam_t;
 
 
-class OggMuxer_c :public Gasf_c
+class OggMuxer_c :public OggBase_c
 {
-	using Base_c = Gasf_c;
 public:
 	enum class Stage_e {
 		STAGE_NONE = 0,
@@ -71,10 +69,10 @@ public:
 		STAGE_USER_COMMENT_HEAD,
 		STAGE_DATA_HEAD,
 	};
-	enum class DataFlag_e : u32{
-		DATA_FLAG_NONE = 0,
-		DATA_FLAG_GET_DATA_PAGE = 1u << 0,
-		DATA_FLAG_MAX = 1u << 31,
+	enum class DataFlag_e : uint32_t{
+		DATA_FLAG_NONE = OggData_c::CustReserve0,
+		DATA_FLAG_GET_DATA_PAGE = OggData_c::CustReserve1,
+		DATA_FLAG_MAX = OggData_c::CustReserve2,
 	};
 public:
 	OggMuxer_c();
@@ -83,9 +81,9 @@ public:
 	virtual OggRet_t Open()override;
 	virtual OggRet_t Set(uint32_t key, void* val)override;
 	virtual OggRet_t Get(uint32_t key, void* val)override;
-	//virtual OggRet_t Run(GasfData_c& iData, GasfData_c& oData)override;
-	virtual OggRet_t Receive(GasfData_c& iData)override;
-	virtual OggRet_t Generate(GasfData_c& oData)override;
+	//virtual OggRet_t Run(OggData_c& iData, OggData_c& oData)override;
+	virtual OggRet_t Receive(OggData_c& iData)override;
+	virtual OggRet_t Generate(OggData_c& oData)override;
 	virtual OggRet_t Close()override;
 public:
 	ogg_sync_state   _oggSyncS;

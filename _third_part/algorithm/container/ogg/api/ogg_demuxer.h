@@ -3,7 +3,6 @@
 #include "ogg.h"
 #include "ogg_common.h"
 
-using namespace GASF_NAME_SPACE;
 
 namespace ogg_ns {
 	struct OggHead_t {
@@ -96,9 +95,8 @@ namespace ogg_ns {
 		uint8_t packIndex;
 	};
 
-	class OggDemuxer_c :public Gasf_c
+	class OggDemuxer_c :public OggBase_c
 	{
-		using Base_c = Gasf_c;
 		enum class Stage_e {
 			STAGE_ID_PAGE_HEAD = 0,
 			STAGE_ID_PAGE_BODY,
@@ -116,28 +114,28 @@ namespace ogg_ns {
 		virtual OggRet_t Open()override;
 		virtual OggRet_t Set(uint32_t key, void* val)override;
 		virtual OggRet_t Get(uint32_t key, void* val)override;
-		//virtual OggRet_t Run(GasfData_c& iData, GasfData_c& oData)override;
-		virtual OggRet_t Receive(GasfData_c& iData)override;
-		virtual OggRet_t Generate(GasfData_c& oData)override;
+		//virtual OggRet_t Run(OggData_c& iData, OggData_c& oData)override;
+		virtual OggRet_t Receive(OggData_c& iData)override;
+		virtual OggRet_t Generate(OggData_c& oData)override;
 		virtual OggRet_t Close()override;
 	protected:
 		bool Str2Low(uint8_t* str, uint32_t strLen);
 		bool StrLen(uint8_t* str, uint32_t* strLen, uint32_t searchLenMax = 4096);
 		bool SyncString(uint8_t* searchStr, uint32_t searchStrLen, uint8_t* syncStr, uint8_t** oStr = 0, uint32_t* oStrLen = 0);
 		bool SyncString(uint8_t* searchStr, uint32_t searchStrLen, uint8_t* syncStr, uint32_t syncStrLen, uint8_t** oStr = 0, uint32_t* oStrLen = 0);
-		OggRet_t DemuxIdPageHead(GasfData_c& oData);
-		OggRet_t DemuxIdPageBody(GasfData_c& oData);
-		OggRet_t DemuxUserCommentHead(GasfData_c& oData);
-		OggRet_t DemuxUserCommentBody(GasfData_c& oData);
-		OggRet_t DemuxDataHead(GasfData_c& oData);
-		OggRet_t DemuxDataBody(GasfData_c& oData);
-		OggRet_t DemuxEos(GasfData_c& oData);
+		OggRet_t DemuxIdPageHead(OggData_c& oData);
+		OggRet_t DemuxIdPageBody(OggData_c& oData);
+		OggRet_t DemuxUserCommentHead(OggData_c& oData);
+		OggRet_t DemuxUserCommentBody(OggData_c& oData);
+		OggRet_t DemuxDataHead(OggData_c& oData);
+		OggRet_t DemuxDataBody(OggData_c& oData);
+		OggRet_t DemuxEos(OggData_c& oData);
 	public:
 	public:
 		ogg_memory_t _memory;
 		Stage_e _stage = Stage_e::STAGE_ID_PAGE_HEAD;
 		uint8_t _headByteCom = 27;
-		GasfData_c _iCache;
+		OggData_c _iCache;
 		OggIdPage_t _idPage;
 		OggUserCommentPage_t _userPage;
 		OggDataPage_t _dataPage;

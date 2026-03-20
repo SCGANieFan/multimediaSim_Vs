@@ -1,5 +1,6 @@
 #include "ogg_demuxer.h"
 
+using namespace GASF_NAME_SPACE;
 using namespace ogg_ns;
 OggDemuxer_c::OggDemuxer_c() {
 }
@@ -45,7 +46,7 @@ OggRet_t OggDemuxer_c::Set(uint32_t key, void* val) {
 		return OGG_RET_SUCCESS;
 	default:break;
 	}
-	if (Base_c::Set(key, val) == GASF_RET_SUCCESS) return OGG_RET_SUCCESS;
+	if (OggBase_c::Set(key, val) == GASF_RET_SUCCESS) return OGG_RET_SUCCESS;
 	return OGG_RET_FAIL;
 }
 OggRet_t OggDemuxer_c::Get(uint32_t key, void* val) {
@@ -154,17 +155,17 @@ OggRet_t OggDemuxer_c::Get(uint32_t key, void* val) {
 		return OGG_RET_SUCCESS;
 	default:break;
 	}
-	if (Base_c::Get(key, val) == GASF_RET_SUCCESS) return OGG_RET_SUCCESS;
+	if (OggBase_c::Get(key, val) == GASF_RET_SUCCESS) return OGG_RET_SUCCESS;
 	return OGG_RET_FAIL;
 }
-OggRet_t OggDemuxer_c::Receive(GasfData_c& iData) {
+OggRet_t OggDemuxer_c::Receive(OggData_c& iData) {
 	_iCache.ClearUsed();
 	uint32_t appendByte = _iCache.Append(iData.Data(), iData.Size());
 	iData.Used(appendByte);
 	int32_t len = _iCache.Size();
 	return OGG_RET_SUCCESS;
 }
-OggRet_t OggDemuxer_c::Generate(GasfData_c& oData) {
+OggRet_t OggDemuxer_c::Generate(OggData_c& oData) {
 	OggRet_t ret = OGG_RET_SUCCESS;
 	switch (_stage) {
 	case Stage_e::STAGE_ID_PAGE_HEAD:
@@ -250,7 +251,7 @@ bool OggDemuxer_c::SyncString(uint8_t* searchStr, uint32_t searchStrLen, uint8_t
 	return true;
 }
 
-OggRet_t OggDemuxer_c::DemuxIdPageHead(GasfData_c& oData) {
+OggRet_t OggDemuxer_c::DemuxIdPageHead(OggData_c& oData) {
 	int32_t len = _iCache.Size();
 	if (len < _syncStrLen) return OGG_RET_MORE_DATA;
 	uint32_t syncOffset = 0;
@@ -280,7 +281,7 @@ OggRet_t OggDemuxer_c::DemuxIdPageHead(GasfData_c& oData) {
 	return OGG_RET_SUCCESS;
 }
 
-OggRet_t OggDemuxer_c::DemuxIdPageBody(GasfData_c& oData) {
+OggRet_t OggDemuxer_c::DemuxIdPageBody(OggData_c& oData) {
 	uint32_t copyByte = _iCache.Size();
 	copyByte = copyByte > _idPage.bodyLenRem ? _idPage.bodyLenRem : copyByte;
 	gasf_memcpy(_idPage.page.body + (_idPage.page.bodyLen - _idPage.bodyLenRem), _iCache.Data(), copyByte);
@@ -316,7 +317,7 @@ OggRet_t OggDemuxer_c::DemuxIdPageBody(GasfData_c& oData) {
 	return OGG_RET_SUCCESS;
 }
 
-OggRet_t OggDemuxer_c::DemuxUserCommentHead(GasfData_c& oData) {
+OggRet_t OggDemuxer_c::DemuxUserCommentHead(OggData_c& oData) {
 	int32_t len = _iCache.Size();
 	if (len < _syncStrLen) return OGG_RET_MORE_DATA;
 	uint32_t syncOffset = 0;
@@ -348,7 +349,7 @@ OggRet_t OggDemuxer_c::DemuxUserCommentHead(GasfData_c& oData) {
 	_stage = Stage_e::STAGE_USER_COMMENT_BODY;
 	return OGG_RET_SUCCESS;
 }
-OggRet_t OggDemuxer_c::DemuxUserCommentBody(GasfData_c& oData) {
+OggRet_t OggDemuxer_c::DemuxUserCommentBody(OggData_c& oData) {
 	uint32_t copyByte = _iCache.Size();
 	copyByte = copyByte > _userPage.bodyLenRem ? _userPage.bodyLenRem : copyByte;
 	gasf_memcpy(_userPage.page.body + (_userPage.page.bodyLen - _userPage.bodyLenRem), _iCache.Data(), copyByte);
@@ -421,7 +422,7 @@ OggRet_t OggDemuxer_c::DemuxUserCommentBody(GasfData_c& oData) {
 	return OGG_RET_SUCCESS;
 }
 
-OggRet_t OggDemuxer_c::DemuxDataHead(GasfData_c& oData) {
+OggRet_t OggDemuxer_c::DemuxDataHead(OggData_c& oData) {
 	int32_t len = _iCache.Size();
 	if (len < _syncStrLen) return OGG_RET_MORE_DATA;
 	uint32_t syncOffset = 0;
@@ -451,7 +452,7 @@ OggRet_t OggDemuxer_c::DemuxDataHead(GasfData_c& oData) {
 	return OGG_RET_SUCCESS;
 }
 
-OggRet_t OggDemuxer_c::DemuxDataBody(GasfData_c& oData) {
+OggRet_t OggDemuxer_c::DemuxDataBody(OggData_c& oData) {
 	if (!_dataPage.packByte) {
 		uint32_t packByte = 0;
 		uint8_t index = _dataPage.segmentIndex + 1;
@@ -477,7 +478,7 @@ OggRet_t OggDemuxer_c::DemuxDataBody(GasfData_c& oData) {
 	return OGG_RET_SUCCESS;
 }
 
-OggRet_t OggDemuxer_c::DemuxEos(GasfData_c& oData) {
+OggRet_t OggDemuxer_c::DemuxEos(OggData_c& oData) {
 	return OGG_RET_SUCCESS;
 }
 
