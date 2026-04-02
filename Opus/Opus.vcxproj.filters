@@ -276,6 +276,12 @@
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_codec_com.h">
       <Filter>lib\api</Filter>
     </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_ms_enc.h">
+      <Filter>lib\api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_ms_dec.h">
+      <Filter>lib\api</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OpusTest.cpp" />
@@ -735,6 +741,15 @@
       <Filter>lib\gasf</Filter>
     </ClCompile>
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_codec_com.cpp">
+      <Filter>lib\api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_ms_enc.cpp">
+      <Filter>lib\api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_ms_dec.cpp">
+      <Filter>lib\api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api_test.cpp">
       <Filter>lib\api</Filter>
     </ClCompile>
   </ItemGroup>

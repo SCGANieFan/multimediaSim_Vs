@@ -73,7 +73,13 @@ mtf_i32 MTF_OpusDec::Init()
 	param.basePort.realloc_cb = opus_realloc;
 	param.basePort.free_cb = opus_free;
 	param.basePort.print_cb = opus_print;
-	OpusApiRet_t ret = opus_api_create_decoder(&_dec, &param);
+	OpusApiRet_t ret;
+	if (_ch > 2) {
+		ret = opus_api_create_ms_decoder(&_dec, &param);
+	}
+	else {
+		ret = opus_api_create_decoder(&_dec, &param);
+	}
 	if (ret != OPUS_API_RET_SUCCESS) {
 		MTF_PRINT("Cannot create decoder: %d\n", ret);
 		return -1;
@@ -86,7 +92,7 @@ mtf_i32 MTF_OpusDec::Init()
 	}
 	ret = opus_api_open_decoder(_dec);
 	if (ret != OPUS_API_RET_SUCCESS) {
-		MTF_PRINT("set fail"); return 0;
+		MTF_PRINT("open fail"); return 0;
 	}
 	mtf_i32 size = _frameBytes;
 	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);

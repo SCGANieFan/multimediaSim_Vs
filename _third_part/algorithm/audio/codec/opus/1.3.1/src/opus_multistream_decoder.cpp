@@ -97,15 +97,19 @@ int opus_multistream_decoder_init(
    coupled_size = opus_decoder_get_size(2);
    mono_size = opus_decoder_get_size(1);
 
+   char *global_stack = (char*)basePort->malloc_cb(global_stack_size);
+   if (!global_stack) return OPUS_ALLOC_FAIL;
+   st->global_stack_now = global_stack;
+
    for (i=0;i<st->layout.nb_coupled_streams;i++)
    {
-      ret=opus_decoder_init(basePort, (OpusDecoder*)ptr, Fs, 2, global_stack_size);
+      ret=opus_decoder_init(basePort, (OpusDecoder*)ptr, Fs, 2, global_stack_size, global_stack);
       if(ret!=OPUS_OK)return ret;
       ptr += align(coupled_size);
    }
    for (;i<st->layout.nb_streams;i++)
    {
-      ret=opus_decoder_init(basePort, (OpusDecoder*)ptr, Fs, 1, global_stack_size);
+      ret=opus_decoder_init(basePort, (OpusDecoder*)ptr, Fs, 1, global_stack_size, global_stack);
       if(ret!=OPUS_OK)return ret;
       ptr += align(mono_size);
    }
@@ -148,7 +152,7 @@ OpusMSDecoder *opus_multistream_decoder_create(
       basePort->free_cb(st);
       st = NULL;
    }
-   st->global_stack_now = (char*)basePort->malloc_cb(120*1000);
+   // st->global_stack_now = (char*)basePort->malloc_cb(120*1000);
    if (st==NULL)
    {
       if (error)
@@ -556,6 +560,7 @@ int opus_multistream_decoder_ctl(OpusMSDecoder *st, int request, ...)
 
 void opus_multistream_decoder_destroy(OpusMSDecoder *st)
 {
+   st->basePort.free_cb(st->global_stack_now);
    st->basePort.free_cb(st);
 }
 #endif

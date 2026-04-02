@@ -5,8 +5,9 @@ using namespace MTFApi_ns;
 //#define FILE_NAME "mbz_48k2h.wav"
 //#define FILE_NAME "stSection_48k1ch.wav"
 //#define FILE_NAME "chirp_sin_48k1ch.wav"
-//#define FILE_NAME "mbz_48k1h_40s.wav"
-#define FILE_NAME "chirp_sin_48k1ch.wav"
+#define FILE_NAME "mbz_48k1h_40s.wav"
+//#define FILE_NAME "chirp_sin_48k1ch.wav"
+//#define FILE_NAME "Mass_Effect_2_48k5p1ch.wav"
 #define FRAME_MS 5
 #define BIT_RATE 179200
 #define COMPLEXITY 0
@@ -69,9 +70,11 @@ static void OpusDemoTest()
 	OpusCodecTest();
 }
 
-
+#include <stdio.h>
 void OpusTest()
 {
+	//freopen("log.txt", "w", stdout);
+	//freopen("log.txt", "a", stderr);
 	OpusMtfTest();
 	//OpusDemoTest();
 }

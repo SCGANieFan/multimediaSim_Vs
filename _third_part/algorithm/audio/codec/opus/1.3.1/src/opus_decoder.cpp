@@ -118,7 +118,7 @@ int opus_decoder_get_size(int channels)
    return align(sizeof(OpusDecoder))+silkDecSizeBytes+celtDecSizeBytes;
 }
 
-int opus_decoder_init(OpusBasePort_t *basePort, OpusDecoder *st, opus_int32 Fs, int channels, int global_stack_size)
+int opus_decoder_init(OpusBasePort_t *basePort, OpusDecoder *st, opus_int32 Fs, int channels, int global_stack_size, char *global_stack)
 {
    void *silk_dec;
    CELTDecoder *celt_dec;
@@ -131,13 +131,12 @@ int opus_decoder_init(OpusBasePort_t *basePort, OpusDecoder *st, opus_int32 Fs, 
 
    OPUS_CLEAR((char*)st, opus_decoder_get_size(channels));
    st->basePort = *basePort;
-   st->global_stack_ori = (char*)st->basePort.malloc_cb(global_stack_size);
-    if (!st->global_stack_ori) {
-        return OPUS_ALLOC_FAIL;
-    }
-    st->global_stack_now = st->global_stack_ori;
-    LOG_STACK("global_stack_ori:%p",st->global_stack_ori);
-    OPUS_STACK_INFO_INIT(st->global_stack_ori);
+   if(global_stack) st->global_stack_ori = global_stack;
+   else st->global_stack_ori = (char*)st->basePort.malloc_cb(global_stack_size);
+   if (!st->global_stack_ori) return OPUS_ALLOC_FAIL;
+   st->global_stack_now = st->global_stack_ori;
+   LOG_STACK("global_stack_ori:%p",st->global_stack_ori);
+   OPUS_STACK_INFO_INIT(st->global_stack_ori);
    /* Initialize SILK decoder */
    ret = silk_Get_Decoder_Size(&silkDecSizeBytes);
    if (ret)
@@ -193,7 +192,7 @@ OpusDecoder *opus_decoder_create(OpusBasePort_t *basePort, opus_int32 Fs, int ch
          *error = OPUS_ALLOC_FAIL;
       return NULL;
    }
-   ret = opus_decoder_init(basePort, st, Fs, channels, global_stack_size);
+   ret = opus_decoder_init(basePort, st, Fs, channels, global_stack_size, 0);
    if (error)
       *error = ret;
    if (ret != OPUS_OK)

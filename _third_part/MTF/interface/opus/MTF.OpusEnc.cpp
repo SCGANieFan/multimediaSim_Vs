@@ -37,9 +37,7 @@ MTF_OpusEnc::~MTF_OpusEnc()
 		opus_api_destory_encoder(_enc);
 		_enc = 0;
 	}
-
 }
-
 
 static void* opus_malloc(int size)
 {
@@ -86,11 +84,16 @@ mtf_i32 MTF_OpusEnc::Init()
 	uint32_t frameDMs = 10 * _frameMs;
 	MTF_PRINT("(%u,%u,%u),(%u,%u)",
 		rate, channels, width, bitrate, frameDMs);
+#if 0
 	if (channels > 2
 		|| width != 2) {
 		return false;
 	}
-
+#else
+	if (width != 2) {
+		return false;
+	}
+#endif
 	bool haveHead = false;
 	OpusApi_CreateEncParam_t param;
 	param.basePort.malloc_cb = opus_malloc;
@@ -98,7 +101,14 @@ mtf_i32 MTF_OpusEnc::Init()
 	param.basePort.free_cb = opus_free;
 	param.basePort.print_cb = opus_print;
 	//OpusApiRet_t ret = opus_api_create_encoder(&_enc, &opusApiBasePort, rate, channels, haveHead, OPUS_API_ENC_CHOOSE_NORMAL);
-	OpusApiRet_t ret = opus_api_create_encoder(&_enc, &param);
+	OpusApiRet_t ret;
+	if (channels > 2) {
+		ret = opus_api_create_ms_encoder(&_enc, &param);
+	}
+	else {
+		ret = opus_api_create_encoder(&_enc, &param);
+	}
+	
 	if (ret != OPUS_API_RET_SUCCESS) {
 		MTF_PRINT("opus create fail, %d,(%p,%d,%d,%d)", ret, _enc, rate, channels, haveHead);
 		return false;

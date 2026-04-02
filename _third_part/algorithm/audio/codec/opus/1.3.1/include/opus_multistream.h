@@ -264,7 +264,7 @@ OPUS_EXPORT OPUS_WARN_UNUSED_RESULT OpusMSEncoder *opus_multistream_encoder_crea
       int application,
       int *error,
       int global_stack_size
-) OPUS_ARG_NONNULL(5);
+) OPUS_ARG_NONNULL(6);
 
 OPUS_EXPORT OPUS_WARN_UNUSED_RESULT OpusMSEncoder *opus_multistream_surround_encoder_create(
       OpusBasePort_t *basePort,
@@ -277,7 +277,7 @@ OPUS_EXPORT OPUS_WARN_UNUSED_RESULT OpusMSEncoder *opus_multistream_surround_enc
       int application,
       int *error,
       int global_stack_size
-) OPUS_ARG_NONNULL(4) OPUS_ARG_NONNULL(5) OPUS_ARG_NONNULL(6);
+) OPUS_ARG_NONNULL(5) OPUS_ARG_NONNULL(6) OPUS_ARG_NONNULL(7);
 
 /** Initialize a previously allocated multistream encoder state.
   * The memory pointed to by \a st must be at least the size returned by
@@ -337,7 +337,7 @@ OPUS_EXPORT int opus_multistream_encoder_init(
       const unsigned char *mapping,
       int application,
       int global_stack_size
-) OPUS_ARG_NONNULL(1) OPUS_ARG_NONNULL(6);
+) OPUS_ARG_NONNULL(2) OPUS_ARG_NONNULL(7);
 
 OPUS_EXPORT int opus_multistream_surround_encoder_init(
       OpusBasePort_t *basePort,
@@ -350,7 +350,7 @@ OPUS_EXPORT int opus_multistream_surround_encoder_init(
       unsigned char *mapping,
       int application,
       int global_stack_size
-) OPUS_ARG_NONNULL(1) OPUS_ARG_NONNULL(5) OPUS_ARG_NONNULL(6) OPUS_ARG_NONNULL(7);
+) OPUS_ARG_NONNULL(2) OPUS_ARG_NONNULL(6) OPUS_ARG_NONNULL(7) OPUS_ARG_NONNULL(8);
 
 /** Encodes a multistream Opus frame.
   * @param st <tt>OpusMSEncoder*</tt>: Multistream encoder state.
@@ -518,7 +518,7 @@ OPUS_EXPORT OPUS_WARN_UNUSED_RESULT OpusMSDecoder *opus_multistream_decoder_crea
       const unsigned char *mapping,
       int *error,
       int global_stack_size
-) OPUS_ARG_NONNULL(5);
+) OPUS_ARG_NONNULL(6);
 
 /** Intialize a previously allocated decoder state object.
   * The memory pointed to by \a st must be at least the size returned by
@@ -563,7 +563,7 @@ OPUS_EXPORT int opus_multistream_decoder_init(
       int coupled_streams,
       const unsigned char *mapping,
       int global_stack_size
-) OPUS_ARG_NONNULL(1) OPUS_ARG_NONNULL(6);
+) OPUS_ARG_NONNULL(7) OPUS_ARG_NONNULL(7);
 
 /** Decode a multistream Opus packet.
   * @param st <tt>OpusMSDecoder*</tt>: Multistream decoder state.

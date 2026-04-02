@@ -184,7 +184,7 @@ int opus_encoder_get_size(int channels)
     return align(sizeof(OpusEncoder))+silkEncSizeBytes+celtEncSizeBytes;
 }
 
-int opus_encoder_init(OpusBasePort_t* basePort, OpusEncoder* st, opus_int32 Fs, int channels, int application, int global_stack_size)
+int opus_encoder_init(OpusBasePort_t* basePort, OpusEncoder* st, opus_int32 Fs, int channels, int application, int global_stack_size, char *global_stack)
 {
     void *silk_enc;
     CELTEncoder *celt_enc;
@@ -198,7 +198,8 @@ int opus_encoder_init(OpusBasePort_t* basePort, OpusEncoder* st, opus_int32 Fs, 
 
     OPUS_CLEAR((char*)st, opus_encoder_get_size(channels));
     st->basePort = *basePort;
-    st->global_stack_ori = (char*)st->basePort.malloc_cb(global_stack_size);
+    if(global_stack) st->global_stack_ori = global_stack;
+    else st->global_stack_ori = (char*)st->basePort.malloc_cb(global_stack_size);
     if (st->global_stack_ori == NULL)
     {
         return OPUS_ALLOC_FAIL;
@@ -556,7 +557,7 @@ OpusEncoder *opus_encoder_create(OpusBasePort_t* basePort, opus_int32 Fs, int ch
          *error = OPUS_ALLOC_FAIL;
       return NULL;
    }
-   ret = opus_encoder_init(basePort, st, Fs, channels, application, global_stack_size);
+   ret = opus_encoder_init(basePort, st, Fs, channels, application, global_stack_size, 0);
    if (error)
       *error = ret;
    if (ret != OPUS_OK)

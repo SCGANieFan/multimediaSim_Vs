@@ -7,9 +7,9 @@
 #define NONTHREADSAFE_PSEUDOSTACK
 #define DISABLE_FLOAT_API
 
-#if defined(__hifi4__)||defined(__hifi5s)
-#define HIFI_OPT
-#endif
+// #if defined(__hifi4__)||defined(__hifi5s)
+// #define HIFI_OPT
+// #endif
 
 #ifdef HIFI_OPT
 #include <xtensa/tie/xt_misc.h>

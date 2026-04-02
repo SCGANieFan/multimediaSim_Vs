@@ -3,7 +3,7 @@
 #include "gasf.h"
 
 using namespace GASF_NAME_SPACE;
-#define GASF_VERSION "2.0.2"
+#define GASF_VERSION "2.0.1"
 
 Gasf_c::Gasf_c() {
 }

@@ -341,7 +341,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
     for( n = 0; n < silk_min( decControl->nChannelsAPI, decControl->nChannelsInternal ); n++ ) {
 
         /* Resample decoded signal to API_sampleRate */
-                ret += silk_resampler( &channel_state[ n ].resampler_state, resample_out_ptr, &samplesOut1_tmp[ n ][ 1 ], nSamplesOutDec, g_stack );
+        ret += silk_resampler( &channel_state[ n ].resampler_state, resample_out_ptr, &samplesOut1_tmp[ n ][ 1 ], nSamplesOutDec, g_stack );
 
         /* Interleave if stereo output and stereo stream */
         if( decControl->nChannelsAPI == 2 ) {
@@ -356,7 +356,7 @@ opus_int silk_Decode(                                   /* O    Returns error co
         if ( stereo_to_mono ){
             /* Resample right channel for newly collapsed stereo just in case
                we weren't doing collapsing when switching to mono */
-                        ret += silk_resampler( &channel_state[ 1 ].resampler_state, resample_out_ptr, &samplesOut1_tmp[ 0 ][ 1 ], nSamplesOutDec, g_stack );
+            ret += silk_resampler( &channel_state[ 1 ].resampler_state, resample_out_ptr, &samplesOut1_tmp[ 0 ][ 1 ], nSamplesOutDec, g_stack );
 
             for( i = 0; i < *nSamplesOut; i++ ) {
                 samplesOut[ 1 + 2 * i ] = resample_out_ptr[ i ];

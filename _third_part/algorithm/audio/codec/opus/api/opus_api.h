@@ -49,6 +49,7 @@ typedef struct {
 
 
 //enc
+EXTERNC OpusApiRet_t opus_api_create_ms_encoder(void** pHd, OpusApi_CreateEncParam_t *param);
 EXTERNC OpusApiRet_t opus_api_create_encoder(void** pHd, OpusApi_CreateEncParam_t *param);
 EXTERNC OpusApiRet_t opus_api_open_encoder(void* hd);
 EXTERNC OpusApiRet_t opus_api_encoder_set(void* hd, const char* choose, void* val);
@@ -64,6 +65,7 @@ EXTERNC OpusApiRet_t opus_api_close_encoder(void* hd);
 EXTERNC OpusApiRet_t opus_api_destory_encoder(void* hd);
 
 //dec
+EXTERNC OpusApiRet_t opus_api_create_ms_decoder(void** pHd, OpusApi_CreateDecParam_t *param);
 EXTERNC OpusApiRet_t opus_api_create_decoder(void** pHd, OpusApi_CreateDecParam_t *param);
 EXTERNC OpusApiRet_t opus_api_open_decoder(void* hd);
 EXTERNC OpusApiRet_t opus_api_decoder_set(void* hd, const char* choose, void* val);

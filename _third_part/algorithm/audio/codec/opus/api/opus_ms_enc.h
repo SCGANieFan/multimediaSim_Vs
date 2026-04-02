@@ -4,11 +4,11 @@
 #include "opus_codec_com.h"
 #include "opus_private.h"
 
-class OpusEnc_c :public OpusCodec_c
+class OpusMSEnc_c :public OpusCodec_c
 {
 public:
-    OpusEnc_c();
-    virtual ~OpusEnc_c();
+    OpusMSEnc_c();
+    virtual ~OpusMSEnc_c();
 public:
     virtual OpusRet_t Open() override;
     virtual OpusRet_t Set(uint32_t key, void* val) override;
@@ -19,10 +19,10 @@ public:
     virtual OpusRet_t Close() override;
 private:
     OpusRet_t RunNoHead(OpusData_c& iData, OpusData_c& oData);
-    OpusRet_t RunWithHead(OpusData_c& iData, OpusData_c& oData);
+    OpusRet_t RrunWithHead(OpusData_c& iData, OpusData_c& oData);
 public:
     OpusBasePort_t _opus_bp;
-    OpusEncoder* _hd = 0;
+    OpusMSEncoder* _hd = 0;
     uint32_t _encStackTable[5][2];
     uint32_t _bitRate = 12000;
     uint32_t _frame0p1Ms = 200;

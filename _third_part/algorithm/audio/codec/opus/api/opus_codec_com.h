@@ -1,6 +1,6 @@
 #pragma once
 #include "gasf.h"
-#define OPUS_VERSION "1.2.0.0"
+#define OPUS_VERSION "1.2.1.0"
 
 #define OPUS_RET_SUCCESS        (0)
 #define OPUS_RET_FAIL           (-1)

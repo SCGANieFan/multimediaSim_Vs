@@ -471,10 +471,12 @@ static int opus_multistream_encoder_init_impl(
    ptr = (char*)st + align(sizeof(OpusMSEncoder));
    coupled_size = opus_encoder_get_size(2);
    mono_size = opus_encoder_get_size(1);
-
+   char* global_stack = (char*)basePort->malloc_cb(global_stack_size);
+   if (global_stack == NULL) return OPUS_ALLOC_FAIL;
+   st->global_stack_now = global_stack;
    for (i=0;i<st->layout.nb_coupled_streams;i++)
    {
-      ret = opus_encoder_init(basePort, (OpusEncoder*)ptr, Fs, 2, application, global_stack_size);
+      ret = opus_encoder_init(basePort, (OpusEncoder*)ptr, Fs, 2, application, global_stack_size, global_stack);
       if(ret!=OPUS_OK)return ret;
       if (i==st->lfe_stream)
          opus_encoder_ctl((OpusEncoder*)ptr, OPUS_SET_LFE(1));
@@ -482,7 +484,7 @@ static int opus_multistream_encoder_init_impl(
    }
    for (;i<st->layout.nb_streams;i++)
    {
-      ret = opus_encoder_init(basePort, (OpusEncoder*)ptr, Fs, 1, application, global_stack_size);
+      ret = opus_encoder_init(basePort, (OpusEncoder*)ptr, Fs, 1, application, global_stack_size, global_stack);
       if (i==st->lfe_stream)
          opus_encoder_ctl((OpusEncoder*)ptr, OPUS_SET_LFE(1));
       if(ret!=OPUS_OK)return ret;
@@ -625,7 +627,7 @@ OpusMSEncoder *opus_multistream_encoder_create(
    }
    if (error)
       *error = ret;
-   st->global_stack_now = (char*)basePort->malloc_cb(120*1000);
+   // st->global_stack_now = (char*)basePort->malloc_cb(120*1000);
    if (st==NULL)
    {
       if (error)
@@ -1342,6 +1344,7 @@ int opus_multistream_encoder_ctl(OpusMSEncoder *st, int request, ...)
 
 void opus_multistream_encoder_destroy(OpusMSEncoder *st)
 {
+   st->basePort.free_cb(st->global_stack_now);
     st->basePort.free_cb(st);
 }
 #endif

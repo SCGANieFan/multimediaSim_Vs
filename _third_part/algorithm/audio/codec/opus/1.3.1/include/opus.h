@@ -234,7 +234,8 @@ OPUS_EXPORT int opus_encoder_init(
     opus_int32 Fs,
     int channels,
     int application,
-    int global_stack_size
+    int global_stack_size,
+    char *global_stack
 ) OPUS_ARG_NONNULL(1);
 
 /** Encodes an Opus frame.
@@ -450,7 +451,8 @@ OPUS_EXPORT int opus_decoder_init(
     OpusDecoder *st,
     opus_int32 Fs,
     int channels,
-    int global_stack_size
+    int global_stack_size,
+    char *global_stack
 ) OPUS_ARG_NONNULL(1);
 
 /** Decode an Opus packet.
