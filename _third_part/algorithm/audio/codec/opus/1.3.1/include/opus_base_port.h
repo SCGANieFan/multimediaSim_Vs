@@ -7,8 +7,8 @@
 //extern "C" {
 //#endif
 	typedef struct {
-		void* (*malloc_cb)(int size);
-		void* (*realloc_cb)(void* rmem, int newsize);
+		void* (*malloc_cb)(uint32_t size);
+		void* (*realloc_cb)(void* rmem, uint32_t newsize);
 		void(*free_cb)(void* buf);
 	}OpusBasePort_t;
 //#ifdef __cplusplus

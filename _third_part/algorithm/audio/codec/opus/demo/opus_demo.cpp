@@ -39,13 +39,15 @@ static void opus_free(void* rmem)
     return;
 }
 
-static void opus_print(const char* fmt, ...)
+static void opus_print(const char* buf, int len)
 {
+#if 0
     static char buf[256];
     va_list ap;
     va_start(ap, fmt);
     vsprintf(buf, fmt, ap);
     va_end(ap);
+#endif
     LOG_OPUS_ORI("%s", buf);
 }
 
@@ -116,7 +118,6 @@ void* opus_demo_encoder_init(uint32_t rate, uint16_t channels, uint8_t width, ui
     if (!opus_heap) {
         opus_heap = GadfHheapRegister(heap_pool, sizeof(heap_pool));
     }
-    OpusEncoderNormalRegister();
     void* enc = 0;
 
     LOG_OPUS("(%u,%u,%u),(%u,%u,%u)", rate, channels, width, bitrate, frameDMs, haveHead);
@@ -138,7 +139,7 @@ void* opus_demo_encoder_init(uint32_t rate, uint16_t channels, uint8_t width, ui
 
     ret |= opus_api_encoder_set(enc, opusEncEnum2Choose[OPUS_ENC_SET_BIT_RATE], (void*)bitrate);
     ret |= opus_api_encoder_set(enc, opusEncEnum2Choose[OPUS_ENC_SET_FRAME_DURATION_0P1MS], (void*)frameDMs);
-    ret |= opus_api_encoder_set(enc, opusEncEnum2Choose[OPUS_ENC_SET_ENC_CHOOSE], (void*)OPUS_API_ENC_CHOOSE_NORMAL);
+    //ret |= opus_api_encoder_set(enc, opusEncEnum2Choose[OPUS_ENC_SET_ENC_CHOOSE], (void*)OPUS_API_ENC_CHOOSE_NORMAL);
     ret |= opus_api_encoder_set(enc, opusEncEnum2Choose[OPUS_ENC_SET_SAMPLE_RATE], (void*)rate);
     ret |= opus_api_encoder_set(enc, opusEncEnum2Choose[OPUS_ENC_SET_CHANNELS], (void*)(uint32_t)channels);
     ret |= opus_api_encoder_set(enc, opusEncEnum2Choose[OPUS_ENC_SET_HAS_HEAD], (void*)haveHead);
@@ -182,7 +183,6 @@ void* opus_demo_decoder_init(uint32_t rate, uint16_t channels, uint8_t width) {
     if (!opus_heap) {
         opus_heap = GadfHheapRegister(heap_pool, sizeof(heap_pool));
     }
-    OpusDecoderNormalRegister();
     LOG_OPUS("%d,%d", rate, channels);
     if (channels > 2) {
         return 0;
@@ -199,7 +199,7 @@ void* opus_demo_decoder_init(uint32_t rate, uint16_t channels, uint8_t width) {
         LOG_OPUS("create fail, %s,(%p,%d,%d)", ret2str[-ret], dec, rate, channels);
         return 0;
     }
-    ret |= opus_api_decoder_set(dec, opusDecEnum2Choose[OPUS_DEC_SET_DEC_CHOOSE], (void*)OpusApi_DecChoose_e::OPUS_API_DEC_CHOOSE_NORMAL);
+    //ret |= opus_api_decoder_set(dec, opusDecEnum2Choose[OPUS_DEC_SET_DEC_CHOOSE], (void*)OpusApi_DecChoose_e::OPUS_API_DEC_CHOOSE_NORMAL);
     ret |= opus_api_decoder_set(dec, opusDecEnum2Choose[OPUS_DEC_SET_SAMPLE_RATE], (void*)rate);
     ret |= opus_api_decoder_set(dec, opusDecEnum2Choose[OPUS_DEC_SET_CHANNELS], (void*)(uint32_t)channels);
     if (ret != OPUS_API_RET_SUCCESS) {

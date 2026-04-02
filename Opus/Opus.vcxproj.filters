@@ -25,14 +25,11 @@
     <Filter Include="lib\api">
       <UniqueIdentifier>{00b7f3cd-d166-4c35-a432-80a257bd701a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\api\enc_normal">
-      <UniqueIdentifier>{1e92c1b5-3094-46e3-81e6-866591bcf4be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\api\dec_normal">
-      <UniqueIdentifier>{9661ba5c-a432-40f6-9440-a40c6895c1af}</UniqueIdentifier>
-    </Filter>
     <Filter Include="demo">
       <UniqueIdentifier>{6be04945-c811-4e04-b5d9-df216be79776}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\gasf">
+      <UniqueIdentifier>{2ceded99-56fb-42f8-bbe5-23ee343411d4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -238,12 +235,6 @@
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\celt\vq.h">
       <Filter>lib\celt</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api_private.h">
-      <Filter>lib\api</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api.h">
-      <Filter>lib\api</Filter>
-    </ClInclude>
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_base_port_inner.h">
       <Filter>lib\include</Filter>
     </ClInclude>
@@ -253,12 +244,6 @@
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\include\opus_base_port.h">
       <Filter>lib\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\dec_normal\opus_dec_normal.h">
-      <Filter>lib\api\dec_normal</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\enc_normal\opus_enc_normal.h">
-      <Filter>lib\api\enc_normal</Filter>
-    </ClInclude>
     <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\demo\opus_demo.h">
       <Filter>demo</Filter>
     </ClInclude>
@@ -267,6 +252,30 @@
     </ClInclude>
     <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusDemuxer.h" />
     <ClInclude Include="..\_third_part\MTF\interface\opus\MTF.OpusMuxer.h" />
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_dec.h">
+      <Filter>lib\api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_enc.h">
+      <Filter>lib\api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api.h">
+      <Filter>lib\api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\gasf\gasf.h">
+      <Filter>lib\gasf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\gasf\gasf_base.h">
+      <Filter>lib\gasf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\gasf\gasf_data.h">
+      <Filter>lib\gasf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\gasf\gasf_memory.h">
+      <Filter>lib\gasf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\audio\codec\opus\api\opus_codec_com.h">
+      <Filter>lib\api</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OpusTest.cpp" />
@@ -669,23 +678,8 @@
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\celt\vq.cpp">
       <Filter>lib\celt</Filter>
     </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api_private.cpp">
-      <Filter>lib\api</Filter>
-    </ClCompile>
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\1.3.1\src\opus_base_port.cpp">
       <Filter>lib\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api_dec.cpp">
-      <Filter>lib\api</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api_enc.cpp">
-      <Filter>lib\api</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\dec_normal\opus_dec_normal.cpp">
-      <Filter>lib\api\dec_normal</Filter>
-    </ClCompile>
-    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\enc_normal\opus_enc_normal.cpp">
-      <Filter>lib\api\enc_normal</Filter>
     </ClCompile>
     <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\demo\gadf_register_info_opus_dec_48k2ch.cpp">
       <Filter>demo</Filter>
@@ -719,5 +713,29 @@
     </ClCompile>
     <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusDemuxer.cpp" />
     <ClCompile Include="..\_third_part\MTF\interface\opus\MTF.OpusMuxer.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_dec.cpp">
+      <Filter>lib\api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_enc.cpp">
+      <Filter>lib\api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_api.cpp">
+      <Filter>lib\api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\gasf\gasf.cpp">
+      <Filter>lib\gasf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\gasf\gasf_base.cpp">
+      <Filter>lib\gasf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\gasf\gasf_data.cpp">
+      <Filter>lib\gasf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\gasf\gasf_memory.cpp">
+      <Filter>lib\gasf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\audio\codec\opus\api\opus_codec_com.cpp">
+      <Filter>lib\api</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

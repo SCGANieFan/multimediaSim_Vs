@@ -23,22 +23,31 @@ static void OpusMtfTest()
 
 	void* param[] = {
 		(void*)(PATH FILE_NAME),
-		(void*)(PATH FILE_NAME ".opusx.wav"),
+		(void*)(PATH FILE_NAME ".opusx"),
 		(void*)(FRAME_MS),
 		(void*)(BIT_RATE),
 		(void*)(COMPLEXITY),
 		(void*)(VBR),
+		(void*)(PATH FILE_NAME ".opusx.wav"),
 	};
 #if 1
 	const char* str = {
 	"|wav_demuxer,url=$0,fMs=$2|-->"
 	"|opus_enc,bitrate=$3,cpmplexity=$4,vbr=$5|-->"
 	"|opus_dec|-->"
-	"|wav_muxer,url=$1|"
+	"|wav_muxer,url=$6|"
 	};
-#else
+#endif
+#if 0
 	const char* str = {
 	"|wav_demuxer,url=$0,fMs=$2|-->"
+	"|opus_enc,bitrate=$3,cpmplexity=$4,vbr=$5|-->"
+	"|pcm_muxer,url=$1|"
+	};
+#endif
+#if 0
+	const char* str = {
+	"|opus_demuxer,url=$0,fMs=$2|-->"
 	"|opus_enc,bitrate=$3,cpmplexity=$4,vbr=$5|-->"
 	"|pcm_muxer,url=$1|"
 	};

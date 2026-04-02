@@ -35,13 +35,25 @@ typedef struct {
     void* (*malloc_cb)(int size);                       //dynamic memory alloc function pointer, it can not be null
     void* (*realloc_cb)(void* rmem, int newsize);       //dynamic memory realloc function pointer, it can not be null
     void(*free_cb)(void* buf);                          //dynamic memory free function pointer, it can not be null
-    void(*print_cb)(const char* buf, int len);          //log print function pointer, if donot want print, it can be null
+    void(*print_cb)(const char* fmt, ...);              //log print function pointer, if donot want print, it can be null
 }OpusApi_BasePort_t;
 
+typedef enum {
+    OPUS_API_ENC_CHOOSE_NONE= 1,                        //default
+    OPUS_API_ENC_CHOOSE_NORMAL,                         //now, just support NORMAL
+    OPUS_API_ENC_CHOOSE_MAX,                            //length of OpusApi_EncChoose_e
+}OpusApi_EncChoose_e;
 
 typedef struct {
     OpusApi_BasePort_t basePort;
 }OpusApi_CreateEncParam_t;
+
+
+typedef enum {
+    OPUS_API_DEC_CHOOSE_NONE = 1,                       //default
+    OPUS_API_DEC_CHOOSE_NORMAL,                         //now, just support NORMAL
+    OPUS_API_DEC_CHOOSE_MAX,                            //length of OpusApi_DecChoose_e
+}OpusApi_DecChoose_e;
 
 typedef struct {
     OpusApi_BasePort_t basePort;
@@ -49,6 +61,8 @@ typedef struct {
 
 
 //enc
+EXTERNC void OpusEncoderNormalRegister();
+
 EXTERNC OpusApiRet_t opus_api_create_encoder(void** pHd, OpusApi_CreateEncParam_t *param);
 EXTERNC OpusApiRet_t opus_api_open_encoder(void* hd);
 EXTERNC OpusApiRet_t opus_api_encoder_set(void* hd, const char* choose, void* val);
@@ -64,6 +78,8 @@ EXTERNC OpusApiRet_t opus_api_close_encoder(void* hd);
 EXTERNC OpusApiRet_t opus_api_destory_encoder(void* hd);
 
 //dec
+EXTERNC void OpusDecoderNormalRegister();
+
 EXTERNC OpusApiRet_t opus_api_create_decoder(void** pHd, OpusApi_CreateDecParam_t *param);
 EXTERNC OpusApiRet_t opus_api_open_decoder(void* hd);
 EXTERNC OpusApiRet_t opus_api_decoder_set(void* hd, const char* choose, void* val);

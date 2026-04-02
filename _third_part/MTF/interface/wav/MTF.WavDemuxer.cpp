@@ -20,10 +20,9 @@ MTF_WavDemuxer ::~MTF_WavDemuxer ()
 	if (_pFile)
 		FileClosePorting(_pFile);
 	
-	if (_oData.Data())
+	if (_oData.Buff())
 	{
-		_oData.Used(_oData._size);
-		MTF_FREE(_oData.Data());
+		MTF_FREE(_oData.Buff());
 	}
 	if (_hd)
 	{

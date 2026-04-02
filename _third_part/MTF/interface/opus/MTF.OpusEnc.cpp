@@ -11,7 +11,6 @@ static const char* type_this = "opus_enc";
 void mtf_opus_enc_register()
 {
 	MTF_Objects::Registe<MTF_OpusEnc>(type_this);
-	OpusEncoderNormalRegister();
 }
 MTF_OpusEnc::MTF_OpusEnc()
 {
@@ -20,15 +19,13 @@ MTF_OpusEnc::MTF_OpusEnc()
 
 MTF_OpusEnc::~MTF_OpusEnc()
 {
-	if (_iData.Data())
+	if (_iData.Buff())
 	{
-		_iData.Used(_iData._size);
-		MTF_FREE(_iData.Data());
+		MTF_FREE(_iData.Buff());
 	}
-	if (_oData.Data())
+	if (_oData.Buff())
 	{
-		_oData.Used(_oData._size);
-		MTF_FREE(_oData.Data());
+		MTF_FREE(_oData.Buff());
 	}
 	if (_hd)
 	{
@@ -65,14 +62,16 @@ static void opus_free(void* rmem)
 	return;
 }
 
-static void opus_print(const char* fmt, ...)
+static void opus_print(const char* buf, int len)
 {
+#if 0
 	static char buf[256];
 	va_list ap;
 	va_start(ap, fmt);
 	vsprintf(buf, fmt, ap);
 	va_end(ap);
-	printf("%s\n", buf);
+#endif
+	printf("%s", buf);
 }
 
 mtf_i32 MTF_OpusEnc::Init()
@@ -106,13 +105,13 @@ mtf_i32 MTF_OpusEnc::Init()
 	}
 	ret |= opus_api_encoder_set(_enc, "fs", (void*)rate);
 	ret |= opus_api_encoder_set(_enc, "ch", (void*)(uint32_t)channels);
-	ret |= opus_api_encoder_set(_enc, "choose", (void*)OPUS_API_ENC_CHOOSE_NORMAL);
+	//ret |= opus_api_encoder_set(_enc, "choose", (void*)OPUS_API_ENC_CHOOSE_NORMAL);
 	ret |= opus_api_encoder_set(_enc, "bitrate", (void*)bitrate);
 	ret |= opus_api_encoder_set(_enc, "f0p1ms", (void*)frameDMs);
 	ret |= opus_api_encoder_set(_enc, "vbr", (void*)_vbr);
 	ret |= opus_api_encoder_set(_enc, "cpx", (void*)_complexity);
 	//range (-1000,1000,1001,1002), each means AUTO,SILK_ONLY,HYBRID,CELT_ONLY. default -1000
-	ret |= opus_api_encoder_set(_enc, "encmode", (void*)-1000);
+	//ret |= opus_api_encoder_set(_enc, "encmode", (void*)-1000);
 	//ret |= opus_api_encoder_set(_enc, "encmode", (void*)1002);
 	//range (2048,2049,2051), each means VOIP,AUDIO,RESTRICTED_LOWDELAY. default 2049
 	ret |= opus_api_encoder_set(_enc, "app", (void*)2049);
@@ -150,12 +149,23 @@ mtf_i32 MTF_OpusEnc::generate(MTF_Data*& oData)
 	}
 	mtf_u8* iBuff = (mtf_u8*)_iData.Data();
 	mtf_i32 iByte = _pcmFrameByte;
+	_oData.Clear();
 	mtf_u8* oBuff = _oData.LeftData();
 	mtf_i32 oByte = _oData.LeftSize();
 	//OpusApiRet_t opus_api_encoder_run(void* hd, unsigned char* pcm, int* pcmByte, unsigned char* encodedFrame, int* encodedFrameByte) {
+#if 0
+	static uint32_t cnt = 0;
+	cnt++;
+	if (cnt == 39) {
+		int a = 1;
+	}
+	MTF_PRINT("%d", cnt);
+#endif
 	OpusApiRet_t ret = opus_api_encoder_run(_enc, iBuff, &iByte, oBuff, &oByte);
-	if (ret != OPUS_API_RET_SUCCESS) { MTF_PRINT("opus run fail, %d", ret); return -1; }
+	if (ret != OPUS_API_RET_SUCCESS) { 
+		MTF_PRINT("opus run fail, %d", ret); return -1; }
 	_iData.Used(_pcmFrameByte);
+	_iData.Clear();
 	_oData._size += oByte;
 	if (_oData._flags & MTF_DataFlag_ESO) {
 		return -1;
