@@ -15,7 +15,7 @@ static const char* ret2str[] = {
     "alloc fail",
 };
 
-OpusRet_t OpusDec_c::Open(){
+OpusRet_t OpusDec_c::Open() noexcept {
     LOG_OPUS("v%s", OPUS_VERSION);
     int err = 0;
     int stackSize = 10 * 1024;
@@ -30,7 +30,7 @@ OpusRet_t OpusDec_c::Open(){
     }
     return OPUS_RET_SUCCESS;
 }
-OpusRet_t OpusDec_c::Set(uint32_t key, void* val){
+OpusRet_t OpusDec_c::Set(uint32_t key, void* val) noexcept {
     switch (key)
     {
     case Str2Key("fs"):
@@ -42,10 +42,10 @@ OpusRet_t OpusDec_c::Set(uint32_t key, void* val){
     }
     return OPUS_RET_SUCCESS;
 }
-OpusRet_t OpusDec_c::Get(uint32_t key, void* val){
+OpusRet_t OpusDec_c::Get(uint32_t key, void* val) noexcept {
     return OPUS_RET_SUCCESS;
 }
-OpusRet_t OpusDec_c::Run(OpusData_c& iData, OpusData_c& oData){
+OpusRet_t OpusDec_c::Run(OpusData_c& iData, OpusData_c& oData) noexcept {
     if (_isFirstRun) {
         _framePcmSample = opus_packet_get_samples_per_frame((const unsigned char*)iData.Data(), _fs);
         _framePcmByte = _framePcmSample * _ch * 2;
@@ -67,7 +67,7 @@ OpusRet_t OpusDec_c::Run(OpusData_c& iData, OpusData_c& oData){
     oData.Append(_framePcmByte);
     return OPUS_RET_SUCCESS;
 }
-OpusRet_t OpusDec_c::Close() {
+OpusRet_t OpusDec_c::Close() noexcept {
     if (_hd) {
         opus_decoder_destroy(_hd);
     }

@@ -106,7 +106,7 @@ OpusMSEnc_c::OpusMSEnc_c(){
 OpusMSEnc_c::~OpusMSEnc_c() {
 }
 
-OpusRet_t OpusMSEnc_c::Open(){
+OpusRet_t OpusMSEnc_c::Open() noexcept {
     LOG_OPUS("v%s", OPUS_VERSION);
     int err = 0;
 #if 0
@@ -164,7 +164,7 @@ OpusRet_t OpusMSEnc_c::Open(){
     _encodedFrameByte = _bitRate * _frame0p1Ms / 80000;
     return OPUS_RET_SUCCESS;
 }
-OpusRet_t OpusMSEnc_c::Set(uint32_t key, void* val){
+OpusRet_t OpusMSEnc_c::Set(uint32_t key, void* val) noexcept {
     switch (key) {
     case Str2Key("fs"): {
         _fs = (uint32_t)val;
@@ -238,16 +238,16 @@ OpusRet_t OpusMSEnc_c::Set(uint32_t key, void* val){
     }
     return OPUS_RET_SUCCESS;
 }
-OpusRet_t OpusMSEnc_c::Get(uint32_t key, void* val){
+OpusRet_t OpusMSEnc_c::Get(uint32_t key, void* val) noexcept {
     return OPUS_RET_SUCCESS;
 }
-OpusRet_t OpusMSEnc_c::Run(OpusData_c& iData, OpusData_c& oData){
+OpusRet_t OpusMSEnc_c::Run(OpusData_c& iData, OpusData_c& oData) noexcept {
     if (_isWithHead) {
         return RrunWithHead(iData, oData);
     }
     return RunNoHead(iData, oData);
 }
-OpusRet_t OpusMSEnc_c::Close() {
+OpusRet_t OpusMSEnc_c::Close() noexcept {
     if (_hd) {
         opus_multistream_encoder_destroy(_hd);
     }

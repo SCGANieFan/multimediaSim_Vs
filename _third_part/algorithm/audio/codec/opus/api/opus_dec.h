@@ -13,13 +13,13 @@ public:
         IsPlc = OpusData_c::CustReserve0,
     };
 public:
-    virtual OpusRet_t Open() override;
-    virtual OpusRet_t Set(uint32_t key, void* val) override;
-    virtual OpusRet_t Get(uint32_t key, void* val) override;
-    virtual OpusRet_t Run(OpusData_c& iData, OpusData_c& oData) override;
+    virtual OpusRet_t Open() noexcept override;
+    virtual OpusRet_t Set(uint32_t key, void* val) noexcept override;
+    virtual OpusRet_t Get(uint32_t key, void* val) noexcept override;
+    virtual OpusRet_t Run(OpusData_c& iData, OpusData_c& oData) noexcept override;
     //virtual OpusRet_t Receive(GasfData_c& iData) override;
     //virtual OpusRet_t Generate(GasfData_c& oData) override;
-    virtual OpusRet_t Close() override;
+    virtual OpusRet_t Close() noexcept override;
 #if 0
 public:
     template<uint8_t Ch>

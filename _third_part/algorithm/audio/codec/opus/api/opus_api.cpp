@@ -80,7 +80,7 @@ OpusApiRet_t opus_api_close_encoder(void* hd) {
 }
 
 OpusApiRet_t opus_api_destory_encoder(void* hd) {
-    auto ret = OpusCodec_c::DestoryeApi(hd);
+    auto ret = OpusCodec_c::DestroyApi(hd);
     return RetConvert(ret);
 }
 
@@ -142,7 +142,7 @@ OpusApiRet_t opus_api_close_decoder(void* hd) {
 }
 
 OpusApiRet_t opus_api_destory_decoder(void* hd) {
-    OpusRet_t ret = OpusCodec_c::DestoryeApi(hd);
+    OpusRet_t ret = OpusCodec_c::DestroyApi(hd);
     return RetConvert(ret);
 }
 

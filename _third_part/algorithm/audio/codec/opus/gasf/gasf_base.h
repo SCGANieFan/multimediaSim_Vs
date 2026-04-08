@@ -188,7 +188,17 @@ INLINE constexpr bool IsWidth8() { return false; }
 template<> INLINE constexpr bool IsWidth8<i8>() { return true; }
 template<> INLINE constexpr bool IsWidth8<u8>() { return true; }
 
+template<typename T>
+struct IsPointer { static const bool value = false; };
 
+template<typename T>
+struct IsPointer<T*> { static const bool value = true; };
+
+#define CHECK_TYPE_IS_DERIVED_FROM_GASF(T) \
+    do { \
+        const void* check = static_cast<Gasf_c*>((T*)nullptr); \
+        (void)check; \
+    } while(0)
 
 class GasfBase_c
 {
