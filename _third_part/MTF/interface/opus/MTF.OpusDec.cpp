@@ -35,6 +35,7 @@ MTF_OpusDec::~MTF_OpusDec()
 
 static void* opus_malloc(int size)
 {
+	//void* buf = MTF_MALLOC(size+10*1024);
 	void* buf = MTF_MALLOC(size);
 	MTF_PRINT("%d,%p", size, buf);
 	return buf;
@@ -94,7 +95,8 @@ mtf_i32 MTF_OpusDec::Init()
 	if (ret != OPUS_API_RET_SUCCESS) {
 		MTF_PRINT("open fail"); return 0;
 	}
-	mtf_i32 size = _frameBytes;
+	//mtf_i32 size = _frameBytes;
+	mtf_i32 size = 4*1024;
 	_iData.Init((mtf_u8*)MTF_MALLOC(size), size);
 	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
 	return 0;
@@ -128,6 +130,15 @@ mtf_i32 MTF_OpusDec::generate(MTF_Data*& oData)
 	mtf_i32 encodedOneFrameByte = _iData._size;
 	mtf_u8* decodecPcm = (mtf_u8*)_oData.LeftData();
 	mtf_i32 decodecPcmByte = _oData.LeftSize();
+	{
+#if 0
+		static uint32_t cnt = 0;
+		++cnt;
+		MTF_PRINT("cnt, %d", cnt);
+		if (cnt == 642)
+			int a = 1;
+#endif
+	}
 	OpusApiRet_t ret = opus_api_decoder_run(_dec, encodedOneFrame, encodedOneFrameByte, decodecPcm, &decodecPcmByte, false);
 	if (ret != OPUS_API_RET_SUCCESS) {
 		MTF_PRINT("opus run fail, %d", ret); return false;

@@ -15,10 +15,9 @@ MTF_OpusDemuxer::MTF_OpusDemuxer()
 
 MTF_OpusDemuxer::~MTF_OpusDemuxer()
 {
-	if (_oData.Data())
+	if (_oData.Buff())
 	{
-		_oData.Used(_oData._size);
-		MTF_FREE(_oData.Data());
+		MTF_FREE(_oData.Buff());
 	}
 }
 
@@ -54,9 +53,9 @@ mtf_i32 MTF_OpusDemuxer::Init()
 	if (!_ch) _ch = 1;
 	if (!_width) _width = 2;
 	if (!_frameSamples) _frameSamples = 2;
-	if(!_rate)Set("rate", (void*)16000);
-	if(!_ch)Set("ch", (void*)1);
-	if(!_width)Set("width", (void*)2);
+	Set("rate", (void*)_rate);
+	Set("ch", (void*)_ch);
+	Set("width", (void*)_width);
 	mtf_i32 size = 4096;
 	_oData.Init((mtf_u8*)MTF_MALLOC(size), size);
 	return 0;
@@ -95,6 +94,7 @@ mtf_i32 MTF_OpusDemuxer::generate(MTF_Data*& oData)
 		goto exit;
 	}
 	frameByte = (mtf_u32)tmp[0] << 24 | (mtf_u32)tmp[1] << 16 | (mtf_u32)tmp[2] << 8 | (mtf_u32)tmp[3];
+	_oData.Clear();
 	if (_oData.LeftSize() < frameByte) {
 		MTF_PRINT("err,%d,%d", _oData.LeftSize(), frameByte);
 		return -1;

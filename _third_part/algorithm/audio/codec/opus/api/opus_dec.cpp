@@ -1,4 +1,3 @@
-
 #include "opus.h"
 #include "opus_private.h"
 #include "celt.h"
@@ -51,8 +50,18 @@ OpusRet_t OpusDec_c::Run(OpusData_c& iData, OpusData_c& oData) noexcept {
         _framePcmByte = _framePcmSample * _ch * 2;
         _isFirstRun = false;
     }
+    int32_t frameCntPerPacket = opus_packet_get_nb_frames((const unsigned char*)iData.Data(), iData.Size());
+    if (frameCntPerPacket < 0) {
+        LOG_OPUS("packet parse error, %d,%s", frameCntPerPacket, ret2str[-frameCntPerPacket]);
+        return OPUS_RET_FAIL;
+    }
+    uint32_t framePcmSamplePerPacket = _framePcmSample * frameCntPerPacket;
+    uint32_t framePcmBytePerPacket = _framePcmByte * frameCntPerPacket;
     bool isPlc = iData.HasFlag(IsPlc);
-    if (oData.LeftSize() < _framePcmByte) return OPUS_RET_FAIL;
+    if (oData.LeftSize() < framePcmBytePerPacket) {
+        LOG_OPUS("oData is not enough, %d < %d", oData.LeftSize(), framePcmBytePerPacket);
+        return OPUS_RET_FAIL;
+    }
     int ret = opus_decode(_hd, (unsigned char*)iData.Data(), iData.Size(), (short*)oData.LeftData(), oData.LeftSize(), isPlc);
     if (ret < 0) {
         LOG_OPUS("opus api dec fail, (%d,%s), (%p,%p,%d,%p,%d)",
@@ -60,11 +69,12 @@ OpusRet_t OpusDec_c::Run(OpusData_c& iData, OpusData_c& oData) noexcept {
         //oData._len = 0;
         return OPUS_RET_FAIL;
     }
-    if (ret != _framePcmSample) {
-        LOG_OPUS("%d != %d", _framePcmSample, ret);
+    if (ret != framePcmSamplePerPacket) {
+        uint8_t* ptr = (uint8_t*)iData.Data();
+        LOG_OPUS("head may be error, %d != %d, (%02x, %02x)", framePcmSamplePerPacket, ret, ptr[0], ptr[1]);
         return OPUS_RET_FAIL;
     }
-    oData.Append(_framePcmByte);
+    oData.Append(framePcmBytePerPacket);
     return OPUS_RET_SUCCESS;
 }
 OpusRet_t OpusDec_c::Close() noexcept {
