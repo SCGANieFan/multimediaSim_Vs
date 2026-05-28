@@ -8,12 +8,17 @@ using namespace MTFApi_ns;
 //#define FILE_NAME "mbz_48k1h_40s.wav"
 //#define FILE_NAME "1924-mic2-48-64.opus"
 //#define FILE_NAME "mbz_48k2h.pcm.opusx"
-#define FILE_NAME "opus-fwq-24K-148Bpf.opusx"
+//#define FILE_NAME "opus-fwq-24K-148Bpf.opusx"
+//#define FILE_NAME "test_up_with_head.opusx"
+//#define FILE_NAME "test_down_with_head.opusx"
+//#define FILE_NAME "test_down_with_head.opusx"
+#define FILE_NAME "data16k2ch.wav"
+
 
 //#define FILE_NAME "chirp_sin_48k1ch.wav"
 //#define FILE_NAME "Mass_Effect_2_48k5p1ch.wav"
-#define FRAME_MS 5
-#define BIT_RATE 179200
+#define FRAME_MS 20
+#define BIT_RATE 32000
 #define COMPLEXITY 0
 #define VBR 0
 
@@ -36,7 +41,7 @@ static void OpusMtfTest()
 		(void*)(VBR),
 		(void*)(PATH FILE_NAME ".opusx.wav"),
 	};
-#if 0
+#if 1
 	const char* str = {
 	"|wav_demuxer,url=$0,fMs=$2|-->"
 	"|opus_enc,bitrate=$3,cpmplexity=$4,vbr=$5|-->"
@@ -51,7 +56,7 @@ static void OpusMtfTest()
 	"|pcm_muxer,url=$1|"
 	};
 #endif
-#if 1
+#if 0
 	const char* str = {
 	"|opus_demuxer,url=$0,fMs=$2|-->"
 	"|opus_dec|-->"

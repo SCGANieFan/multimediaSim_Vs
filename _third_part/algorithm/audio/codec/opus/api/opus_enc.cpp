@@ -139,6 +139,7 @@ OpusRet_t OpusEnc_c::Open() noexcept {
     opus_encoder_ctl(_hd, OPUS_SET_VBR(!!(int)_useVbr));
     opus_encoder_ctl(_hd, OPUS_SET_BITRATE((int)_bitRate));
     opus_encoder_ctl(_hd, OPUS_SET_COMPLEXITY((int)_complexity));
+    opus_encoder_ctl(_hd, OPUS_SET_SIGNAL((int)_signalType));
     _pcmFrameSample = _fs * _frame0p1Ms / 10000;
     _pcmFrameByte = _ch * 2 * _pcmFrameSample;
     _encodedFrameByte = _bitRate * _frame0p1Ms / 80000;
@@ -191,6 +192,11 @@ OpusRet_t OpusEnc_c::Set(uint32_t key, void* val) noexcept {
     case Str2Key("app"): {
         _application = (uint32_t)val;
         if (_hd) opus_encoder_ctl(_hd, OPUS_SET_APPLICATION(_application));
+        break;
+    }
+    case Str2Key("signalType"): {
+        _signalType = (uint32_t)val;
+        if (_hd) opus_encoder_ctl(_hd, OPUS_SET_SIGNAL(_signalType));
         break;
     }
     //case Str2Key("stackTb"): _stackTable = (uint32_t(*)[2])val; break;

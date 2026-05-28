@@ -28,6 +28,7 @@ public:
     uint32_t _frame0p1Ms = 200;
     uint32_t _fs = 0;
     uint32_t _application = OPUS_APPLICATION_AUDIO;
+    uint32_t _signalType = OPUS_AUTO;
     uint8_t _ch = 0;
     uint8_t _complexity = 0;
     uint8_t _encOutChannels = 0;

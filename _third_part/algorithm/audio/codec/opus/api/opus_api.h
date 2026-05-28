@@ -52,6 +52,20 @@ typedef struct {
 EXTERNC OpusApiRet_t opus_api_create_ms_encoder(void** pHd, OpusApi_CreateEncParam_t *param);
 EXTERNC OpusApiRet_t opus_api_create_encoder(void** pHd, OpusApi_CreateEncParam_t *param);
 EXTERNC OpusApiRet_t opus_api_open_encoder(void* hd);
+
+#if 0
+    "bitrate",              //bits per second after encoded, range (6k --> 510k), default 12k
+    "f0p1ms",               //0.1ms, if frame is 20ms, this value should be 200. range (25,50,100,200,400,600), default 200
+    "vbr",                  //if 1, use variable bitrate, default 0//recommend 0, range (0 --> 9), default 0
+    "cpx",                  //recommend 0, range (0 --> 9), default 0
+    "encmode",              //range (-1000,1000,1001,1002), each means AUTO,SILK_ONLY,HYBRID,CELT_ONLY. default -1000
+    "outch",                //force encoded as either mono or stereo, range (1, 2), default OPUS_ENC_SET_CHANNELS
+    "app",                  //range (2048,2049,2051), each means VOIP,AUDIO,AUDIO. default 2049
+    "fs",                   //input pcm sample rate, range (8k,12k,16k,24k,48k), default 0
+    "ch",                   //input pcm channels, range (1,2), default 0
+    "hasHead",              //if true, have 8 byte header, default false
+    "signalType",           //range (-1000,3001,3002), each means AUTO,voice,music. default -1000
+#endif
 EXTERNC OpusApiRet_t opus_api_encoder_set(void* hd, const char* choose, void* val);
 EXTERNC OpusApiRet_t opus_api_encoder_get(void* hd, const char* choose, void* val);
 /*
@@ -68,6 +82,10 @@ EXTERNC OpusApiRet_t opus_api_destory_encoder(void* hd);
 EXTERNC OpusApiRet_t opus_api_create_ms_decoder(void** pHd, OpusApi_CreateDecParam_t *param);
 EXTERNC OpusApiRet_t opus_api_create_decoder(void** pHd, OpusApi_CreateDecParam_t *param);
 EXTERNC OpusApiRet_t opus_api_open_decoder(void* hd);
+#if 0
+    "fs",                   //pcm sample rate after decode, range (8k,12k,16k,24k,48k), default 0
+    "ch",                   //pcm channels after decode, range (1,2), default 0
+#endif
 EXTERNC OpusApiRet_t opus_api_decoder_set(void* hd, const char* choose, void* val);
 EXTERNC OpusApiRet_t opus_api_decoder_get(void* hd, const char* choose, void* val);
 /*
