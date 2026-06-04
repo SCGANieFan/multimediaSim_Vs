@@ -33,11 +33,13 @@
     <ClCompile Include="testThread.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="testFFT.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="testDataTypeConvert.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

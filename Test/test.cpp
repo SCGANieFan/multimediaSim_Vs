@@ -10,6 +10,7 @@
 #include"ApeTest.h"
 #include"SbcTest.h"
 #include"H265Test.h"
+#include"Mp4Test.h"
 
 void test()
 {
@@ -26,7 +27,7 @@ void test()
 	//ApeTest();
 	//SbcTest();
 	//H265Test();
-	
+	Mp4Test();
 	//testThread();
 	//testFFT();
 	// testDataTypeConvert();

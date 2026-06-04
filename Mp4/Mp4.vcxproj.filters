@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Mp4Test.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\minimp4\minimp4.def.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\minimp4\minimp4.demux.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\minimp4\minimp4.mux.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Mp4Test.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\minimp4\minimp4.def.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\minimp4\minimp4.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\minimp4\smf_debug.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\minimp4\alac.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="lib">
+      <UniqueIdentifier>{112d79c9-6bee-4d26-be06-15056ce24702}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
