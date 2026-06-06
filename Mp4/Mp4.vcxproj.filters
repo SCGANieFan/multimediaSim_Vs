@@ -11,6 +11,24 @@
     <ClCompile Include="..\_third_part\algorithm\container\mp4\minimp4\minimp4.mux.cpp">
       <Filter>lib</Filter>
     </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\api\mp4_api.cpp">
+      <Filter>api</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\gasf\gasf_memory.cpp">
+      <Filter>gasf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\gasf\gasf.cpp">
+      <Filter>gasf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\gasf\gasf_base.cpp">
+      <Filter>gasf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\gasf\gasf_data.cpp">
+      <Filter>gasf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\api\mp4_demuxer.cpp">
+      <Filter>api</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mp4Test.h" />
@@ -26,10 +44,37 @@
     <ClInclude Include="..\_third_part\algorithm\container\mp4\minimp4\alac.h">
       <Filter>lib</Filter>
     </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\api\mp4_api.h">
+      <Filter>api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\gasf\gasf_memory.h">
+      <Filter>gasf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\gasf\gasf.h">
+      <Filter>gasf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\gasf\gasf_base.h">
+      <Filter>gasf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\gasf\gasf_data.h">
+      <Filter>gasf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\api\mp4_demuxer.h">
+      <Filter>api</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\api\mp4_common.h">
+      <Filter>api</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="lib">
       <UniqueIdentifier>{112d79c9-6bee-4d26-be06-15056ce24702}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="api">
+      <UniqueIdentifier>{6e21df64-c1f8-4dd3-8a62-5e45870ab8e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gasf">
+      <UniqueIdentifier>{5a8a9630-1ddb-4810-a7ec-b8b33780a333}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

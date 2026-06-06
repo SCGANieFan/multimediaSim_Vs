@@ -80,7 +80,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../_third_part/algorithm/container/mp4/minimp4/;../TestLIb;$(MTF_PATH)/interface/ogg;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32;$(GADF_PATH);$(GADF_PATH)/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../_third_part/algorithm/container/mp4/minimp4/;../_third_part/algorithm/container/mp4/api/;../_third_part/algorithm/container/mp4/gasf/;../TestLIb;$(MTF_PATH)/interface/ogg;$(MTF_PATH);$(MTF_PATH)/base;$(MTF_PATH)/porting;$(MTF_PATH)/porting/win32;$(GADF_PATH);$(GADF_PATH)/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,12 +132,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\api\mp4_api.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\api\mp4_demuxer.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\gasf\gasf.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\gasf\gasf_base.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\gasf\gasf_data.cpp" />
+    <ClCompile Include="..\_third_part\algorithm\container\mp4\gasf\gasf_memory.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\mp4\minimp4\minimp4.def.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\mp4\minimp4\minimp4.demux.cpp" />
     <ClCompile Include="..\_third_part\algorithm\container\mp4\minimp4\minimp4.mux.cpp" />
     <ClCompile Include="Mp4Test.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\api\mp4_api.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\api\mp4_common.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\api\mp4_demuxer.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\gasf\gasf.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\gasf\gasf_base.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\gasf\gasf_data.h" />
+    <ClInclude Include="..\_third_part\algorithm\container\mp4\gasf\gasf_memory.h" />
     <ClInclude Include="..\_third_part\algorithm\container\mp4\minimp4\alac.h" />
     <ClInclude Include="..\_third_part\algorithm\container\mp4\minimp4\minimp4.def.h" />
     <ClInclude Include="..\_third_part\algorithm\container\mp4\minimp4\minimp4.h" />

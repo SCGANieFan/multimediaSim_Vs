@@ -295,5 +295,5 @@ EXTERNC void Mp4Free(void* ptr);
 #if MP4D_TRACE_SUPPORTED
 #define TRACE(s,...) dbgErrPXL(s,##__VA_ARGS__)
 #else
-#define TRACE(...)
+#define TRACE(fmt, ...) //printf("%s/%d#%s()" fmt "\n", strrchr(__FILE__,'\\') + 1, __LINE__, __func__,  ##__VA_ARGS__)
 #endif

@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-
+#if 0
 #include "minimp4.h"
 
 #define LOG(fmt,...) printf("%s/%d#%s()" fmt "\n", strrchr(__FILE__,'\\') + 1, __LINE__, __func__,  ##__VA_ARGS__)
@@ -166,16 +166,7 @@ static FILE* fpRead = 0;
 static Mp4TrackInfo trackInfo_g[2];
 static FMp4Parser_t fMp4Parser_g;
 
-static int callback(int64_t offset, void* buffer, size_t size, void* token) {
-#if 0
-	auto io = (IO*)token;
-	if (io && io->Seek((int)offset, Position::front)) {
-		int rsize = io->Read(buffer, size);
-		return rsize;
-	}
-	return -1;
-	return rsize;
-#endif
+static int Mp4FileReadCallback(int64_t offset, void* buffer, size_t size, void* token) {
 	FILE* fp = (FILE*)token;
 	if (fp != fpRead) {
 		LOG("%p!=%p", fp, fpRead);
@@ -289,7 +280,7 @@ static bool readNormal(Mp4TrackInfo* info, void* data, uint32_t& size, uint32_t&
 }
 
 static void Mp4Test0() {
-	MP4D_demux_t _mp4;
+	MP4D_demux_t mp4;
 	fpRead = fopen(PATH FILE_NAME, "rb");
 	if (!fpRead) {
 		LOG("!fpRead");
@@ -298,25 +289,27 @@ static void Mp4Test0() {
 	fseek(fpRead,0,SEEK_END);
 	int64_t file_size = ftell(fpRead);
 	fseek(fpRead, 0, SEEK_SET);
-	MP4D_open(&_mp4, callback, fpRead, file_size);
-	if (!_mp4.track_count) {
-		LOG("!_mp4.track_count");
+	
+	MP4D_open(&mp4, Mp4FileReadCallback, fpRead, file_size);
+
+	if (!mp4.track_count) {
+		LOG("!mp4.track_count");
 		return;
 	}
 	FMp4Parser_t& fMp4Parser = fMp4Parser_g;
-	if (_mp4.moof_start_pos) {
-		fMp4Parser._mp4 = &_mp4;
-		fMp4Parser._moofPosition = _mp4.moof_start_pos;
+	if (mp4.moof_start_pos) {
+		fMp4Parser._mp4 = &mp4;
+		fMp4Parser._moofPosition = mp4.moof_start_pos;
 		fMp4Parser._tempBuff = 0;
 		fMp4Parser._moofIndex = 1;
-		int64_t _moofPosition = _mp4.moof_start_pos;
+		int64_t _moofPosition = mp4.moof_start_pos;
 		uint32_t _moofIndex = 1;
 	}
-	for (int i = 0; i < _mp4.track_count; ++i) {
+	for (int i = 0; i < mp4.track_count; ++i) {
 		Mp4TrackInfo* trackInfo = &trackInfo_g[i];
 		char* &codec = trackInfo->codec;
 #if 1
-		switch (_mp4.track[i].object_type_indication) {
+		switch (mp4.track[i].object_type_indication) {
 		case 0x00: codec = 0; break;//"Forbidden";
 		case 0x01: codec = 0; break;//"Systems ISO/IEC 14496-1";
 		case 0x02: codec = 0; break;//"Systems ISO/IEC 14496-1";
@@ -345,7 +338,7 @@ static void Mp4Test0() {
 			break;
 		}
 #endif
-		MP4D_track_t* track = &_mp4.track[i];
+		MP4D_track_t* track = &mp4.track[i];
 		LOG("0x%x -> %s, stream_type:0x%x", track->object_type_indication, codec? codec:" ", track->stream_type);
 		switch (track->stream_type) {
 		case 0x04: {// VisualStream
@@ -378,7 +371,7 @@ static void Mp4Test0() {
 		trackInfo->_extraData = track->dsi;
 		trackInfo->_extraSize = track->dsi_bytes;
 		trackInfo->_frameCount = track->sample_count;
-		trackInfo->_mp4 = &_mp4;
+		trackInfo->_mp4 = &mp4;
 		trackInfo->_fmp4= &fMp4Parser;
 		LOG("timescale:%d,duration:%d,extraData:%p,extraSize:%d,frameCount:%d",
 			trackInfo->_timescale,
@@ -388,7 +381,7 @@ static void Mp4Test0() {
 			trackInfo->_frameCount
 			);
 
-		if (_mp4.moof_start_pos) {
+		if (mp4.moof_start_pos) {
 			trackInfo->_cbRead = &readFragment;
 			//_frameCount = 0xffffffff;
 		}
@@ -396,17 +389,17 @@ static void Mp4Test0() {
 			trackInfo->_cbRead = &readNormal;
 		}
 	}
-	LOG("title,%p,%d",_mp4.tag.title,_mp4.tag.title_size);
-	LOG("artist,%p,%d",_mp4.tag.artist,_mp4.tag.artist_size);
-	LOG("album,%p,%d",_mp4.tag.album,_mp4.tag.album_size);
+	LOG("title,%p,%d",mp4.tag.title,mp4.tag.title_size);
+	LOG("artist,%p,%d",mp4.tag.artist,mp4.tag.artist_size);
+	LOG("album,%p,%d",mp4.tag.album,mp4.tag.album_size);
 
 
 	uint32_t frameCountMax = 0;
-	for (int i = 0; i < _mp4.track_count; ++i) {
+	for (int i = 0; i < mp4.track_count; ++i) {
 		frameCountMax = frameCountMax < trackInfo_g[i]._frameCount ? trackInfo_g[i]._frameCount : frameCountMax;
 	}
 	for (uint32_t f = 0; f < frameCountMax; f++) {
-		for (int i = 0; i < _mp4.track_count; ++i) {
+		for (int i = 0; i < mp4.track_count; ++i) {
 			Mp4TrackInfo* trackInfo = &trackInfo_g[i];
 			if (f > trackInfo->_frameCount) continue;
 			unsigned timestamp = 0;
@@ -442,9 +435,180 @@ static void Mp4Test0() {
 
 
 
+class BoxHead_c
+{
+public:
+	BoxHead_c() {}
+	~BoxHead_c() {}
+public:
+	void Prase(uint8_t *data, uint32_t dataLen) {
+		size = (((uint32_t)data[0]) << 24)
+			| (((uint32_t)data[1]) << 16)
+			| (((uint32_t)data[2]) << 8)
+			| (((uint32_t)data[3]) << 0);
+		memcpy(type, data + 4, 4);
+		type[4] = 0;
+	}
+public:
+	uint32_t size = 0;
+	uint8_t type[5];
+};
+
+
+
+
+static void Mp4Test1() {
+	fpRead = fopen(PATH FILE_NAME, "rb");
+	if (!fpRead) {
+		LOG("!fpRead");
+		return;
+	}
+	fseek(fpRead, 0, SEEK_END);
+	int64_t file_size = ftell(fpRead);
+	fseek(fpRead, 0, SEEK_SET);
+
+	BoxHead_c boxHead;
+	uint32_t cnt = 1;
+	int64_t boxSize = 0;
+	while (1) {
+		uint8_t data[8];
+		uint32_t readByte = fread(data, 1, sizeof(data), fpRead);
+		if (readByte != sizeof(data))
+			break;
+		boxHead.Prase(data, sizeof(data));
+		LOG("[%d] %s, %u", cnt, (char*)boxHead.type, boxHead.size);
+#if 0
+		if (boxHead.size >= 2 && boxHead.size < 8) {
+			LOG("invalid box size (broken file?)");
+		}
+		if (boxHead.size == 0 ||                         // standard indication of 'till eof' size
+			boxHead.size == (boxsize_t)0xFFFFFFFFU       // some files uses non-standard 'till eof' signaling
+			)
+		{
+			boxHead.size = ~(boxsize_t)0;
+		}
+#endif
+		++cnt;
+		if (boxHead.size < 8) {
+			LOG("boxHead.size < 8");
+			continue;
+		}
+		boxSize += boxHead.size;
+		fseek(fpRead, boxHead.size - 8, SEEK_CUR);
+	}
+
+	LOG("%lld,%lld", file_size, boxSize);
+	fclose(fpRead);
+}
+
+
 void Mp4Test()
 {
 	LOG();
 	Mp4Test0();
+	//Mp4Test1();
+}
+#endif
+
+#include "mp4_api.h"
+
+#define LOG(fmt,...) printf("%s/%d#%s()" fmt "\n", strrchr(__FILE__,'\\') + 1, __LINE__, __func__,  ##__VA_ARGS__)
+
+#define PATH "../../source/video/mp4/"
+#define FILE_NAME "xing1000.mp4"
+
+
+static void* Mp4Malloc(uint32_t size) {
+	static int32_t sizeTotal = 0;
+	sizeTotal += size;
+	void* ptr = malloc(size);
+	LOG("malloc, ptr:%p, size:%d, sizeTotal:%d,", ptr, size, sizeTotal);
+	return ptr;
+}
+
+static void* Mp4Realloc(void* ptr, uint32_t size) {
+	void* ptrNew = realloc(ptr, size);
+	LOG("realloc, (%p->%p,%d)", ptr, ptrNew, size);
+	return ptrNew;
+}
+
+static void Mp4Free(void* ptr) {
+#if 1
+	LOG("free, ptr:%p", ptr);
+#endif
+	return free(ptr);
+}
+static void Mp4Print(const char* buf, uint32_t len) {
+	printf("%s", buf);
+}
+
+#if 0
+static int32_t Mp4FileReadCallback(uint32_t offset, void* buffer, uint32_t size, void* priv) {
+	FILE* fp = (FILE*)priv;
+	if(!fp) return -1;
+	fseek(fp, offset, SEEK_SET);
+	int rsize = fread(buffer, 1, size, fp);
+	return rsize;
+}
+#endif
+
+static int32_t Mp4FileSeekCallback(uint32_t offset, void* priv) {
+	FILE* fp = (FILE*)priv;
+	if (!fp) return 0;
+	return fseek(fp, offset, SEEK_SET);
+}
+
+static int32_t Mp4FileReadCallback(void* buffer, uint32_t size, void* priv) {
+	FILE* fp = (FILE*)priv;
+	if (!fp) return 0;
+	return fread(buffer, 1, size, fp);
+}
+
+static void Mp4Test0() {
+	Mp4ApiBasePort_t bp;
+	memset(&bp, 0, sizeof(Mp4ApiBasePort_t));
+	bp.malloc_cb = Mp4Malloc;
+	bp.realloc_cb = Mp4Realloc;
+	bp.free_cb = Mp4Free;
+	bp.printf_cb = Mp4Print;
+	void* hd = mp4_api_demuxer_create(&bp);
+	//if (!hd) return;
+	Mp4ApiRet_t ret = MP4_API_RET_FAIL;
+	
+	FILE *fpRead = fopen(PATH FILE_NAME, "rb");
+	if (!fpRead) {
+		LOG("!fpRead");
+		return;
+	}
+	fseek(fpRead, 0, SEEK_END);
+	uint32_t file_size = (uint32_t)ftell(fpRead);
+	fseek(fpRead, 0, SEEK_SET);
+	ret |= mp4_api_demuxer_set(hd, "file_priv", (void*)(fpRead));
+	ret |= mp4_api_demuxer_set(hd, "file_size", (void*)file_size);
+	ret |= mp4_api_demuxer_set(hd, "file_read_cb", (void*)(Mp4FileReadCallback));
+	ret |= mp4_api_demuxer_set(hd, "file_seek_cb", (void*)(Mp4FileSeekCallback));
+
+	ret = mp4_api_demuxer_open(hd);
+	
+	const uint32_t bufTmpByte = 100 * 1024;
+	static uint8_t bufTmp[bufTmpByte];
+	while(1) {
+		uint8_t* pBuf = bufTmp;
+		int32_t bufByte = bufTmpByte;
+		ret = mp4_api_demuxer_generate(hd, pBuf, &bufByte);
+		if (ret == MP4_API_RET_FAIL) {
+			break;
+		}
+	}
+	
+	ret = mp4_api_demuxer_close(hd);
+	ret = mp4_api_demuxer_destory(hd);
 
 }
+
+void Mp4Test()
+{
+	LOG();
+	Mp4Test0();
+}
+
