@@ -95,12 +95,12 @@ protected:
 public:
     static constexpr uint64_t Str2U64Noloss(const char* str) noexcept {
         if (!str) return 0;
-        uint64_t u64 = 0;
+        uint64_t val = 0;
         for (uint8_t n = 0; n < 8; n++) {
             if (str[n] == '\0')break;
-            u64 = (u64 << 8) | str[n];
+            val = (val << 8) | str[n];
         }
-        return u64;
+        return val;
     }
     static constexpr uint32_t Str2U32Loss(const char* str, uint32_t N = 16) noexcept {
         if (!str) return 0;
