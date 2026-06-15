@@ -1,7 +1,8 @@
 include traverse.mk
 
 # ===================== 配置 =====================
-START_DIRS := Smf
+START_DIRS := Smf test
+$(info ==== 平台: $(PLATFORM) ====)
 
 # ===================== 关键：解析期立即遍历，收集 ALL_OBJS =====================
 # 这一步在 Make 读取文件时就完成，得到所有需要的 .o 文件列表
@@ -38,16 +39,34 @@ check: prepare
 # Make 看到这个依赖，会自动检查每个 .o 是否过期
 $(TARGET): $(ALL_OBJS)
 	@echo " [LD] $(TARGET)"
-# 	$(if $(strip $(V)),@echo "     cmd: $(CC) $(ALL_OBJS) -o $(TARGET) -Wl,--gc-sections -lm -lc")
-	@$(CC) $(ALL_OBJS) -o $(TARGET) -Wl,--gc-sections -lm -lc
+	@if [ -n "$(V)" ]; then echo "      cmd: $(CC) $(ALL_OBJS) -o $(TARGET) $(LINK_FLAGS)"; fi
+	@$(CC) $(ALL_OBJS) -o $(TARGET) $(LINK_FLAGS)
+	@echo "      size: $(shell $(SIZE) $(TARGET))"
+	@if [ "$(PLATFORM)" = "linux" ]; then \
+		cp -f $(TARGET) ./app; \
+		chmod +x ./app; \
+		echo " [OK] 可执行文件: ./app"; \
+	fi
+	@if [ "$(PLATFORM)" = "arm" ]; then \
+		$(OBJCOPY) -O binary $(TARGET) $(BIN_DIR)/app.bin; \
+		echo " [OK] 固件: $(BIN_DIR)/app.bin"; \
+	fi
 
-done: $(TARGET)
+done:
 	@echo "====================================="
 	@echo " 编译完成！"
-	@$(SIZE) $(TARGET)
+	@echo " 目标: $(TARGET)"
+	@if [ "$(PLATFORM)" = "linux" ]; then \
+		echo " 运行: ./app"; \
+		if [ -n "$(V)" ]; then echo " 调试: gdb ./app"; fi; \
+	fi
+	@if [ "$(PLATFORM)" = "arm" ]; then \
+		echo " 固件: $(BIN_DIR)/app.bin (用于烧录)"; \
+	fi
 
 clean:
 	@$(RM) $(BUILD_DIR)
+	@$(RM) ./app
 	@echo " 清理完成！"
 
 .PHONY: all prepare check done clean

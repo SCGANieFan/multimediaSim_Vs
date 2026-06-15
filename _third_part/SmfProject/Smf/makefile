@@ -18,3 +18,6 @@ COMPILE_FLAGS += \
 	-I$(SMF_INC)eles \
 	-I$(SMF_INC)hpp \
 	-I$(CUR_DIR)porting/inc
+
+COMPILE_FLAGS += \
+	-I$(SMF_INC)3th \

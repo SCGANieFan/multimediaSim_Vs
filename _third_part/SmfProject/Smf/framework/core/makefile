@@ -15,7 +15,7 @@ COMPILE_FLAGS += \
     -I$(CUR_DIR)io \
     -I$(CUR_DIR)misc \
     -I$(CUR_DIR)msg \
-    -I$(CUR_DIR)pligin \
+    -I$(CUR_DIR)plugin \
     -I$(CUR_DIR)pool \
     -I$(CUR_DIR)script \
     -I$(CUR_DIR)shm \
