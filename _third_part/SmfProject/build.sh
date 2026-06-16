@@ -1,3 +1,4 @@
+# make PLATFORM=linux V=1 
 make PLATFORM=linux -j V=1 
 # make PLATFORM=arm -j V=1 
 
