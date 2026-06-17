@@ -10,5 +10,7 @@ COMPILE_SRCS := $(OBJ_C:.c=.o) $(OBJ_S:.S=.o) $(OBJ_CPP:.cpp=.o)
 
 COMPILE_FLAGS += \
     -Wno-unused-parameter \
-	-Wno-strict-aliasing
+	-Wno-strict-aliasing \
+	-Wno-sign-compare \
+
 

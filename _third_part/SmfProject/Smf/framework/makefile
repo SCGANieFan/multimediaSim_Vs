@@ -9,4 +9,5 @@ COMPILE_SRCS := \
 #     msg/ \
 
 COMPILE_FLAGS += \
+    -I$(CUR_DIR)media \
     -I$(CUR_DIR)priv
