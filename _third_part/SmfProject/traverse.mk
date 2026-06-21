@@ -32,30 +32,56 @@ define find_makefile
 endef
 
 # ===================== 方案B核心：深度优先遍历（自动捕获COMPILE_FLAGS，不改动子makefile） =====================
-# 参数1：当前目录
-# 参数2：父目录累积的专属编译选项（用于继承）
-define traverse_dir
-    $(eval CUR_DIR := $(call clean-path,$(1)))
-    $(eval PARENT_FLG := $(2))
-    $(eval MK := $(call find_makefile,$(CUR_DIR)))
-
-    $(info === 扫描: $(CUR_DIR))
-
-    $(if $(MK),
-        $(eval SAVED_FLAGS := $(COMPILE_FLAGS))
-        $(eval include $(MK))
-        $(eval DIR_ADDED_FLAGS := $(filter-out $(SAVED_FLAGS),$(COMPILE_FLAGS)))
-        $(eval COMPILE_FLAGS := $(SAVED_FLAGS))
-        $(eval DIR_FLAGS := $(PARENT_FLG) $(DIR_ADDED_FLAGS))
-        $(foreach item,$(COMPILE_SRCS),
-            $(if $(filter %.o,$(item)),
-                $(call collect_obj,$(CUR_DIR),$(item),$(DIR_FLAGS)),
-                $(call traverse_dir,$(call clean-path,$(CUR_DIR)/$(item)),$(DIR_FLAGS))
-            )
+# traverse_inner：辅助函数 — 用位置参数封装单次遍历，避免递归污染
+#   $(1)：本层待遍历的 COMPILE_SRCS（已展开为文本列表）
+#   $(2)：本层目录路径（已展开为文本）
+#   $(3)：本层累积的编译选项（已展开为文本）
+# 关键：这三个都是位置参数（文本替换），不会被递归调用中的任何赋值修改
+define traverse_inner
+    $(foreach item,$(1),
+        $(if $(filter %.o,$(item)),
+            $(call collect_obj,$(2),$(item),$(3)),
+            $(call traverse_dir,$(call clean-path,$(2)/$(item)),$(3))
         )
-        ,
-        $(info 跳过: $(CUR_DIR) 无Makefile)
     )
+endef
+
+# traverse_dir：主函数 — 读取指定目录的 makefile，收集 .o 或递归进入子目录
+#   $(1)：当前目录（相对项目根）
+#   $(2)：父目录累积的专属编译选项（用于继承）
+define traverse_dir
+    $(eval __SAVED_CUR_DIR   := $(CUR_DIR))
+    $(eval __SAVED_SRCS     := $(COMPILE_SRCS))
+    $(eval __SAVED_DIR_FLAGS := $(DIR_FLAGS))
+    $(eval __SAVED_ADDED    := $(DIR_ADDED_FLAGS))
+    $(eval __SAVED_PARENT   := $(PARENT_FLG))
+    $(eval __SAVED_MK       := $(MK))
+
+    $(eval __DIR := $(call clean-path,$(1)))
+    $(eval __PARENT_FLG := $(2))
+    $(eval __MK := $(call find_makefile,$(__DIR)))
+
+    $(info === 扫描: $(__DIR))
+
+    $(if $(__MK),
+        $(eval __SAVED_FLAGS := $(COMPILE_FLAGS))
+        $(eval MAKEFILE_LIST := $(MAKEFILE_LIST) $(__MK))
+        $(eval include $(__MK))
+        $(eval __LOCAL_SRCS := $(COMPILE_SRCS))
+        $(eval __DIR_ADDED_FLAGS := $(filter-out $(__SAVED_FLAGS),$(COMPILE_FLAGS)))
+        $(eval COMPILE_FLAGS := $(__SAVED_FLAGS))
+        $(eval __DIR_FLAGS := $(__PARENT_FLG) $(__DIR_ADDED_FLAGS))
+        $(call traverse_inner,$(__LOCAL_SRCS),$(__DIR),$(__DIR_FLAGS))
+        ,
+        $(info 跳过: $(__DIR) 无Makefile)
+    )
+
+    $(eval CUR_DIR := $(__SAVED_CUR_DIR))
+    $(eval COMPILE_SRCS := $(__SAVED_SRCS))
+    $(eval DIR_FLAGS := $(__SAVED_DIR_FLAGS))
+    $(eval DIR_ADDED_FLAGS := $(__SAVED_ADDED))
+    $(eval PARENT_FLG := $(__SAVED_PARENT))
+    $(eval MK := $(__SAVED_MK))
 endef
 
 # ===================== 收集目标文件 + 绑定目标特定变量 =====================

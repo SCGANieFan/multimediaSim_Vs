@@ -24,5 +24,4 @@ COMPILE_FLAGS += \
     -I$(CUR_DIR)script \
     -I$(CUR_DIR)shm \
     -I$(CUR_DIR)src \
-    -I$(CUR_DIR)std \
-
+    -I$(CUR_DIR)std
