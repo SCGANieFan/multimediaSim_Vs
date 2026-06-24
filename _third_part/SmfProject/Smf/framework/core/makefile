@@ -3,10 +3,13 @@ CUR_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 COMPILE_SRCS := \
     base/ \
     container/ \
+    dbg/ \
+    io/ \
     misc/ \
     plugin/ \
     pool/ \
     script/ \
+    shm/ \
     std/ \
     meida/ \
     priv/ \
@@ -25,3 +28,8 @@ COMPILE_FLAGS += \
     -I$(CUR_DIR)shm \
     -I$(CUR_DIR)src \
     -I$(CUR_DIR)std
+
+COMPILE_FLAGS += \
+    -Wno-unused-parameter \
+	-Wno-strict-aliasing \
+	-Wno-sign-compare

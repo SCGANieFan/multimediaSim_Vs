@@ -1,0 +1,40 @@
+#include "SmfDef.h"
+#include "SmfFifoBuffer.h"
+#include "IO.h"
+#include "URL.h"
+#include "smf_debug.h"
+#include "SmfPorting.h"
+#include "smf_ics.h"
+namespace smf {
+
+	static bool cbRead(void*& priv) {
+		//returnIfErrC(true, !priv);
+		auto shm = smf_get_shm();
+		if (!shm)return true;
+		for (int i = 0; i < 16; i++) {
+			auto cpuid = i + 1;
+			auto& cpu = shm->cpus[i];
+			auto& log = cpu.log;
+			// dbgTestPXL("%u, %p, %p %d, %p, ,%d,%d/%d",cpuid, shm, &cpu, cpu.logEn,cpu.log.data,cpu.log.max, (uint32_t)cpu.log.ri, (uint32_t)cpu.log.wi);
+			if (log.data && log.max && log.ri != log.wi) {
+				SmfFifoBuffer fifo(&log);
+				if (int loss = fifo.ReadCheck(true)) {
+					dbgWarnPXL("LOST[%u]%u", cpuid, loss);
+				}
+				void* data = 0;
+				auto size = fifo.ReadPointer(data, true);
+				if (data && size) {
+					dbgOutput(0, data, size);
+				}
+			}
+		}
+		return false;
+	}
+
+	bool ShmLogServiceEnable(uint32_t delay_ms) {
+		if (delay_ms) {
+			returnIfErrC(false,!Invoke(&cbRead, 0, delay_ms));
+		}
+		return true;
+	}
+}
