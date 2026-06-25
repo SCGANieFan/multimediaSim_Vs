@@ -17,6 +17,7 @@ COMPILE_FLAGS += \
 	-I$(SMF_INC)com \
 	-I$(SMF_INC)eles \
 	-I$(SMF_INC)hpp \
+	-I$(SMF_INC)misc \
 	-I$(CUR_DIR)porting/inc
 
 COMPILE_FLAGS += \

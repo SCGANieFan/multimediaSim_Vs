@@ -32,4 +32,10 @@ COMPILE_FLAGS += \
 COMPILE_FLAGS += \
     -Wno-unused-parameter \
 	-Wno-strict-aliasing \
-	-Wno-sign-compare
+	-Wno-sign-compare \
+    -Wno-cast-function-type \
+    -Wno-nonnull \
+    -Wno-missing-field-initializers
+
+
+    
