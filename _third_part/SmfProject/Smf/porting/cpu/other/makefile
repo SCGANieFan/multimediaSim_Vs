@@ -4,10 +4,16 @@ OBJ_C := $(patsubst $(CUR_DIR)%,%,$(wildcard $(CUR_DIR)*.c))
 OBJ_S := $(patsubst $(CUR_DIR)%,%,$(wildcard $(CUR_DIR)*.s))
 
 COMPILE_SRCS := $(OBJ_C:.c=.o) $(OBJ_S:.S=.o) $(OBJ_CPP:.cpp=.o)
+COMPILE_SRCS += \
+	root/
+# 	test/
 
 # COMPILE_FLAGS += \
 #     -I./core
 
 COMPILE_FLAGS += \
-    -Wno-unused-but-set-parameter \
-	-Wno-type-limits
+    -Wno-unused-parameter \
+	-Wno-strict-aliasing \
+	-Wno-sign-compare \
+
+

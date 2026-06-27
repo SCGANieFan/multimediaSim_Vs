@@ -8,6 +8,7 @@ COMPILE_SRCS := $(OBJ_C:.c=.o) $(OBJ_S:.S=.o) $(OBJ_CPP:.cpp=.o)
 # COMPILE_FLAGS += \
 #     -I./core
 
-COMPILE_FLAGS += \
-    -Wno-unused-but-set-parameter \
-	-Wno-type-limits
+# COMPILE_FLAGS += \
+#     -Wno-unused-parameter \
+# 	-Wno-strict-aliasing \
+# 	-Wno-sign-compare
