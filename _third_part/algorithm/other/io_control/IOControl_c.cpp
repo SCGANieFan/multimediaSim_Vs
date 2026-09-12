@@ -1,14 +1,11 @@
 #include "IOControl_c.h"
 
+#define LOG(fmt,...) printf("<%s>[%s](%d)" fmt "\n", strrchr(__FILE__,'\\') + 1,__func__, __LINE__, ##__VA_ARGS__)
 
-IOControlerListInner_c::IOControlerListInner_c(IOControlerListInner_c** val, uint32_t N):List(val, N) {
+
+IOControlerListInner_c::IOControlerListInner_c(IOControlerListInner_c** list, uint32_t n) :List_c(list, n) {
 	_id = 0;
-	//_N = N;
-	//_val = val;
 	_num = 0;
-	//for (uint32_t n = 0; n < N; n++) {
-	//	_val[n] = 0;
-	//}
 }
 IOControlerListInner_c::~IOControlerListInner_c() {}
 bool IOControlerListInner_c::Add(uint32_t id) {
@@ -20,13 +17,12 @@ bool IOControlerListInner_c::Add(uint32_t id) {
 bool IOControlerListInner_c::Remove(uint32_t id) {
 	if (!id) return false;
 	if (id != _id) return false;
-	IOControlerListInner_c**&list = GetList();
 	for (uint32_t n = 0; n < _N; n++) {
-		if (!list[n]) continue;
-		if (!list[n]->_id) continue;
-		list[n]->RemoveList(_id);
-		LOG("%s !<- %s", (const char*)&_id, (const char*)&list[n]->_id);
-		list[n] = 0;
+		if (!_list[n]) continue;
+		if (!_list[n]->_id) continue;
+		_list[n]->RemoveList(_id);
+		LOG("%s !<- %s", (const char*)&_id, (const char*)&_list[n]->_id);
+		_list[n] = 0;
 		--_num;
 	}
 	LOG("%s", (const char*)&_id);
@@ -36,18 +32,17 @@ bool IOControlerListInner_c::Remove(uint32_t id) {
 bool IOControlerListInner_c::AddList(IOControlerListInner_c* val) {
 	if (!val) return false;
 	bool has = false;
-	IOControlerListInner_c**& list = GetList();
 	for (uint32_t n = 0; n < _N; n++) {
-		if (!list[n]) continue;
-		if (list[n]->_id != val->_id) continue;
+		if (!_list[n]) continue;
+		if (_list[n]->_id != val->_id) continue;
 		has = true;
 		break;
 	}
 	if (has) return false;
 	bool success = false;
 	for (uint32_t n = 0; n < _N; n++) {
-		if (list[n]) continue;
-		list[n] = val;
+		if (_list[n]) continue;
+		_list[n] = val;
 		++_num;
 		LOG("%s <- %s", (const char*)&_id, (const char*)&val->_id);
 		success = true;
@@ -59,12 +54,11 @@ bool IOControlerListInner_c::AddList(IOControlerListInner_c* val) {
 bool IOControlerListInner_c::RemoveList(uint32_t id) {
 	if (!id) return false;
 	bool successs = false;
-	IOControlerListInner_c**& list = GetList();
 	for (uint32_t n = 0; n < _N; n++) {
-		if (!list[n]) continue;
-		if (list[n]->_id != id) continue;
+		if (!_list[n]) continue;
+		if (_list[n]->_id != id) continue;
 		LOG("%s !<- %s", (const char*)&_id, (const char*)&id);
-		list[n] = 0;
+		_list[n] = 0;
 		--_num;
 		successs = true;
 		break;
@@ -77,11 +71,11 @@ bool IOControlerListInner_c::IsListEqual(IOControlerListInner_c* list) {
 	if (!list) return false;
 	if (_num != list->_num) return false;
 	for (uint32_t n = 0; n < _N; n++) {
-		if (!GetList()[n]) continue;
+		if (!_list[n]) continue;
 		bool isEqual = false;
 		for (uint32_t k = 0; k < list->_N; k++) {
-			if (!list->GetList()[k]) continue;
-			if (list->GetList()[k]->_id != GetList()[n]->_id) continue;
+			if (!list->_list[k]) continue;
+			if (list->_list[k]->_id != _list[n]->_id) continue;
 			isEqual = true;
 			break;
 		}
@@ -93,44 +87,90 @@ bool IOControlerListInner_c::IsListEqual(IOControlerListInner_c* list) {
 uint32_t IOControlerListInner_c::GetIdFromList(uint8_t idx) {
 	uint8_t idx0 = 0;
 	for (uint8_t n = 0; n < _N; n++) {
-		if (!GetList()[n]->_id) continue;
-		if (idx0 == idx) return GetList()[n]->_id;
+		if (!_list[n]->_id) continue;
+		if (idx0 == idx) return _list[n]->_id;
 		++idx0;
 	}
 	return 0;
 }
 
+IOControlerListInner_c* IOControlerListInner_c::GetListFromId(uint32_t id) {
+	for (uint32_t n = 0; n < _N; n++) {
+		if (_list[n]->_id != id) continue;
+		return _list[n];
+	}
+	return 0;
+}
+
+bool IOControlerListInner_c::Has(uint32_t id) {
+	for (uint32_t n = 0; n < _N; n++) {
+		if (_list[n]->_id != id) continue;
+		return true;
+	}
+	return false;
+}
+
+int32_t IOControlerListInner_c::IndexFromId(uint32_t id) {
+	for (uint32_t n = 0; n < _N; n++) {
+		if (_list[n]->_id != id) continue;
+		return n;
+	}
+	return -1;
+}
+
 void IOControlerListInner_c::Print() {
 	LOG("%s:", (const char*)&_id);
-	IOControlerListInner_c**& list = GetList();
 	for (uint32_t n = 0; n < _N; n++) {
-		if (!list[n]) continue;
-		LOG("[%d]%s", n, (const char*)&list[n]->_id);
+		if (!_list[n]) continue;
+		LOG("[%d]%s", n, (const char*)&_list[n]->_id);
 	}
 }
 
+bool InOutputs_c::HasId(uint32_t id) {
+	for (uint32_t n = 0; n < _N; n++) {
+		if (_list[n]._id != id) continue;
+		return true;
+	}
+	return false;
+}
 
-bool IOControler_c::Input_c::Print() {
+int32_t InOutputs_c::IndexFromId(uint32_t id) {
+	for (uint32_t n = 0; n < _N; n++) {
+		if (_list[n]._id != id) continue;
+		return n;
+	}
+	return -1;
+}
+
+IOControlerListInner_c* InOutputs_c::GetListFromId(uint32_t id) {
+	for (uint32_t n = 0; n < _N; n++) {
+		if (_list[n]._id != id) continue;
+		return &_list[n];
+	}
+	return 0;
+}
+
+bool Inputs_c::Print() {
 	uint32_t n = 0;
 	//LOG("[input][%u] %s", n, (const char*)&item._id);
 	LOG("[input]");
-	for (IOControlerInputItem_c& item : _item) {
-		if (!item._id) continue;
-		item.Print();
+	for (Input_c& input: _input) {
+		if (!input._id) continue;
+		input.Print();
 		++n;
 	}
 	return true;
 }
 
 
-bool IOControler_c::Output_c::Print() {
+bool Outputs_c::Print() {
 #if 1
 	uint32_t n = 0;
 	//LOG("[output][%u] %s", n, (const char*)&item._id);
 	LOG("[output]");
-	for (IOControlerOutputItem_c& item : _item) {
-		if (!item._id) continue;
-		item.Print();
+	for (Output_c & output : _output) {
+		if (!output._id) continue;
+		output.Print();
 		++n;
 	}
 	return true;
@@ -139,7 +179,7 @@ bool IOControler_c::Output_c::Print() {
 
 
 
-bool IOControler_c::IOSets_c::Reset() {
+bool IOSets_c::Reset() {
 	for (Item& item : _items) {
 		item._idIn = 0;
 		item._idOut = 0;
@@ -147,7 +187,7 @@ bool IOControler_c::IOSets_c::Reset() {
 	return true;
 }
 
-bool IOControler_c::IOSets_c::Add(uint32_t idIn, uint32_t idOut) {
+bool IOSets_c::Add(uint32_t idIn, uint32_t idOut) {
 	if (!idIn || !idOut) return false;
 	for (Item& item : _items) {
 		if (item._idIn == idIn) return false;
@@ -162,7 +202,7 @@ bool IOControler_c::IOSets_c::Add(uint32_t idIn, uint32_t idOut) {
 	return false;
 }
 
-bool IOControler_c::IOSets_c::Remove(uint32_t idIn, uint32_t idOut) {
+bool IOSets_c::Remove(uint32_t idIn, uint32_t idOut) {
 	if (!idIn || !idOut) return false;
 	bool ret = false;
 	for (Item& item : _items) {
@@ -184,7 +224,19 @@ bool IOControler_c::IOSets_c::Remove(uint32_t idIn, uint32_t idOut) {
 	}
 	return ret;
 }
-void IOControler_c::IOSets_c::Print() {
+
+bool IOSets_c::GetIdoutFromIdin(uint32_t idIn, uint32_t &idOut) {
+	if (!idIn) return false;
+	for (Item& item : _items) {
+		if (item._idIn != idIn) continue;
+		idOut = item._idOut;
+		return true;
+	}
+	return false;
+}
+
+
+void IOSets_c::Print() {
 	uint32_t n = 0;
 	//LOG("IOSet_c:");
 	for (Item& item : _items) {
@@ -195,249 +247,60 @@ void IOControler_c::IOSets_c::Print() {
 }
 
 #if 0
-bool IOControler_c::IOMap_c::IOItem_c::AppendInput(uint32_t id) {
-	//return AppendOne(id, _inputId);
+bool IOMap_c::IOItem_c::Reset() {
+	for (Output_c*& v : _output) v = 0;
+	_outputNum = 0;
 	return true;
 }
-bool IOControler_c::IOMap_c::IOItem_c::AppendOutput(uint32_t id) {
-#if 0
-	if (!_outputId) {
-		_outputId = id;
-		return true;
-	}
-#endif
-	return false;
-}
-bool IOControler_c::IOMap_c::IOItem_c::OutEqual(IOItem_c& item) {
-#if 0
-	if (_outputId != item._outputId) return false;
-#endif
-	return true;
-}
-bool IOControler_c::IOMap_c::IOItem_c::Equal(IOItem_c& item) {
-#if 0
-	if (_outputId != item._outputId) return false;
-	uint32_t num = 0;
-	for (uint32_t& id : _inputId) {
-		if (id) ++num;
-	}
-	uint32_t numIn = 0;
-	for (uint32_t& id : item._inputId) {
-		if (id) ++numIn;
-	}
-	if (num != numIn) return false;
-	for (uint32_t& id : _inputId) {
-		if (!id) continue;
-		bool equal = false;
-		for (uint32_t& idCmp : item._inputId) {
-			if (!idCmp) continue;
-			if (id != idCmp)continue;
-			equal = true;
-			break;
-		}
-		if (!equal) return false;
-	}
-	return true;
-#endif
-	return true;
-}
-#endif
-bool IOControler_c::IOMap_c::IOItem_c::Reset(uint8_t v) {
-	for (uint8_t& v0 : _oIndex) v0 = v;
-	_num = 0;
-	return true;
-}
-
-#if 0
-bool IOControler_c::IOMap_c::Strategy_c::AppendNewIn(uint32_t id, uint32_t oId) {
-	for (uint8_t n = 0; n < 8; n++) {
-		uint8_t j = 0;
-		for (j = 0; j < 8; j++) {
-			if (!_items[n][j]) continue;
-			break;
-		}
-		if (j == 8) {//empty
-			_items[n][0] = &item;
-			return true;
-		}
-	}
-	return false;
-	LOG("%s<-%s", (const char*)&oId, (const char*)&id);
-	return true;
-}
-bool IOControler_c::IOMap_c::Strategy_c::AppendNewOut(uint32_t id) {
-	LOG("%s", (const char*)&id);
-	return true;
-}
-bool IOControler_c::IOMap_c::Strategy_c::RemoveIn(uint32_t id, uint32_t oId) {
-	LOG("%s!<-%s", (const char*)&oId, (const char*)&id);
-	return true;
-}
-bool IOControler_c::IOMap_c::Strategy_c::RemoveOut(uint32_t id) {
-	LOG("%s", (const char*)&id);
-	return true;
-}
-
 #endif
 
-bool IOControler_c::IOMap_c::UpdateByScanIo(Input_c* input, Output_c* output, IOSets_c* sets) {
-	//what changes?
-#if 0
-	//scan Superfluous output in _ioItems
-	for (IOItem_c& ioItem : _ioItems) {
-		if (!ioItem._outputId) continue;
-		bool isEqual = false;
-		for (Output_c::Item_c& oItem : output->_item) {
-			if (!oItem._id) continue;
-			if (ioItem._outputId != oItem._id) continue;
-			isEqual = true;
-			break;
-		}
-		if (!isEqual) {
-#if 0
-			for (uint32_t& id : ioItem._inputId) {
-				if (!id) continue;
-				_strategy.RemoveIn(id, ioItem._outputId);
-				id = 0;
-			}
-#endif
-			_strategy.RemoveOut(ioItem._outputId);
-			ioItem._outputId = 0;
-		}
-	}
-
-	//scan new output in output->_item
-	for (Output_c::Item_c& oItem : output->_item) {
-		if (!oItem._id) continue;
-		bool isNewOutAppend = true;
-		for (IOItem_c& ioItem : _ioItems) {
-			if (!ioItem._outputId) continue;
-			if (ioItem._outputId != oItem._id) continue;
-			isNewOutAppend = false;
-			break;
-		}
-		if (isNewOutAppend) {
-			bool isNewAppendSuccess = false;
-			for (IOItem_c& ioItem : _ioItems) {
-				if (ioItem._outputId) continue;
-				ioItem._outputId = oItem._id;
-				isNewAppendSuccess = true;
-				_strategy.AppendNewOut(ioItem._outputId);
-				uint8_t idx = 0;
-				for (Input_c::Item_c& iItem : input->_item) {
-					if (!iItem._id) continue;
-					//if (iItem._oId && iItem._oId != ioItem._outputId) continue;
-					//ioItem._inputId[idx] = iItem._id;
-					_strategy.AppendNewIn(iItem._id, ioItem._outputId);
-					++idx;
-				}
-				break;
-			}
-		}
-		else {
-			for (IOItem_c& ioItem : _ioItems) {
-				if (!ioItem._outputId) continue;
-				if (ioItem._outputId != oItem._id) continue;
-				//remove inpute
-#if 0
-				for (uint32_t& id : ioItem._inputId) {
-					if (!id) continue;
-					bool isEqual = false;
-					for (Input_c::Item_c& iItem : input->_item) {
-						if (id != iItem._id)continue;
-						//if (iItem._oId && iItem._oId != ioItem._outputId)continue;
-						isEqual = true;
-						break;
-					}
-					if (!isEqual) {
-						_strategy.RemoveIn(id, ioItem._outputId);
-						id = 0;
-					}
-				}
-#endif
-				//append inpute
-				for (Input_c::Item_c& iItem : input->_item) {
-					if (!iItem._id) continue;
-					//if (iItem._oId && (iItem._oId != ioItem._outputId)) continue;
-					bool isEqual = false;
-#if 0
-					for (uint32_t& id : ioItem._inputId) {
-						if (id != iItem._id) continue;
-						isEqual = true;
-						break;
-					}
-#endif
-					if (!isEqual) {
-						_strategy.AppendNewIn(iItem._id, ioItem._outputId);
-						bool isAppendNewInSuccess = false;
-#if 0
-						for (uint32_t& id : ioItem._inputId) {
-							if (id) continue;
-							id = iItem._id;
-							isAppendNewInSuccess = true;
-							break;
-						}
-#endif
-						if (!isAppendNewInSuccess)
-							LOG("!isAppendNewInSuccess");
-					}
-				}
-				break;
-			}
-		}
-	}
-#endif
-	Print();
-	return true;
-}
-void IOControler_c::IOMap_c::Print() {
+void IOMap_c::Print() {
 	LOG("[iomap]");
 	uint8_t n = 0;
 	for (IOItem_c& item : _ioItems) {
-		if (!item._num) continue;
-		LOG("[%d], %d", n, item._num);
-		for (uint8_t& index : item._oIndex) {
-			if (index == INVALID_INDEX) continue;
-			LOG("%s", (const char *)&_output->_item[index]._id);
+		if (!item._outputNum) continue;
+		LOG("[%d], %d", n, item._outputNum);
+		for (Output_c*& output : item._output) {
+			if (!output) continue;
+			LOG("%s", (const char*)&output->_id);
 		}
 		++n;
 	}
 }
 
-bool IOControler_c::IOMap_c::OutputHasChanged(uint32_t oid) {
-	uint8_t idxChanged = INVALID_INDEX;
+bool IOMap_c::OutputHasChanged(uint32_t oid) {
+	Output_c* outputChanged = 0;
 	for (IOItem_c& item : _ioItems) {
-		if (!item._num) continue;
-		for (uint8_t& index : item._oIndex) {
-			if (index == INVALID_INDEX) continue;
-			if (_output->_item[index]._id != oid) continue;
-			idxChanged = index;
-			index = INVALID_INDEX;
-			--item._num;
+		if (!item._outputNum) continue;
+		for (Output_c*& output : item._output) {
+			if (!output) continue;
+			if (output->_id != oid) continue;
+			outputChanged = output;
+			output = 0;
+			--item._outputNum;
 			break;
-			//LOG("%s", (const char*)&);
 		}
-		if (idxChanged != INVALID_INDEX) break;
+		if (outputChanged != 0) break;
 	}
-	if (idxChanged == INVALID_INDEX) {
-		LOG("idxChanged == INVALID_INDEX");
+	if (!outputChanged) {
+		LOG("!outputChanged");
 		return false;
 	}
-	IOControlerOutputItem_c& oitmChanged = _output->_item[idxChanged];
+	
 	for (IOItem_c& item : _ioItems) {
-		if (!item._num) continue;
+		if (!item._outputNum) continue;
 		bool isEqual = false;
-		for (uint8_t& index : item._oIndex) {
-			if (index == INVALID_INDEX) continue;
-			isEqual = oitmChanged.IsListEqual(&_output->_item[index]);
+		for (Output_c*& output : item._output) {
+			if (!output) continue;
+			isEqual = outputChanged->IsListEqual(output);
 			break;
 		}
 		if (isEqual) {
 			bool success = false;
-			for (uint8_t& index : item._oIndex) {
-				if (index != INVALID_INDEX) continue;
-				index = idxChanged;
-				++item._num;
+			for (Output_c*& output : item._output) {
+				if (output) continue;
+				output = outputChanged;
+				++item._outputNum;
 				success = true;
 				break;
 			}
@@ -448,12 +311,12 @@ bool IOControler_c::IOMap_c::OutputHasChanged(uint32_t oid) {
 		}
 	}
 	for (IOItem_c& item : _ioItems) {
-		if (item._num) continue;
+		if (item._outputNum) continue;
 		bool success = false;
-		for (uint8_t& index : item._oIndex) {
-			if (index != INVALID_INDEX) continue;
-			index = idxChanged;
-			++item._num;
+		for (Output_c*& output: item._output) {
+			if (output) continue;
+			output = outputChanged;
+			++item._outputNum;
 			success = true;
 			break;
 		}
@@ -464,43 +327,58 @@ bool IOControler_c::IOMap_c::OutputHasChanged(uint32_t oid) {
 	}
 	return true;
 }
-bool IOControler_c::IOMap_c::OutputHasRemoved(uint32_t oid) {
+bool IOMap_c::OutputHasRemoved(uint32_t oid) {
 	for (IOItem_c& item : _ioItems) {
-		if (!item._num) continue;
-		for (uint8_t& index : item._oIndex) {
-			if (index == INVALID_INDEX) continue;
-			if (!_output->_item[index]._id) {
-				index = INVALID_INDEX;
-				--item._num;
+		if (!item._outputNum) continue;
+		for (Output_c*& output: item._output) {
+			if (!output) continue;
+			//if (output->_id == oid) {
+			if (!output->_id) {
+				output = 0;
+				--item._outputNum;
+				return true;
 			}
-			//LOG("%s", (const char*)&);
 		}
 	}
-	return true;
+	return false;
 }
-bool IOControler_c::IOMap_c::OutputHasAdded(uint32_t oid) {
-	uint8_t idx = 0;
-	bool has = false;
-	for (IOControlerOutputItem_c& item : _output->_item) {
-		if (item._id != oid) {
-			++idx;
-			continue;
-		}
-		has = true;
-		break;
-	}
-	if (!has) {
-		LOG("!has");
+bool IOMap_c::OutputHasAdded(uint32_t oid) {
+	Output_c* outputFromOutputs = _outputs->GetOutputFromId(oid);
+	if (!outputFromOutputs) {
+		LOG("!output");
 		return false;
 	}
-	IOControlerOutputItem_c& oitmChanged = _output->_item[idx];
 	for (IOItem_c& item : _ioItems) {
-		if (item._num) continue;
+		if (!item._outputNum) continue;
+		bool equal = false;
+		for (Output_c*& output : item._output) {
+			if (!output) continue;
+			equal = outputFromOutputs->IsListEqual(output);
+			break;
+		}
+		if (equal) {
+			bool success = false;
+			for (Output_c*& output : item._output) {
+				if (output) continue;
+				output = outputFromOutputs;
+				++item._outputNum;
+				success = true;
+				break;
+			}
+			if (success) {
+				return true;
+			}
+			LOG("!success");
+			break;
+		}
+	}
+	for (IOItem_c& item : _ioItems) {
+		if (item._outputNum) continue;
 		bool success = false;
-		for (uint8_t& index : item._oIndex) {
-			if (index != INVALID_INDEX) continue;
-			index = idx;
-			++item._num;
+		for (Output_c*& output : item._output) {
+			if (output) continue;
+			output = outputFromOutputs;
+			++item._outputNum;
 			success = true;
 			break;
 		}
@@ -509,46 +387,59 @@ bool IOControler_c::IOMap_c::OutputHasAdded(uint32_t oid) {
 		}
 		return true;
 	}
-	return true;
+	return false;
+}
+
+void IOMap_c::update() {
+	Msg_c msg;
+	while (PopCmd(msg)) {
+		LOG("%s,%d", (const char*)&msg.id, msg.cmd);
+		switch (msg.cmd)
+		{
+		case IOMapCmd_c::IOMapCmdOutputHasChanged:
+			OutputHasChanged(msg.id);
+			break;
+		case IOMapCmd_c::IOMapCmdOutputHasRemoved:
+			OutputHasRemoved(msg.id);
+			break;
+		case IOMapCmd_c::IOMapCmdOutputHasAdded:
+			OutputHasAdded(msg.id);
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 bool IOControler_c::AddInputDynamic(uint32_t id){
 	if (!id) return false;
-	bool equal = false;
-	for (IOControlerInputItem_c& iItem: _input._item) {
-		if (iItem._id != id) continue;
-		equal = true;
-		break;
-	}
-	if (equal) return true;
+	if (_inputs.HasId(id)) return true;
 	uint32_t idOutFromIOSet = 0;
-	for (IOSets_c::Item& setItem : _ioSets._items) {
-		if (id != setItem._idIn) continue;
-		idOutFromIOSet = setItem._idOut;
-		break;
+	if (!_ioSets.GetIdoutFromIdin(id, idOutFromIOSet)) {
+		idOutFromIOSet = 0;
 	}
 	if (!idOutFromIOSet) {
-		for(IOControlerInputItem_c& iItem : _input._item) {
-			if (iItem._id) continue;
-			iItem.Add(id);
-			for (IOControlerOutputItem_c& oItem : _output._item) {
-				if (!oItem._id) continue;
-				iItem.AddList(&oItem);
-				oItem.AddList(&iItem);
+		for(Input_c& input: _inputs._input) {
+			if (input._id) continue;
+			input.Add(id);
+			for (Output_c& output: _outputs._output) {
+				if (!output._id) continue;
+				input.AddList(&output);
+				output.AddList(&input);
 			}
 			break;
 		}
 	}
 	else {
-		for (IOControlerInputItem_c& iItem : _input._item) {
-			if (iItem._id) continue;
-			iItem.Add(id);
-			for (IOControlerOutputItem_c& oItem : _output._item) {
+		for (Input_c& input: _inputs._input) {
+			if (input._id) continue;
+			input.Add(id);
+			for (Output_c& output : _outputs._output) {
 				//if (!oItem._id) continue;
-				if (oItem._id != idOutFromIOSet) continue;
-				iItem.AddList(&oItem);
-				oItem.AddList(&iItem);
-				_ioMap.OutputHasChanged(oItem._id);
+				if (output._id != idOutFromIOSet) continue;
+				input.AddList(&output);
+				output.AddList(&input);
+				_ioMap.OutputHasChangedClient(output._id);
 				break;
 			}
 			break;
@@ -558,12 +449,13 @@ bool IOControler_c::AddInputDynamic(uint32_t id){
 }
 bool IOControler_c::RemoveInputDynamic(uint32_t id){
 	if (!id) return false;
-	for (IOControlerInputItem_c& iItem : _input._item) {
-		if (iItem._id != id) continue;
+	if (!_inputs.HasId(id)) return false;
+	for (Input_c& input: _inputs._input) {
+		if (input._id != id) continue;
 		bool notifyIOMap = false;
 		uint32_t removeOid = 0;
-		if (iItem._num == 1) {
-			removeOid = iItem.GetIdFromList(0);
+		if (input._num == 1) {
+			removeOid = input.GetIdFromList(0);
 #if 0
 			for (IOControlerListInner_c*& list : iItem._list) {
 				if (!list->_id) continue;
@@ -573,9 +465,9 @@ bool IOControler_c::RemoveInputDynamic(uint32_t id){
 #endif
 			notifyIOMap = true;
 		}
-		iItem.Remove(iItem._id);
+		input.Remove(input._id);
 		if (notifyIOMap) {
-			_ioMap.OutputHasChanged(removeOid);
+			_ioMap.OutputHasChangedClient(removeOid);
 		}
 		break;
 	}
@@ -583,131 +475,89 @@ bool IOControler_c::RemoveInputDynamic(uint32_t id){
 }
 bool IOControler_c::AddOutputDynamic(uint32_t id){
 	if (!id) return false;
-	bool has = false;
-	for (IOControlerOutputItem_c& oItem : _output._item) {
-		if (oItem._id != id)continue;
-		has = true;
-		break;
-	}
-	if (has) return false;
-
+	if (_outputs.HasId(id)) return false;
+	
 	bool success = false;
-	for (IOControlerOutputItem_c& oItem : _output._item) {
-		if (oItem._id)continue;
-		oItem.Add(id);
-		for (IOControlerInputItem_c& iItem : _input._item) {
-			if (!iItem._id) continue;
+	for (Output_c& output : _outputs._output) {
+		if (output._id)continue;
+		output.Add(id);
+		for (Input_c& input : _inputs._input) {
+			if (!input._id) continue;
 			uint32_t idOut = 0;
-			for (IOSets_c::Item& setItem: _ioSets._items) {
-				if (iItem._id != setItem._idIn) continue;
-				idOut = setItem._idOut;
-				break;
+			if (!_ioSets.GetIdoutFromIdin(input._id, idOut)) {
+				idOut = 0;
 			}
-			if (!idOut|| idOut == id) {
-				oItem.AddList(&iItem);
-				iItem.AddList(&oItem);
+			if (!idOut || idOut == id) {
+				output.AddList(&input);
+				input.AddList(&output);
 			}
 		}
 		success = true;
 		break;
 	}
 	if (!success) return false;
-	_ioMap.OutputHasAdded(id);
+	_ioMap.OutputHasAddedClient(id);
 	return true;
 }
 bool IOControler_c::RemoveOutputDynamic(uint32_t id){
 	if (!id) return false;
+	if (!_outputs.HasId(id)) return false;
 	bool success = false;
-	for (IOControlerOutputItem_c& oItem : _output._item) {
-		if (!oItem._id) continue;
-		if (oItem._id != id) continue;
+	for (Output_c& output: _outputs._output) {
+		if (output._id != id) continue;
 		//oItem.RemoveList(id);
-#if 1
-		oItem.Remove(id);
-		_ioMap.OutputHasRemoved(id);
-#else
-		for (uint32_t n = 0; n < oItem._N; n++) {
-			if (!oItem._val[n]) continue;
-			if (!oItem._val[n]->_id) continue;
-			oItem._val[n]->RemoveList(oItem._id);
-			LOG("%s !<- %s", (const char*)&oItem._id, (const char*)&oItem._val[n]->_id);
-			oItem._val[n] = 0;
-			--oItem._num;
-		}
-		_ioMap.OutputHasChanged(id);
-		LOG("%s", (const char*)&oItem._id);
-		oItem._id = 0;
-#endif
+		output.Remove(id);
+		_ioMap.OutputHasRemovedClient(id);
 		success = true;
 		break;
 	}
 	if (!success) return false;
 	return true;
 }
+
 bool IOControler_c::AddIOSetsDynamic(uint32_t idIn, uint32_t idOut){
-	bool has = false;
-	for (IOSets_c::Item& setItem : _ioSets._items) {
-		if (setItem._idIn != idIn) continue;
-		//if (setItem._idOut != idOut) continue;
-		has = true;
-		break;
-	}
+	uint32_t idOutFromSets = 0;
+	bool has = _ioSets.GetIdoutFromIdin(idIn, idOutFromSets);
 	if (has)return false;
 	_ioSets.Add(idIn, idOut);
-
-	IOControlerInputItem_c* input = 0;
-	for (IOControlerInputItem_c& iItem : _input._item) {
-		if (iItem._id != idIn) continue;
-		input = &iItem;
-		break;
-	}
-	if (!input) return true;
-
+	Input_c* inputSets = _inputs.GetInputFromId(idIn);
+	if (!inputSets) return true;
 	if (!idOut) {
-		for (IOControlerOutputItem_c& oItem : _output._item) {
-			if (!oItem._id) continue;
-			oItem.AddList(input);
-			input->AddList(&oItem);
+		for (Output_c& output: _outputs._output) {
+			if (!output._id) continue;
+			output.AddList(inputSets);
+			inputSets->AddList(&output);
 		}
 	}
 	else {
-		for (IOControlerOutputItem_c& oItem : _output._item) {
-			if (!oItem._id) continue;
-			if (oItem._id != idOut){
-				oItem.RemoveList(input->_id);
-				input->RemoveList(oItem._id);
-				_ioMap.OutputHasChanged(oItem._id);
+		for (Output_c& output: _outputs._output) {
+			if (!output._id) continue;
+			if (output._id != idOut){
+				output.RemoveList(inputSets->_id);
+				inputSets->RemoveList(output._id);
+				_ioMap.OutputHasChangedClient(output._id);
 			}
 			else {
-				oItem.AddList(input);
-				input->AddList(&oItem);
-				_ioMap.OutputHasChanged(oItem._id);
+				output.AddList(inputSets);
+				inputSets->AddList(&output);
+				_ioMap.OutputHasChangedClient(output._id);
 			}
 		}
 	}
 	return true;
 }
 bool IOControler_c::RemoveIOSetsDynamic(uint32_t idIn, uint32_t idOut) {
-	bool has = false;
-	for (IOSets_c::Item& setItem : _ioSets._items) {
-		if (setItem._idIn != idIn) continue;
-		has = true;
-		break;
-	}
+	uint32_t idOutFromSets = 0;
+	bool has = _ioSets.GetIdoutFromIdin(idIn, idOutFromSets);
 	if (!has) return false;
 
-	IOControlerInputItem_c* input = 0;
-	for (IOControlerInputItem_c& iItem : _input._item) {
-		if (iItem._id != idIn) continue;
-		input = &iItem;
-		break;
-	}
-	if (!input) return true;
-	for (IOControlerOutputItem_c& oItem : _output._item) {
-		if (!oItem._id) continue;
-		oItem.AddList(input);
-		input->AddList(&oItem);
-		_ioMap.OutputHasChanged(oItem._id);
+	Input_c* inputFromSet = _inputs.GetInputFromId(idIn);
+	if (!inputFromSet) return true;
+	for (Output_c& output: _outputs._output) {
+		if (!output._id) continue;
+		output.AddList(inputFromSet);
+		inputFromSet->AddList(&output);
+		_ioMap.OutputHasChangedClient(output._id);
 	}
 	_ioSets.Remove(idIn, idOut);
 	return true;
@@ -715,7 +565,8 @@ bool IOControler_c::RemoveIOSetsDynamic(uint32_t idIn, uint32_t idOut) {
 bool IOControler_c::GetIomapDynamic(IOMap_c*& map, uint32_t& num) {
 	_ioSets.Print();
 	//_input.Print();
-	_output.Print();
+	_outputs.Print();
+	_ioMap.update();
 	_ioMap.Print();
 	return true;
 }
