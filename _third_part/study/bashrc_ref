@@ -1,0 +1,95 @@
+# ==================
+# develop config
+# ==================
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+HOME_TOOLS_PATH=/home/tools
+
+# -----
+# gn
+# -----
+GN_ABSOLUTE_PATH=/share/develop_tools/toolchain/gn
+
+# -----
+# arm gcc
+# -----
+ARM_GNU_GCC_PATH=~/.bin/arm-none-eabi-gcc-13.3.1/bin/
+ARM_GNU_GCC_PATH=~/.bin/arm-none-eabi-gcc-10.3.1/bin/
+
+# -----
+# doxygen
+# -----
+DOXYGEN_TOOLS_PATH=~/.bin/doxygen-1.9.8/bin
+
+# -----
+# ninja
+# -----
+NINJA_PATH=~/.bin/ninja
+
+# -----
+# hifi4
+# -----
+XTENSA_TOOLS_PATH=/home/tools/hifi/RJ-2024.3-linux/XtensaTools/bin/
+XTENSAD_LICENSE_FILE=/license/
+
+# -----
+# zsp
+# -----
+# ZVIEW_LIBRARY_PATH=~/.bin/cmdtools_20241201_fpic_gcc9/lib/
+# ZVIEW_TOOLCHAIN_PATH=~/.bin/cmdtools_20241201_fpic_gcc9/bin/
+ZVIEW_LIBRARY_PATH=~/.bin/zsp/lib/
+ZVIEW_TOOLCHAIN_PATH=~/.bin/zsp/bin/
+# ZVIEW_TOOLCHAIN_PATH=/home/tools/ZView5.24.2/cmdtools/bin
+VERISILICON_LICENSE_PATH=28014@172.16.40.132
+
+# ------
+# clangd
+# ------
+CLANGD_PATH=~/.bin/clangd_22.1.0/bin/
+
+PATH=$PATH:$ARM_GNU_GCC_PATH
+PATH=$PATH:$DOXYGEN_TOOLS_PATH
+PATH=$PATH:$GN_ABSOLUTE_PATH
+PATH=$PATH:$HOME_TOOLS_PATH
+PATH=$PATH:$NINJA_PATH
+PATH=$PATH:$ZVIEW_TOOLCHAIN_PATH
+PATH=$PATH:$XTENSA_TOOLS_PATH
+PATH=$PATH:$CLANGD_PATH
+
+export PATH
+export LD_LIBRARY_PATH=$ZVIEW_LIBRARY_PATH
+export REPO_URL=ssh://172.16.40.40:29418/git/git-repo
+export VERISILICON_LICENSE_PATH=28014@172.16.40.132
+export XTENSAD_LICENSE_FILE
+# ==================
+# better prefix
+# ==================
+parse_git_branch() {
+    CURRENT_BRANCH=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* //')
+    if [[ $CURRENT_BRANCH == "" ]]; then
+        CURRENT_BRANCH="\e[5m\e[31mno repository\e[0m"
+    else
+        CURRENT_BRANCH="\e[36m$CURRENT_BRANCH\e[0m"
+    fi
+    echo -e $CURRENT_BRANCH
+}
+
+ARROW="→"
+ARROW="( ͡• ͜ʖ ͡• )👉 @====> "
+# save each section prompt section in variable
+PROMPT_GIT_BRANCH="\[$PROMPT_FG_YELLOW\]\`parse_git_branch\`\[$PROMPT_RESET\]"
+PS1="
+ \e[35m[\d@\T]\e[0m \e[33m[\h@\u]\e[0m \e[36m[branch:\e[0m$PROMPT_GIT_BRANCH\e[36m]\e[0m \e[32m[\w] ↴\e[0m
+ $ARROW"
+ 
+# ===================
+# history input
+# ===================
+if [[ $- == *i* ]]
+then
+    bind '"\e[A": history-search-backward'
+    bind '"\e[B": history-search-forward'
+fi
+
+HISTSIZE=3000000
+HISTFILESIZE=3000000
+HISTCONTROL="erasedups:ignorespace"
