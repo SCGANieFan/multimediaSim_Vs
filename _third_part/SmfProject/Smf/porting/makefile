@@ -1,13 +1,17 @@
 CUR_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 COMPILE_SRCS := \
-    cpu/ \
-#     media/
-#     container/ \
-#     dbg/ \
-#     io/ \
-#     misc/ \
-#     msg/ \
+    algo/other/ \
+    cmd/other/ \
+    cpu/other/ \
+    dev/other/ \
+    display/other/ \
+    fs/other/ \
+    hal/other/ \
+    ipc/other/ \
+    os/other/ \
+    osapi/other/ \
+    platform/other/ 
 
 COMPILE_FLAGS += \
     -I$(CUR_DIR)inc \

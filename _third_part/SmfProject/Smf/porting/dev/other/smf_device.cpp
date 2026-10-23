@@ -31,3 +31,4 @@ namespace smf {
 
 	void smf_device_clean(uint8_t cpuid) {
 	}
+}

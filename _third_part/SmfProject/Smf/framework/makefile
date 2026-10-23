@@ -2,6 +2,7 @@ CUR_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 COMPILE_SRCS := \
     api/ \
+    apps/ \
     core/ \
     media/
 #     container/ \

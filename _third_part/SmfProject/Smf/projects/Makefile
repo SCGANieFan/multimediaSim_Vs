@@ -1,0 +1,11 @@
+include $(smf_project_mk)
+
+SMF_SCRIPT_ADDR ?= 0x30F90000
+SMF_SCRIPT_SIZE ?= 20480
+ccflags-y += -DSMF_SCRIPT_ADDR=$(SMF_SCRIPT_ADDR)
+ccflags-y += -DSMF_SCRIPT_SIZE=$(SMF_SCRIPT_SIZE)
+
+SMF_SCRIPT_BTH_ADDR ?= 0x282FB000
+ccflags-y += -DSMF_SCRIPT_BTH_ADDR=$(SMF_SCRIPT_BTH_ADDR)
+
+obj-y += json/

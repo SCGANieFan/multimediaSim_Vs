@@ -1,0 +1,2 @@
+export SMF_PROJECT_ID := 0
+export SMF_PROJECT_VERSION := 0
